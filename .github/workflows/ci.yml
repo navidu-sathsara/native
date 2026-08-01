@@ -249,6 +249,10 @@ jobs:
         with:
           repository: navidu-sathsara/native-releases
           token: ${{ secrets.RELEASE_TOKEN }}
+          # The release lives in a different repo than the tag, so the action's
+          # default target_commitish (this repo's SHA) is not a valid ref there
+          # and the API rejects it. Anchor releases to the feed repo's branch.
+          target_commitish: main
           prerelease: ${{ contains(github.ref_name, '-beta.') || contains(github.ref_name, '-nightly.') }}
           make_latest: ${{ !contains(github.ref_name, '-') }}
           files: |
