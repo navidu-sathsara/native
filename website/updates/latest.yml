@@ -1,11 +1,11 @@
-version: 3.7.1
+version: 3.8.0
 files:
-  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.7.1/Native-Setup-3.7.1-x64.exe
-    sha512: r5Q5EjHKBWEV7HP23yjVM9cRRr6S15MzVvfa+/4eVkVSBZn9W3OGOFUD17uU4aALGggBI1nqIc03dfqBNdhYUg==
-    size: 103833136
-  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.7.1/Native-Setup-3.7.1-arm64.exe
-    sha512: +hc1G52uG0IgfBhHugt5lpDDSJb3E1Br8nOkCrP1kZ5g1awHZ4C+sDzfmegkEsosPFk1pPMrkRHcRSlzPuTdxQ==
-    size: 99494617
-path: Native-Setup-3.7.1-x64.exe
-sha512: r5Q5EjHKBWEV7HP23yjVM9cRRr6S15MzVvfa+/4eVkVSBZn9W3OGOFUD17uU4aALGggBI1nqIc03dfqBNdhYUg==
-releaseDate: '2026-07-23T06:01:23.326Z'
+  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.8.0/Native-Setup-3.8.0-x64.exe
+    sha512: 3SLeRb63rHKXveYRa3V6f5BAEv9P29ETNRnRwu3s7aFSIiVH55M7lyGjag30pv56AKzlHR/L/VKCd45Etoi8aQ==
+    size: 102794734
+  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.8.0/Native-Setup-3.8.0-arm64.exe
+    sha512: mTZbOadU4DO2jAaGdyN7NIHmWq3Zsyiz3xQlOk99oJ3r78uD0iaG+hViTymKgLRZGcrBukjXr6d0d2nsmJb6lA==
+    size: 98456099
+path: Native-Setup-3.8.0-x64.exe
+sha512: 3SLeRb63rHKXveYRa3V6f5BAEv9P29ETNRnRwu3s7aFSIiVH55M7lyGjag30pv56AKzlHR/L/VKCd45Etoi8aQ==
+releaseDate: '2026-08-01T03:45:59.414Z'
