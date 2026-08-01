@@ -35,9 +35,9 @@ function crumbsFor(route: Route, instName: (id: string) => string): string[] {
 /** The Native mark — the real app icon next to the wordmark. */
 function Wordmark(): React.JSX.Element {
   return (
-    <span className="flex items-center gap-2.5">
-      <img src={iconUrl} width={24} height={24} className="rounded-md2" alt="" draggable={false} />
-      <span className="text-[16px] font-extrabold tracking-tight text-content-primary">
+    <span className="flex items-center gap-2">
+      <img src={iconUrl} width={22} height={22} className="rounded-md" alt="" draggable={false} />
+      <span className="text-[15px] font-black tracking-tight text-content-primary">
         Native
       </span>
     </span>

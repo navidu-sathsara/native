@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { LayoutGrid, List, Play, Plus, Search, Square } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { InstanceConfig, LoaderKind } from '@shared/types'
@@ -29,47 +29,52 @@ function InstanceCard({ inst }: { inst: InstanceConfig }): React.JSX.Element {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.8 }}
-      whileHover={{ y: -3 }}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-card bg-surface-raised transition-colors duration-fast hover:bg-surface-hover"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 38 }}
+      whileHover={{ y: -2 }}
+      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border border-line-subtle bg-surface-raised transition-all duration-fast hover:border-line-strong hover:bg-surface-hover"
       onClick={() => go({ name: 'instance', id: inst.id, tab: 'content' })}
       data-testid="instance-card"
     >
-      <div className="relative flex items-center justify-center bg-gradient-to-b from-surface-inset to-surface-raised pb-6 pt-8">
-        <InstanceIcon icon={inst.icon} name={inst.name} size={80} />
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 backdrop-blur-[1px] transition-opacity duration-fast group-hover:opacity-100"
+      <div className="relative flex items-center justify-center bg-surface-inset py-8">
+        <InstanceIcon icon={inst.icon} name={inst.name} size={76} />
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 backdrop-blur-[2px] transition-opacity duration-fast group-hover:opacity-100"
           onClick={(e) => {
             e.stopPropagation()
             running ? void window.native.instances.kill(inst.id) : launch()
           }}
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-contrast shadow-lg">
-            {running ? <Square size={24} /> : busy ? <Spinner size={24} /> : <Play size={24} className="ml-0.5" />}
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-accent-contrast shadow-xl ring-2 ring-accent/30">
+            {running ? <Square size={20} /> : busy ? <Spinner size={20} /> : <Play size={20} className="ml-0.5" />}
           </div>
-        </motion.div>
+        </div>
         {running && (
-          <span className="absolute right-3 top-3 h-3 w-3 rounded-full bg-accent shadow" title="Running" />
+          <span className="absolute right-2.5 top-2.5 flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
+          </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col p-3.5">
-        <div className="truncate text-body font-bold text-content-primary">{inst.name}</div>
-        <div className="mt-1 flex items-center gap-1.5">
+
+      <div className="flex flex-1 flex-col gap-1.5 p-3">
+        <div className="truncate text-[13px] font-bold leading-snug text-content-primary">{inst.name}</div>
+        <div className="flex flex-wrap gap-1">
           <Chip>
-            <LoaderMark loader={inst.loader} size={13} />
+            <LoaderMark loader={inst.loader} size={12} />
             {LOADER_LABELS[inst.loader]}
           </Chip>
           <Chip>{inst.mcVersion}</Chip>
         </div>
-        <div className="mt-2 text-tiny text-content-muted">
+        <div className="mt-0.5 truncate text-[11px] leading-tight text-content-muted">
           {inst.totalPlayMs > 0 ? `${formatPlaytime(inst.totalPlayMs)} played` : 'Never played'}
           {inst.lastPlayedAt ? ` · ${timeAgo(inst.lastPlayedAt)}` : ''}
         </div>
       </div>
+
       <div
-        className="absolute right-2 top-2 opacity-0 transition-opacity duration-fast group-hover:opacity-100"
+        className="absolute right-1.5 top-1.5 opacity-0 transition-opacity duration-fast group-hover:opacity-100"
         onClick={(e) => e.stopPropagation()}
       >
         <InstanceKebab inst={inst} />
@@ -89,21 +94,25 @@ function InstanceRow({ inst }: { inst: InstanceConfig }): React.JSX.Element {
     window.native.instances.launch(inst.id).catch((err) => toastError(err, `Couldn't launch ${inst.name}`))
   }
   return (
-    <div
-      className="group flex cursor-pointer items-center gap-3 rounded-md2 bg-surface-raised px-3 py-2.5 transition-colors duration-fast hover:bg-surface-hover"
+    <motion.div
+      layout
+      initial={{ opacity: 0, x: -6 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 38 }}
+      className="group flex cursor-pointer items-center gap-3 rounded-xl border border-line-subtle bg-surface-raised px-4 py-3 transition-all duration-fast hover:border-line-strong hover:bg-surface-hover"
       onClick={() => go({ name: 'instance', id: inst.id, tab: 'content' })}
     >
-      <InstanceIcon icon={inst.icon} name={inst.name} size={40} />
+      <InstanceIcon icon={inst.icon} name={inst.name} size={42} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-body font-semibold text-content-primary">{inst.name}</div>
-        <div className="text-small text-content-secondary">
-          <span className="inline-flex items-center gap-1.5">
-            <LoaderMark loader={inst.loader} size={13} />
-            {LOADER_LABELS[inst.loader]} {inst.mcVersion}
-          </span>
+        <div className="truncate text-[13px] font-bold text-content-primary">{inst.name}</div>
+        <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-content-secondary">
+          <LoaderMark loader={inst.loader} size={12} />
+          <span>{LOADER_LABELS[inst.loader]}</span>
+          <span className="text-content-muted">·</span>
+          <span>{inst.mcVersion}</span>
         </div>
       </div>
-      <div className="text-small text-content-muted">
+      <div className="text-[11px] text-content-muted">
         {inst.totalPlayMs > 0 ? formatPlaytime(inst.totalPlayMs) : '—'}
       </div>
       <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
@@ -115,7 +124,7 @@ function InstanceRow({ inst }: { inst: InstanceConfig }): React.JSX.Element {
         />
         <InstanceKebab inst={inst} />
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -142,20 +151,27 @@ export function LibraryScreen(): React.JSX.Element {
   }, [instances, query, loader, sort])
 
   return (
-    <div className="flex h-full flex-col p-6" data-testid="screen-library">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-display text-content-primary">Library</h1>
+    <div className="flex h-full flex-col" data-testid="screen-library">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4 border-b border-line-subtle px-6 py-5">
+        <div>
+          <h1 className="text-[22px] font-extrabold tracking-tight text-content-primary">Library</h1>
+          <p className="mt-0.5 text-[12px] text-content-muted">
+            {instances.length === 0 ? 'No instances yet' : `${instances.length} instance${instances.length === 1 ? '' : 's'}`}
+          </p>
+        </div>
         <Button icon={Plus} onClick={() => setCreateOpen(true)} data-testid="library-create">
           New instance
         </Button>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-2.5 border-b border-line-subtle px-6 py-3">
         <SearchInput
-          placeholder="Search instances"
+          placeholder="Search instances…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-64"
+          className="w-56"
           data-testid="library-search"
         />
         <Select
@@ -163,7 +179,7 @@ export function LibraryScreen(): React.JSX.Element {
           value={loader}
           onChange={setLoader}
           options={[
-            { value: 'all', label: 'All' },
+            { value: 'all', label: 'All loaders' },
             { value: 'vanilla', label: 'Vanilla' },
             { value: 'fabric', label: 'Fabric' },
             { value: 'quilt', label: 'Quilt' },
@@ -181,25 +197,32 @@ export function LibraryScreen(): React.JSX.Element {
             { value: 'played', label: 'Most played' }
           ]}
         />
-        <div className="ml-auto flex items-center gap-1 rounded-full bg-surface-raised p-1">
-          <IconButton
-            icon={LayoutGrid}
-            label="Grid view"
-            variant={view === 'grid' ? 'input' : 'ghost'}
+        <div className="ml-auto flex items-center gap-0.5 rounded-lg border border-line-subtle bg-surface-raised p-0.5">
+          <button
+            aria-label="Grid view"
             onClick={() => setView('grid')}
-            className={cn(view === 'grid' && 'bg-accent text-accent-contrast')}
-          />
-          <IconButton
-            icon={List}
-            label="List view"
-            variant={view === 'list' ? 'input' : 'ghost'}
+            className={cn(
+              'flex h-7 w-7 items-center justify-center rounded-md transition-colors duration-fast',
+              view === 'grid' ? 'bg-accent text-accent-contrast' : 'text-content-muted hover:text-content-primary'
+            )}
+          >
+            <LayoutGrid size={14} />
+          </button>
+          <button
+            aria-label="List view"
             onClick={() => setView('list')}
-            className={cn(view === 'list' && 'bg-accent text-accent-contrast')}
-          />
+            className={cn(
+              'flex h-7 w-7 items-center justify-center rounded-md transition-colors duration-fast',
+              view === 'list' ? 'bg-accent text-accent-contrast' : 'text-content-muted hover:text-content-primary'
+            )}
+          >
+            <List size={14} />
+          </button>
         </div>
       </div>
 
-      <div className="mt-5 min-h-0 flex-1 overflow-y-auto">
+      {/* Content */}
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
         {loaded && instances.length === 0 && (
           <EmptyState
             icon={Plus}
@@ -211,19 +234,35 @@ export function LibraryScreen(): React.JSX.Element {
         {instances.length > 0 && filtered.length === 0 && (
           <EmptyState icon={Search} title="No matches" detail="Try a different search or filter." />
         )}
-        {view === 'grid' ? (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
-            {filtered.map((inst) => (
-              <InstanceCard key={inst.id} inst={inst} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {filtered.map((inst) => (
-              <InstanceRow key={inst.id} inst={inst} />
-            ))}
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {view === 'grid' ? (
+            <motion.div
+              key="grid"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+              className="grid grid-cols-[repeat(auto-fill,minmax(172px,1fr))] gap-3"
+            >
+              {filtered.map((inst) => (
+                <InstanceCard key={inst.id} inst={inst} />
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+              className="flex flex-col gap-2"
+            >
+              {filtered.map((inst) => (
+                <InstanceRow key={inst.id} inst={inst} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )
