@@ -9,10 +9,10 @@
     "name": "Native Labs",
     "email": "support@nativelauncher.app"
   },
-  "homepage": "https://github.com/ikie-cli/native",
+  "homepage": "https://github.com/navidu-sathsara/native",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ikie-cli/native.git"
+    "url": "https://github.com/navidu-sathsara/native.git"
   },
   "license": "MIT",
   "private": true,

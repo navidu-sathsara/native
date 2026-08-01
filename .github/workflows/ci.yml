@@ -247,7 +247,7 @@ jobs:
       - name: Create GitHub Release with update feeds
         uses: softprops/action-gh-release@v2
         with:
-          repository: ikie-cli/native-releases
+          repository: navidu-sathsara/native-releases
           token: ${{ secrets.RELEASE_TOKEN }}
           prerelease: ${{ contains(github.ref_name, '-beta.') || contains(github.ref_name, '-nightly.') }}
           make_latest: ${{ !contains(github.ref_name, '-') }}
@@ -272,7 +272,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - run: node scripts/verify-release.mjs ikie-cli/native-releases ${{ github.ref_name }}
+      - run: node scripts/verify-release.mjs navidu-sathsara/native-releases ${{ github.ref_name }}
 
   bridge-legacy-feed:
     name: Publish legacy website update
@@ -294,7 +294,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p site/website/updates
-          release_url="https://github.com/ikie-cli/native-releases/releases/download/${{ github.ref_name }}"
+          release_url="https://github.com/navidu-sathsara/native-releases/releases/download/${{ github.ref_name }}"
           curl --fail --location --retry 3 "$release_url/latest.yml" --output site/website/updates/latest.yml
           curl --fail --location --retry 3 "$release_url/latest-linux-arm64.yml" --output site/website/updates/latest-linux-arm64.yml
           sed -i -E "s#^([[:space:]]*-?[[:space:]]*url:[[:space:]]*)([^h].*)#\\1${release_url}/\\2#" site/website/updates/latest.yml

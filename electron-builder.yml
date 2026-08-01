@@ -77,5 +77,5 @@ mac:
 # migrate. Apps installed from 3.1.0 onward check GitHub Releases directly.
 publish:
   provider: github
-  owner: ikie-cli
+  owner: navidu-sathsara
   repo: native-releases

@@ -3,7 +3,7 @@
 A fast, beautiful Minecraft launcher for Windows, Linux, and macOS. Electron + React + TypeScript,
 designed against a pixel-sampled dark design system (see [`design-system.md`](design-system.md)).
 
-![CI](https://github.com/native-launcher/native/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/navidu-sathsara/native/actions/workflows/ci.yml/badge.svg)
 
 ## Features
 
@@ -30,7 +30,7 @@ designed against a pixel-sampled dark design system (see [`design-system.md`](de
 - **Launch flow** — pre-launch validation (Java, files, disk), live log console with level
   filters, crash detection with a copyable report, playtime accounting.
 - **Auto-updates** — electron-updater against the public
-  [`native-releases`](https://github.com/ikie-cli/native-releases/releases) feed: startup + periodic checks,
+  [`native-releases`](https://github.com/navidu-sathsara/native-releases/releases) feed: startup + periodic checks,
   retrying background downloads, release notes, stable/beta/nightly channels, and restart-to-apply.
   NSIS (Windows) uses delta blockmaps; AppImage updates atomically on Linux.
   `.deb` installs update via the system package manager.

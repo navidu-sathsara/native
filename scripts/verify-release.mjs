@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const [repo = 'ikie-cli/native-releases', tag] = process.argv.slice(2)
+const [repo = 'navidu-sathsara/native-releases', tag] = process.argv.slice(2)
 if (!tag) throw new Error('Usage: node scripts/verify-release.mjs <owner/repo> <tag>')
 
 const version = tag.replace(/^v/, '')
