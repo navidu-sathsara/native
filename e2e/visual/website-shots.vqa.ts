@@ -35,9 +35,9 @@ async function shoot(page: LaunchedApp['page'], name: string): Promise<void> {
   await page.screenshot({ path: join(OUT, `${name}.png`) })
 }
 
-test('capture website marketing shots (classic oled)', async () => {
+test('capture website marketing shots (mono)', async () => {
   test.setTimeout(240_000)
-  const seed = { ...(defaultSeed() as Record<string, unknown>), settings: { theme: 'oled' } }
+  const seed = { ...(defaultSeed() as Record<string, unknown>), settings: { theme: 'mono' } }
   app = await launchApp({
     env: {
       ...fx.env,
