@@ -106,6 +106,19 @@ The website deploys through its Cloudflare Pages Git integration; optional
 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `CLOUDFLARE_PAGES_PROJECT_NAME`
 secrets enable an explicit Wrangler deployment as well.
 
+Full runbook — feed merging, the `verify-release` gate, Windows delta/signing caveats, and
+required secrets — in [`RELEASE.md`](RELEASE.md).
+
+## Documentation
+
+| Document | Covers |
+|---|---|
+| [`RELEASE.md`](RELEASE.md) | Cutting a release: the CI pipeline, update feeds, signing, required secrets |
+| [`AUTO-UPDATES.md`](AUTO-UPDATES.md) | How the running app checks, downloads and applies updates |
+| [`design-system.md`](design-system.md) | Pixel-sampled tokens: colour, type, radii, motion |
+| [`CLAUDE.md`](CLAUDE.md) | Repository conventions, env hooks, and gotchas |
+| [`qa-report.md`](qa-report.md) | Latest perceptual visual-QA scores per screen |
+
 ## Architecture
 
 ```
