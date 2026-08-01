@@ -123,6 +123,22 @@ function buildIco(images) {
   return Buffer.concat([header, dir, ...images.map((img) => img.data)])
 }
 
+// ICNS can embed PNG payloads directly. These four representations cover
+// Retina and non-Retina Finder, Dock, Spotlight and application views.
+function buildIcns(images) {
+  const chunks = images.map(({ type, data }) => {
+    const chunk = Buffer.alloc(8 + data.length)
+    chunk.write(type, 0, 4, 'ascii')
+    chunk.writeUInt32BE(chunk.length, 4)
+    data.copy(chunk, 8)
+    return chunk
+  })
+  const header = Buffer.alloc(8)
+  header.write('icns', 0, 4, 'ascii')
+  header.writeUInt32BE(8 + chunks.reduce((sum, chunk) => sum + chunk.length, 0), 4)
+  return Buffer.concat([header, ...chunks])
+}
+
 // ---- 4. write the set ----
 mkdirSync(join(root, 'build', 'icons'), { recursive: true })
 writeFileSync(join(root, 'build', 'icon.png'), PNG.sync.write(resize(cropped, 512)))
@@ -133,6 +149,15 @@ const icoSizes = [16, 24, 32, 48, 64, 128, 256]
 writeFileSync(
   join(root, 'build', 'icon.ico'),
   buildIco(icoSizes.map((size) => ({ size, data: readFileSync(join(root, 'build', 'icons', `${size}x${size}.png`)) })))
+)
+writeFileSync(
+  join(root, 'build', 'icon.icns'),
+  buildIcns([
+    { type: 'ic07', data: readFileSync(join(root, 'build', 'icons', '128x128.png')) },
+    { type: 'ic08', data: readFileSync(join(root, 'build', 'icons', '256x256.png')) },
+    { type: 'ic09', data: readFileSync(join(root, 'build', 'icons', '512x512.png')) },
+    { type: 'ic10', data: readFileSync(join(root, 'build', 'icons', '1024x1024.png')) }
+  ])
 )
 copyFileSync(join(root, 'build', 'icon.png'), join(root, 'resources', 'icon.png'))
 copyFileSync(join(root, 'build', 'icons', '32x32.png'), join(root, 'resources', 'tray.png'))

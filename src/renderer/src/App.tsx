@@ -50,11 +50,11 @@ export default function App(): React.JSX.Element {
         : route.name
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-surface-window">
+    <div className="flex h-full flex-col overflow-hidden bg-launcher-window">
       <Titlebar />
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 gap-2 px-2 pb-2 pt-2">
         <Rail />
-        <main className="relative min-w-0 flex-1 bg-surface-base">
+        <main className="relative min-w-0 flex-1 overflow-hidden rounded-[13px] border border-line-subtle bg-launcher-panel">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={routeKey}

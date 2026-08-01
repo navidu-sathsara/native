@@ -2,21 +2,23 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import {
+  Braces,
   Box,
   CircleArrowUp,
   FileUp,
   Package,
+  Palette,
   PlusCircle,
   Puzzle,
   RefreshCw,
+  Search,
   Sparkles,
   Trash2
 } from 'lucide-react'
 import type { ContentKind, InstanceConfig, LocalContentFile } from '@shared/types'
 import { useContentUpdates, useToasts, useUpdateCount, toastError } from '@/stores/data'
 import { useModals, useNav } from '@/stores/nav'
-import { Button, EmptyState, IconButton, Spinner, Toggle } from '@/components/ui/ui'
-import { PillTabs } from '@/components/ui/tabs'
+import { Button, IconButton, Spinner, Toggle } from '@/components/ui/ui'
 import { Tooltip } from '@/components/ui/tooltip'
 import { formatBytes } from '@/lib/util'
 
@@ -112,6 +114,7 @@ function ContentRow({
 
 export function ContentTab({ inst }: { inst: InstanceConfig }): React.JSX.Element {
   const [kind, setKind] = useState<ContentKind>('mod')
+  const [query, setQuery] = useState('')
   const [files, setFiles] = useState<LocalContentFile[] | null>(null)
   const [checking, setChecking] = useState(false)
   const [updatingAll, setUpdatingAll] = useState(false)
@@ -200,8 +203,11 @@ export function ContentTab({ inst }: { inst: InstanceConfig }): React.JSX.Elemen
   }
 
   const rows = files ?? []
+  const visibleRows = query.trim()
+    ? rows.filter((file) => `${file.meta?.name ?? ''} ${file.fileName}`.toLowerCase().includes(query.trim().toLowerCase()))
+    : rows
   const virtualizer = useVirtualizer({
-    count: rows.length,
+    count: visibleRows.length,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 68,
     overscan: 8
@@ -219,11 +225,40 @@ export function ContentTab({ inst }: { inst: InstanceConfig }): React.JSX.Elemen
     void load()
   }
 
+  const kindLabel = KIND_TABS.find((item) => item.id === kind)!.label.toLowerCase()
+
   return (
-    <div className="flex h-full flex-col px-6 pb-6">
-      <div className="flex items-center justify-between gap-3 py-1">
-        <PillTabs items={KIND_TABS} value={kind} onChange={setKind} size="sm" />
-        <div className="flex items-center gap-2">
+    <div className="flex h-full flex-col px-6 pb-6 pt-6">
+      <div className="flex min-w-0 items-center gap-2">
+        <div className="flex h-[34px] shrink-0 items-center rounded-[8px] bg-surface-inset p-0.5">
+          {KIND_TABS.map(({ id, label, icon: Icon }) => {
+            const active = kind === id
+            return (
+              <button
+                key={id}
+                onClick={() => { setKind(id); setQuery('') }}
+                className={`flex h-[30px] items-center gap-1.5 rounded-[7px] px-3 text-[11px] font-semibold transition-colors ${active ? 'border border-accent/50 bg-accent-tint text-accent' : 'text-content-muted hover:bg-surface-hover hover:text-content-primary'}`}
+              >
+                <Icon size={14} strokeWidth={1.8} /> {label}
+              </button>
+            )
+          })}
+          <button disabled title="Data packs are managed per-world" className="flex h-[30px] items-center gap-1.5 px-3 text-[11px] font-medium text-content-muted opacity-70">
+            <Braces size={14} /> Data Packs
+          </button>
+        </div>
+
+        <label className="relative min-w-[150px] flex-1">
+          <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-content-muted" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={`Search installed ${kindLabel}`}
+            className="h-[34px] w-full rounded-[8px] border border-line-subtle bg-surface-inset pl-9 pr-3 text-[12px] text-content-primary outline-none placeholder:text-content-muted focus:border-accent"
+          />
+        </label>
+
+        <div className="flex shrink-0 items-center gap-2">
           {updateCount > 0 && (
             <Button
               size="sm"
@@ -240,72 +275,66 @@ export function ContentTab({ inst }: { inst: InstanceConfig }): React.JSX.Elemen
               icon={RefreshCw}
               label="Check for updates"
               onClick={() => void checkNow()}
-              className={checking ? 'animate-spin' : undefined}
+              size={34}
+              className={`rounded-[8px] border border-line-subtle bg-surface-input ${checking ? 'animate-spin' : ''}`}
               data-testid="content-check-updates"
             />
           </Tooltip>
           <Button
             size="sm"
-            variant="secondary"
             icon={FileUp}
             onClick={() => void addFromDisk().catch(toastError)}
+            className="h-[34px] rounded-[8px] bg-gradient-to-r from-accent to-accent-hover px-3 text-[12px]"
           >
-            Add file
-          </Button>
-          <Button
-            size="sm"
-            icon={PlusCircle}
-            onClick={() => go({ name: 'discover', instanceId: inst.id })}
-            data-testid="content-discover"
-          >
-            Find content
+            Add
           </Button>
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-small text-content-muted">
-        <span>
-          {rows.length} {rows.length === 1 ? 'item' : 'items'}
-          {rows.some((f) => !f.enabled) && ` · ${rows.filter((f) => !f.enabled).length} disabled`}
-        </span>
-      </div>
-
-      <div ref={scrollRef} className="mt-2 min-h-0 flex-1 overflow-y-auto">
+      <div ref={scrollRef} className={`mt-3 min-h-0 flex-1 rounded-[12px] border border-line-subtle bg-surface-raised ${visibleRows.length > 0 ? 'overflow-y-auto' : 'overflow-hidden'}`}>
         {files === null && (
-          <div className="flex justify-center py-10">
+          <div className="flex h-full items-center justify-center">
             <Spinner size={24} />
           </div>
         )}
-        {files && rows.length === 0 && (
-          <EmptyState
-            icon={Puzzle}
-            title={`No ${KIND_TABS.find((t) => t.id === kind)!.label.toLowerCase()} yet`}
-            detail={
-              kind === 'mod' && inst.loader === 'vanilla'
-                ? 'This is a vanilla instance. Switch to a mod loader in Options to add mods.'
-                : 'Find content from Modrinth, or add files from your computer.'
-            }
-            action={
-              <Button icon={PlusCircle} onClick={() => go({ name: 'discover', instanceId: inst.id })}>
-                Find content
+        {files && visibleRows.length === 0 && (
+          <div className="flex h-full min-h-[240px] flex-col items-center justify-center text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[17px] bg-accent-tint text-accent">
+              {query ? <Search size={20} /> : <Palette size={20} />}
+            </div>
+            <div className="text-[13px] font-bold text-content-primary">
+              {query ? 'No matching content' : `No ${kindLabel} installed`}
+            </div>
+            <div className="mt-1 text-[12px] text-content-secondary">
+              {query ? 'Try a different search term' : `This instance has no ${kindLabel} installed yet`}
+            </div>
+            {!query && (
+              <Button
+                variant="secondary"
+                icon={PlusCircle}
+                onClick={() => go({ name: 'discover', instanceId: inst.id })}
+                data-testid="content-discover"
+                className="mt-4 h-8 rounded-[8px] border border-line-strong bg-transparent px-3 text-[11px] text-content-secondary hover:border-accent hover:text-accent"
+              >
+                Browse {kindLabel}
               </Button>
-            }
-          />
+            )}
+          </div>
         )}
-        {files && rows.length > 0 && (
-          <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+        {files && visibleRows.length > 0 && (
+          <div style={{ height: virtualizer.getTotalSize() + 16, position: 'relative' }}>
             <AnimatePresence initial={false}>
               {virtualizer.getVirtualItems().map((vi) => {
-                const file = rows[vi.index]
+                const file = visibleRows[vi.index]
                 return (
                   <div
                     key={file.fileName}
                     style={{
                       position: 'absolute',
                       top: 0,
-                      left: 0,
-                      width: '100%',
-                      transform: `translateY(${vi.start}px)`,
+                      left: 8,
+                      right: 8,
+                      transform: `translateY(${vi.start + 8}px)`,
                       paddingBottom: 8
                     }}
                     ref={virtualizer.measureElement}

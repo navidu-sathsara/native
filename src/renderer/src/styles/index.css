@@ -9,130 +9,144 @@
  *
  * Default theme: `mono` — the Native black & white identity. Pure-black
  * surfaces, grayscale elevation, and a WHITE accent: every place the classic
- * palette used brand green (active pills, toggles, primary buttons, focus,
- * progress) renders as white-on-black. `mono-light` is its exact inverse.
- * The sampled reference palettes remain available as dark / oled / light.
+ * Every palette now shares a blue action color and a high-contrast semantic
+ * text ladder, so buttons, tabs, toggles and labels stay visually consistent.
  */
 :root,
 :root[data-theme='mono'] {
-  --surface-window: #000000;
-  --surface-base: #050505;
-  --surface-raised: #121212;
-  --surface-inset: #0a0a0a;
-  --surface-input: #1c1c1c;
-  --surface-hover: #181818;
-  --surface-active: #262626;
-  --text-primary: #ffffff;
-  --text-secondary: #a3a3a3;
-  --text-muted: #666666;
-  --chip-bg: #1f1f1f;
-  --chip-text: #bfbfbf;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --accent: #ffffff;
-  --accent-hover: #d9d9d9;
-  --accent-contrast: #000000;
-  --accent-tint: rgba(255, 255, 255, 0.08);
-  --focus-ring: rgba(255, 255, 255, 0.55);
-  --log-text: #d4d4d4;
-  --backdrop: rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+  --shell-window: #070b13;
+  --shell-panel: #0e1522;
+  --surface-window: #070b13;
+  --surface-base: #101827;
+  --surface-raised: #182235;
+  --surface-inset: #0b1220;
+  --surface-input: #1c2940;
+  --surface-hover: #22324d;
+  --surface-active: #2c3e5e;
+  --text-primary: #f8faff;
+  --text-secondary: #c5cede;
+  --text-muted: #8c98ad;
+  --chip-bg: #202e47;
+  --chip-text: #d8e0ee;
+  --border-subtle: rgba(148, 163, 184, 0.14);
+  --border-strong: rgba(148, 163, 184, 0.28);
+  --accent: #4f7cff;
+  --accent-hover: #6b92ff;
+  --accent-contrast: #ffffff;
+  --accent-tint: rgba(79, 124, 255, 0.16);
+  --focus-ring: rgba(99, 142, 255, 0.72);
+  --log-text: #8fb0ff;
+  --backdrop: rgba(2, 6, 14, 0.68);
 }
 
 :root[data-theme='mono-light'] {
-  --surface-window: #ffffff;
-  --surface-base: #fafafa;
-  --surface-raised: #f0f0f0;
-  --surface-inset: #f5f5f5;
-  --surface-input: #e6e6e6;
-  --surface-hover: #ececec;
-  --surface-active: #dcdcdc;
-  --text-primary: #000000;
-  --text-secondary: #595959;
-  --text-muted: #8c8c8c;
-  --chip-bg: #e6e6e6;
-  --chip-text: #404040;
-  --border-subtle: rgba(0, 0, 0, 0.09);
-  --border-strong: rgba(0, 0, 0, 0.2);
-  --accent: #000000;
-  --accent-hover: #2b2b2b;
+  color-scheme: light;
+  --shell-window: #dce6f5;
+  --shell-panel: #f7faff;
+  --surface-window: #dce6f5;
+  --surface-base: #f7faff;
+  --surface-raised: #ffffff;
+  --surface-inset: #eaf0f8;
+  --surface-input: #e4ebf5;
+  --surface-hover: #dbe6f5;
+  --surface-active: #cbd9ec;
+  --text-primary: #101828;
+  --text-secondary: #34435a;
+  --text-muted: #66758c;
+  --chip-bg: #dfe8f5;
+  --chip-text: #263850;
+  --border-subtle: rgba(30, 58, 95, 0.13);
+  --border-strong: rgba(30, 58, 95, 0.25);
+  --accent: #3568e8;
+  --accent-hover: #2455ce;
   --accent-contrast: #ffffff;
-  --accent-tint: rgba(0, 0, 0, 0.07);
-  --focus-ring: rgba(0, 0, 0, 0.5);
-  --log-text: #333333;
-  --backdrop: rgba(255, 255, 255, 0.5);
+  --accent-tint: rgba(53, 104, 232, 0.12);
+  --focus-ring: rgba(53, 104, 232, 0.58);
+  --log-text: #2455ce;
+  --backdrop: rgba(19, 33, 54, 0.38);
 }
 
 /* Classic palettes (sampled from the reference screenshots) */
 :root[data-theme='dark'] {
-  --surface-window: #111317;
-  --surface-base: #16181c;
-  --surface-raised: #27292e;
-  --surface-inset: #1d1f23;
-  --surface-input: #34363c;
-  --surface-hover: #31343a;
-  --surface-active: #3c3f46;
-  --text-primary: #ffffff;
-  --text-secondary: #9ba1ac;
-  --text-muted: #6e7580;
-  --chip-bg: #383b42;
-  --chip-text: #b5bac2;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --accent: #1bd96a;
-  --accent-hover: #12b859;
-  --accent-contrast: #03150a;
-  --accent-tint: rgba(27, 217, 106, 0.1);
-  --focus-ring: rgba(27, 217, 106, 0.6);
-  --log-text: #47d178;
-  --backdrop: rgba(8, 9, 11, 0.42);
+  color-scheme: dark;
+  --shell-window: #111722;
+  --shell-panel: #192231;
+  --surface-window: #111722;
+  --surface-base: #192231;
+  --surface-raised: #243146;
+  --surface-inset: #141c29;
+  --surface-input: #2c3b53;
+  --surface-hover: #33445f;
+  --surface-active: #40536f;
+  --text-primary: #fbfcff;
+  --text-secondary: #ced6e4;
+  --text-muted: #929eb1;
+  --chip-bg: #304059;
+  --chip-text: #dbe3ef;
+  --border-subtle: rgba(188, 202, 224, 0.13);
+  --border-strong: rgba(188, 202, 224, 0.26);
+  --accent: #5b82ff;
+  --accent-hover: #7798ff;
+  --accent-contrast: #ffffff;
+  --accent-tint: rgba(91, 130, 255, 0.16);
+  --focus-ring: rgba(116, 151, 255, 0.7);
+  --log-text: #9ab5ff;
+  --backdrop: rgba(5, 9, 16, 0.6);
 }
 
 :root[data-theme='oled'] {
+  color-scheme: dark;
+  --shell-window: #000000;
+  --shell-panel: #080b11;
   --surface-window: #000000;
-  --surface-base: #000000;
-  --surface-raised: #111317;
-  --surface-inset: #0a0c0e;
-  --surface-input: #1d2025;
-  --surface-hover: #191c20;
-  --surface-active: #24272c;
+  --surface-base: #080b11;
+  --surface-raised: #111824;
+  --surface-inset: #05080d;
+  --surface-input: #172238;
+  --surface-hover: #1d2b45;
+  --surface-active: #283a5a;
   --text-primary: #ffffff;
-  --text-secondary: #9ba1ac;
-  --text-muted: #6e7580;
-  --chip-bg: #383b42;
-  --chip-text: #b5bac2;
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --accent: #1bd96a;
-  --accent-hover: #12b859;
-  --accent-contrast: #03150a;
-  --accent-tint: rgba(27, 217, 106, 0.1);
-  --focus-ring: rgba(27, 217, 106, 0.6);
-  --log-text: #47d178;
-  --backdrop: rgba(8, 9, 11, 0.42);
+  --text-secondary: #c7d0df;
+  --text-muted: #8491a7;
+  --chip-bg: #1a2841;
+  --chip-text: #d6deeb;
+  --border-subtle: rgba(152, 174, 207, 0.13);
+  --border-strong: rgba(152, 174, 207, 0.27);
+  --accent: #5585ff;
+  --accent-hover: #74a0ff;
+  --accent-contrast: #ffffff;
+  --accent-tint: rgba(85, 133, 255, 0.17);
+  --focus-ring: rgba(85, 133, 255, 0.76);
+  --log-text: #8eb1ff;
+  --backdrop: rgba(0, 0, 0, 0.78);
 }
 
 :root[data-theme='light'] {
-  --surface-window: #e8ebee;
-  --surface-base: #f4f6f8;
+  color-scheme: light;
+  --shell-window: #cfdbee;
+  --shell-panel: #f1f5fb;
+  --surface-window: #cfdbee;
+  --surface-base: #f1f5fb;
   --surface-raised: #ffffff;
-  --surface-inset: #eceff2;
-  --surface-input: #e3e7eb;
-  --surface-hover: #eef1f4;
-  --surface-active: #dfe3e8;
-  --text-primary: #17191d;
-  --text-secondary: #4d5560;
-  --text-muted: #7b828c;
-  --chip-bg: #e3e7eb;
-  --chip-text: #4d5560;
-  --border-subtle: rgba(0, 0, 0, 0.07);
-  --border-strong: rgba(0, 0, 0, 0.16);
-  --accent: #12b859;
-  --accent-hover: #0e9a4a;
+  --surface-inset: #e5ecf6;
+  --surface-input: #dce6f3;
+  --surface-hover: #d5e1f0;
+  --surface-active: #c4d3e7;
+  --text-primary: #111b2d;
+  --text-secondary: #35445c;
+  --text-muted: #63738b;
+  --chip-bg: #dbe5f2;
+  --chip-text: #2c3d56;
+  --border-subtle: rgba(31, 54, 88, 0.14);
+  --border-strong: rgba(31, 54, 88, 0.27);
+  --accent: #3265df;
+  --accent-hover: #2452c1;
   --accent-contrast: #ffffff;
-  --accent-tint: rgba(18, 184, 89, 0.1);
-  --focus-ring: rgba(18, 184, 89, 0.6);
-  --log-text: #0e9a4a;
-  --backdrop: rgba(232, 235, 238, 0.5);
+  --accent-tint: rgba(50, 101, 223, 0.12);
+  --focus-ring: rgba(50, 101, 223, 0.58);
+  --log-text: #234fb8;
+  --backdrop: rgba(22, 39, 65, 0.4);
 }
 
 html,
@@ -145,6 +159,28 @@ body,
 body {
   @apply bg-surface-window font-sans text-body text-content-primary antialiased;
   user-select: none;
+}
+
+/* One exact logo geometry, recolored by theme. The source is white/midnight
+   blue for dark surfaces; light palettes render the same alpha mask in black. */
+.brand-mark {
+  filter: drop-shadow(0 0 1px rgba(7, 18, 45, 0.9));
+}
+:root[data-theme='mono-light'] .brand-mark,
+:root[data-theme='light'] .brand-mark {
+  filter: brightness(0) saturate(100%);
+}
+
+/* The remake's compact Chromium-style scrollbar used by the workspace and
+   news rail. It intentionally sits slightly away from the content edge. */
+.launcher-news-scroll::-webkit-scrollbar,
+main *::-webkit-scrollbar {
+  width: 7px;
+}
+.launcher-news-scroll::-webkit-scrollbar-thumb,
+main *::-webkit-scrollbar-thumb {
+  background: var(--surface-active);
+  border-radius: 99px;
 }
 
 input,
@@ -204,16 +240,8 @@ textarea {
  * themes, regaining color on hover. Functional identity imagery — mod icons,
  * instance tiles, player heads, screenshots, favicons — keeps its color so
  * things stay recognizable. Filters composite on the GPU. */
-:root[data-theme='mono'] .mono-media,
-:root[data-theme='mono-light'] .mono-media {
-  filter: grayscale(1);
-  transition: filter 180ms cubic-bezier(0.25, 1, 0.5, 1);
-}
-:root[data-theme='mono'] .mono-media:hover,
-:root[data-theme='mono'] *:hover > .mono-media,
-:root[data-theme='mono-light'] .mono-media:hover,
-:root[data-theme='mono-light'] *:hover > .mono-media {
-  filter: grayscale(0);
+:root .mono-media {
+  filter: none;
 }
 
 /* ---- Rich text (mod descriptions, news articles) ---- */

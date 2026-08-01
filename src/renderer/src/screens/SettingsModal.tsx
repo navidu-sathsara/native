@@ -106,12 +106,12 @@ const THEME_CARDS: {
   card: string
   line: string
 }[] = [
-  { id: 'mono', label: 'Mono', bg: '#000000', card: '#1c1c1c', line: '#ffffff' },
-  { id: 'mono-light', label: 'Mono Light', bg: '#ffffff', card: '#e6e6e6', line: '#000000' },
-  { id: 'system', label: 'Sync with system', bg: '#000000', card: '#1c1c1c', line: '#8c8c8c' },
-  { id: 'dark', label: 'Classic Dark', bg: '#26282d', card: '#3a3d44', line: '#1bd96a' },
-  { id: 'oled', label: 'Classic OLED', bg: '#000000', card: '#1d2025', line: '#1bd96a' },
-  { id: 'light', label: 'Classic Light', bg: '#f4f6f8', card: '#dfe3e8', line: '#12b859' }
+  { id: 'mono', label: 'Midnight Blue', bg: '#070b13', card: '#182235', line: '#4f7cff' },
+  { id: 'mono-light', label: 'Cloud Blue', bg: '#dce6f5', card: '#ffffff', line: '#3568e8' },
+  { id: 'system', label: 'Sync with system', bg: '#111722', card: '#243146', line: '#5b82ff' },
+  { id: 'dark', label: 'Slate Blue', bg: '#111722', card: '#243146', line: '#5b82ff' },
+  { id: 'oled', label: 'OLED Blue', bg: '#000000', card: '#111824', line: '#5585ff' },
+  { id: 'light', label: 'Ice Blue', bg: '#cfdbee', card: '#ffffff', line: '#3265df' }
 ]
 
 function ReplayTourButton(): React.JSX.Element {
@@ -139,7 +139,7 @@ function GeneralPane(): React.JSX.Element {
       <div className="pb-4">
         <div className="text-body font-semibold text-content-primary">Theme</div>
         <div className="mb-3 mt-0.5 text-small text-content-secondary">
-          Native ships in Mono — pure black & white. Classic palettes keep the green reference look.
+          Five carefully balanced blue themes with consistent contrast across every screen.
         </div>
         <div className="grid grid-cols-3 gap-3">
           {THEME_CARDS.map((t) => {
@@ -377,10 +377,10 @@ function UpdatesPane(): React.JSX.Element {
   return (
     <div className="flex flex-col gap-4">
       <div className="divide-y divide-line-subtle">
-        <Row title="Check for updates automatically" detail="On startup and every few hours.">
+        <Row title="Check GitHub tags automatically" detail="On startup and every four hours.">
           <Toggle checked={settings.autoUpdateCheck} onChange={(v) => void set({ autoUpdateCheck: v })} />
         </Row>
-        <Row title="Download updates in the background" detail="Install on next restart when ready.">
+        <Row title="Download patches in the background" detail="Changed blocks only; never silently fetches the full setup.">
           <Toggle checked={settings.autoUpdateDownload} onChange={(v) => void set({ autoUpdateDownload: v })} />
         </Row>
       </div>
@@ -448,8 +448,12 @@ function UpdatesPane(): React.JSX.Element {
                   ? updater.reason
                   : 'Not available for this build'
                 : updater.status === 'available' || updater.status === 'ready'
-                  ? `Version ${'version' in updater ? updater.version : ''} ${updater.status}${'size' in updater && updater.size ? ` · ${formatBytes(updater.size)}` : ''}`
-                  : updater.status}
+                  ? `Version ${updater.version} ${updater.status} - GitHub patch`
+                  : updater.status === 'downloading'
+                    ? `Patching to ${updater.version} - ${formatBytes(updater.progress.transferred)} / ${formatBytes(updater.progress.total)}`
+                    : updater.status === 'manual'
+                      ? `Version ${updater.version} requires a manual update`
+                      : updater.status}
             </div>
           </div>
           <Button
@@ -476,7 +480,7 @@ function AboutPane(): React.JSX.Element {
   }, [])
   return (
     <div className="flex flex-col items-center gap-3 py-6 text-center">
-      <img src={iconUrl} width={56} height={56} className="rounded-md2" alt="" draggable={false} />
+      <img src={iconUrl} width={56} height={56} className="brand-mark object-contain" alt="" draggable={false} />
       <div>
         <div className="text-h2 font-extrabold text-content-primary">Native</div>
         <div className="text-small text-content-secondary">Version {info?.version ?? '—'}</div>

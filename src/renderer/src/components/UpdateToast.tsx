@@ -1,24 +1,19 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowUpCircle, Check, Download, RefreshCw, Sparkles, X } from 'lucide-react'
+import { ArrowUpCircle, Check, Download, ExternalLink, RefreshCw, Sparkles, X } from 'lucide-react'
 import { useUpdater } from '@/stores/data'
 import { Button, ProgressBar } from '@/components/ui/ui'
 import { formatBytes, formatEta, formatSpeed } from '@/lib/util'
 
-/**
- * Auto-update card (bottom-left): available → changelog + download;
- * downloading → live progress; ready → restart to apply. Slide-in card with
- * an accent header band; transform/opacity animation only.
- */
+/** GitHub patch-update card: available -> patch -> verified -> restart. */
 export function UpdateToast(): React.JSX.Element {
   const { state, dismissed, dismiss } = useUpdater()
-
   const visible =
     !dismissed &&
     (state.status === 'available' ||
       state.status === 'downloading' ||
       state.status === 'ready' ||
+      state.status === 'manual' ||
       state.status === 'error')
-
   const version = visible && 'version' in state ? state.version : ''
 
   return (
@@ -32,13 +27,14 @@ export function UpdateToast(): React.JSX.Element {
           className="fixed bottom-4 left-20 z-[70] w-[400px] overflow-hidden rounded-card border border-line-subtle bg-surface-raised shadow-modal"
           data-testid="update-toast"
         >
-          {/* Header band */}
           <div className="relative flex items-center gap-3 bg-accent px-5 py-3.5 text-accent-contrast">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-contrast/15">
               {state.status === 'ready' ? (
                 <Check size={19} />
               ) : state.status === 'downloading' ? (
                 <Download size={18} />
+              ) : state.status === 'manual' ? (
+                <ExternalLink size={18} />
               ) : state.status === 'error' ? (
                 <RefreshCw size={19} />
               ) : (
@@ -48,21 +44,25 @@ export function UpdateToast(): React.JSX.Element {
             <div className="min-w-0 flex-1">
               <div className="text-body font-bold leading-tight">
                 {state.status === 'ready'
-                  ? `Native ${version} is ready to install`
+                  ? `Native ${version} is ready`
                   : state.status === 'downloading'
-                    ? `Downloading Native ${version}`
-                    : state.status === 'error'
-                      ? 'Update interrupted'
-                      : 'A new version of Native is here'}
+                    ? `Patching Native to ${version}`
+                    : state.status === 'manual'
+                      ? `Native ${version} needs a manual update`
+                      : state.status === 'error'
+                        ? 'Update interrupted'
+                        : 'A new GitHub release is available'}
               </div>
               <div className="text-tiny opacity-80">
                 {state.status === 'ready'
-                  ? 'Applied the next time the app starts'
+                  ? 'Patch verified; restart when ready'
                   : state.status === 'downloading'
-                    ? 'You can keep playing — this runs in the background'
-                    : state.status === 'error'
-                      ? 'Your current installation is unchanged'
-                      : `Version ${version}${state.size ? ` · ${formatBytes(state.size)}` : ''}`}
+                    ? 'Downloading changed blocks only'
+                    : state.status === 'manual'
+                      ? 'The full setup was not downloaded'
+                      : state.status === 'error'
+                        ? 'Your current installation is unchanged'
+                        : `GitHub tag ${state.tag} - patch update`}
               </div>
             </div>
             <button
@@ -86,17 +86,20 @@ export function UpdateToast(): React.JSX.Element {
                   </div>
                 ) : (
                   <p className="mb-4 text-small text-content-secondary">
-                    Bug fixes and improvements. Downloads in the background — you can keep using
-                    Native while it fetches.
+                    Native will fetch only the blocks that changed, then verify and reconstruct the
+                    update locally.
                   </p>
                 )}
                 <div className="flex items-center gap-2">
-                  <Button size="sm" icon={Download} onClick={() => void window.native.updater.download()} className="flex-1">
-                    Update now
+                  <Button
+                    size="sm"
+                    icon={Download}
+                    onClick={() => void window.native.updater.download()}
+                    className="flex-1"
+                  >
+                    Download patch
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={dismiss}>
-                    Later
-                  </Button>
+                  <Button size="sm" variant="secondary" onClick={dismiss}>Later</Button>
                 </div>
               </>
             )}
@@ -110,7 +113,7 @@ export function UpdateToast(): React.JSX.Element {
                   <span className="text-tiny tabular-nums text-content-muted">
                     {formatSpeed(state.progress.bytesPerSecond)}
                     {state.progress.bytesPerSecond > 1 &&
-                      ` · ${formatEta(
+                      ` - ${formatEta(
                         Math.round(
                           (state.progress.total - state.progress.transferred) /
                             Math.max(1, state.progress.bytesPerSecond)
@@ -120,7 +123,7 @@ export function UpdateToast(): React.JSX.Element {
                 </div>
                 <ProgressBar className="mt-2" value={state.progress.percent / 100} />
                 <div className="mt-1.5 text-tiny tabular-nums text-content-muted">
-                  {formatBytes(state.progress.transferred)} of {formatBytes(state.progress.total)}
+                  {formatBytes(state.progress.transferred)} of {formatBytes(state.progress.total)} patch data
                 </div>
               </>
             )}
@@ -128,16 +131,40 @@ export function UpdateToast(): React.JSX.Element {
             {state.status === 'ready' && (
               <>
                 <p className="mb-4 text-small text-content-secondary">
-                  Everything is downloaded and verified. Restart now to jump to {version}, or keep
-                  playing — it installs itself when you quit.
+                  The changed blocks were downloaded and verified. Restart now to use {version}, or
+                  keep playing and install it when Native quits.
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" icon={RefreshCw} onClick={() => void window.native.updater.install()} className="flex-1">
+                  <Button
+                    size="sm"
+                    icon={RefreshCw}
+                    onClick={() => void window.native.updater.install()}
+                    className="flex-1"
+                  >
                     Restart now
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={dismiss}>
-                    On next launch
+                  <Button size="sm" variant="secondary" onClick={dismiss}>On next launch</Button>
+                </div>
+              </>
+            )}
+
+            {state.status === 'manual' && (
+              <>
+                <p className="mb-2 text-small text-content-secondary">
+                  Native refused to silently download the complete installer because a safe patch
+                  could not be built for this installation.
+                </p>
+                <p className="mb-4 line-clamp-2 text-tiny text-content-muted">{state.reason}</p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    icon={ExternalLink}
+                    onClick={() => void window.native.app.openExternal(state.releaseUrl)}
+                    className="flex-1"
+                  >
+                    Open GitHub release
                   </Button>
+                  <Button size="sm" variant="secondary" onClick={dismiss}>Later</Button>
                 </div>
               </>
             )}
@@ -148,12 +175,15 @@ export function UpdateToast(): React.JSX.Element {
                   {state.error}. Native kept the current version intact; check your connection and retry.
                 </p>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" icon={RefreshCw} onClick={() => void window.native.updater.check()} className="flex-1">
+                  <Button
+                    size="sm"
+                    icon={RefreshCw}
+                    onClick={() => void window.native.updater.check()}
+                    className="flex-1"
+                  >
                     Retry
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={dismiss}>
-                    Dismiss
-                  </Button>
+                  <Button size="sm" variant="secondary" onClick={dismiss}>Dismiss</Button>
                 </div>
               </>
             )}

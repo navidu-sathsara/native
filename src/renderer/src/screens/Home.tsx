@@ -251,7 +251,7 @@ function BestModpacks(): React.JSX.Element {
                   </div>
                   <div className="flex items-center gap-1.5 pt-1 text-[11px] font-bold uppercase tracking-[0.1em] text-content-muted">
                     <span
-                      className={`h-1.5 w-1.5 rounded-full ${pack.platform === 'modrinth' ? 'bg-[#1bd96a]' : 'bg-[#f16436]'}`}
+                      className={`h-1.5 w-1.5 rounded-full ${pack.platform === 'modrinth' ? 'bg-accent' : 'bg-[#f16436]'}`}
                     />
                     {pack.platform === 'modrinth' ? 'Modrinth' : 'CurseForge'}
                   </div>

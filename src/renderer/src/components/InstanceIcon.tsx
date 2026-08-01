@@ -2,17 +2,18 @@ import { Box, Gem, Landmark, Leaf, Mountain, Pickaxe, Rocket, Sword, TreePine, Z
 import type { LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { cn, hashHue } from '@/lib/util'
+import { getMinecraftBlock, MinecraftBlockIcon } from '@/components/MinecraftBlockIcon'
 
 export const BUILTIN_ICONS: Record<string, { icon: LucideIcon; from: string; to: string }> = {
-  cube: { icon: Box, from: '#1bd96a', to: '#0e7a3c' },
+  cube: { icon: Box, from: '#4f7cff', to: '#2346a8' },
   sword: { icon: Sword, from: '#ff496e', to: '#8f1d3a' },
   pickaxe: { icon: Pickaxe, from: '#5b9dff', to: '#24457e' },
-  leaf: { icon: Leaf, from: '#7ed957', to: '#3d7a24' },
+  leaf: { icon: Leaf, from: '#5f9dff', to: '#2d5bb8' },
   zap: { icon: Zap, from: '#ffa347', to: '#9c5a17' },
   gem: { icon: Gem, from: '#c084fc', to: '#6b3aa8' },
   mountain: { icon: Mountain, from: '#8b9bb0', to: '#44505f' },
   rocket: { icon: Rocket, from: '#ff7ab0', to: '#9c3563' },
-  tree: { icon: TreePine, from: '#2fbf8f', to: '#14614a' },
+  tree: { icon: TreePine, from: '#4f8dff', to: '#244c9f' },
   landmark: { icon: Landmark, from: '#e8c46b', to: '#8a6d25' }
 }
 
@@ -63,8 +64,20 @@ export function InstanceIcon({
 }): React.JSX.Element {
   const radius = size >= 64 ? 16 : size >= 40 ? 12 : 8
   const imageSrc = useIconImage(icon)
+  const block = getMinecraftBlock(icon)
   const key = icon?.startsWith('builtin:') ? icon.slice(8) : null
   const builtin = key ? BUILTIN_ICONS[key] : null
+
+  if (block) {
+    return (
+      <div
+        className={cn('flex shrink-0 items-center justify-center', className)}
+        style={{ width: size, height: size }}
+      >
+        <MinecraftBlockIcon block={block} size={size * 0.92} />
+      </div>
+    )
+  }
 
   if (icon?.startsWith('image:')) {
     return (

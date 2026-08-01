@@ -41,7 +41,7 @@ linux:
   target:
     - target: AppImage
     - target: deb
-  icon: build/icon.png
+  icon: build/icons
   category: Game
   maintainer: Native Labs <support@nativelauncher.app>
   synopsis: A fast, beautiful Minecraft launcher
@@ -65,6 +65,7 @@ appImage:
   artifactName: ${productName}-${version}-${arch}.${ext}
 
 mac:
+  icon: build/icon.icns
   category: public.app-category.games
   hardenedRuntime: true
   gatekeeperAssess: false

@@ -32,6 +32,7 @@ const app = await electron.launch({
     ...process.env,
     NATIVE_DATA_DIR: dataDir,
     NATIVE_E2E: '1',
+    NATIVE_WIN_SIZE: '1284x721',
     NATIVE_SEED: seedFile,
     NATIVE_AVATAR_BASE: 'http://127.0.0.1:1'
   },
@@ -45,6 +46,17 @@ await page.waitForSelector('[data-testid="screen-home"]', { timeout: 20_000 })
 await page.waitForTimeout(800)
 await page.screenshot({ path: join(outDir, 'check-home.png') })
 
+// Create-instance palette: verify voxel art, selection state and contrast.
+await page.getByLabel('Create instance').click()
+await page.getByTestId('block-picker-grass').waitFor({ state: 'visible' })
+await page.waitForTimeout(300)
+await page.screenshot({ path: join(outDir, 'check-create-block-palette.png') })
+await page.evaluate(() => { document.documentElement.dataset.theme = 'light' })
+await page.waitForTimeout(200)
+await page.screenshot({ path: join(outDir, 'check-create-block-palette-light.png') })
+await page.keyboard.press('Escape')
+await page.evaluate(() => { document.documentElement.dataset.theme = 'mono' })
+
 // Library grid
 await page.click('[aria-label="Library"]')
 await page.waitForSelector('[data-testid="screen-library"]', { timeout: 10_000 })
@@ -55,6 +67,25 @@ await page.screenshot({ path: join(outDir, 'check-library.png') })
 await page.click('[aria-label="List view"]')
 await page.waitForTimeout(500)
 await page.screenshot({ path: join(outDir, 'check-library-list.png') })
+
+// Instance workspace — the densest screen and primary visual-reference target.
+await page.getByText('Fabulously Optimized').first().click()
+await page.waitForSelector('[data-testid="screen-instance"]', { timeout: 10_000 })
+await page.evaluate(() => document.fonts.ready)
+await page.waitForTimeout(1500)
+await page.screenshot({ path: join(outDir, 'check-instance-remake.png') })
+
+// Theme regression: the custom shell must remain readable in a light palette,
+// not just the token-native screens beneath it.
+await page.evaluate(() => { document.documentElement.dataset.theme = 'light' })
+await page.waitForTimeout(300)
+await page.screenshot({ path: join(outDir, 'check-instance-light.png') })
+
+await page.evaluate(() => { document.documentElement.dataset.theme = 'mono' })
+await page.getByLabel('Settings').click()
+await page.getByText('Theme', { exact: true }).waitFor({ state: 'visible' })
+await page.waitForTimeout(300)
+await page.screenshot({ path: join(outDir, 'check-themes.png') })
 
 await app.close()
 console.log('screenshots saved')

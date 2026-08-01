@@ -1,20 +1,24 @@
 import { EventEmitter } from 'node:events'
 import { app } from 'electron'
-import type { Logger } from 'electron-updater'
+import type { CancellationToken, Logger } from 'electron-updater'
 import type { UpdaterState } from '@shared/types'
 import { log } from '../logger'
 
-/**
- * Wraps our logger so we can observe electron-updater's internal delta decision.
- * electron-updater emits everything through the logger we hand it; the
- * differential downloader logs a distinctive line when it falls back to a full
- * download ("Cannot download differentially, fallback to full download: …") and
- * an info line ("Download block maps …") only while attempting a delta. Watching
- * those two lets us report *why* an update was full instead of a small delta.
- *
- * electron-updater only needs { info, warn, error, debug } (see its Logger type),
- * so a plain forwarding object is safer than cloning electron-log's prototype.
- */
+const RELEASES_REPO = 'navidu-sathsara/native-releases'
+const RELEASES_URL = `https://github.com/${RELEASES_REPO}/releases`
+const GITHUB_API = `https://api.github.com/repos/${RELEASES_REPO}`
+type UpdateChannel = 'latest' | 'beta' | 'nightly'
+
+interface GithubRelease {
+  tag_name: string
+  html_url: string
+  body: string | null
+  draft: boolean
+  prerelease: boolean
+  assets: { name: string; size: number; browser_download_url: string }[]
+}
+
+/** Forward electron-updater logs and expose its differential-download decision. */
 function makeUpdaterLogger(onDelta: (mode: 'delta' | 'full', reason?: string) => void): Logger {
   const forward =
     (level: 'info' | 'warn' | 'error' | 'debug') =>
@@ -22,7 +26,7 @@ function makeUpdaterLogger(onDelta: (mode: 'delta' | 'full', reason?: string) =>
       const msg = typeof message === 'string' ? message : String(message)
       if (msg.includes('Cannot download differentially')) {
         onDelta('full', msg.split('fallback to full download:').pop()?.trim() || 'unknown')
-      } else if (msg.includes('Download block maps')) {
+      } else if (msg.includes('Download block maps') || msg.includes('Differential download:')) {
         onDelta('delta')
       }
       log[level](message)
@@ -36,14 +40,13 @@ function makeUpdaterLogger(onDelta: (mode: 'delta' | 'full', reason?: string) =>
 }
 
 /**
- * electron-updater integration against the public GitHub release feed.
- * Checks on startup + every 4 hours;
- * downloads silently in the background when enabled; UI applies via
- * quitAndInstall.
+ * Patch-first updater backed by public GitHub Releases.
  *
- * Works with NSIS (Windows, delta via blockmaps) and AppImage (Linux).
- * .deb installs can't self-update — we surface 'unsupported' so the UI can
- * link to the release page instead.
+ * 1. Poll GitHub release tags for the selected channel.
+ * 2. Verify that the release contains the platform feed, payload and blockmap.
+ * 3. Let electron-updater verify hashes/signatures and build a differential plan.
+ * 4. Cancel any attempted full-installer fallback and send the user to GitHub
+ *    instead. Native never silently downloads the complete setup executable.
  */
 export class UpdaterService extends EventEmitter {
   private state: UpdaterState = { status: 'idle' }
@@ -51,18 +54,24 @@ export class UpdaterService extends EventEmitter {
   private firstCheckTimer: ReturnType<typeof setTimeout> | null = null
   private autoDownload = true
   private autoCheck = false
+  private channel: UpdateChannel = 'latest'
   private updater: typeof import('electron-updater').autoUpdater | null = null
-  /** How the in-flight download is being fetched, for diagnostics + UI. */
+  private githubRelease: GithubRelease | null = null
+  private newCancellationToken: (() => CancellationToken) | null = null
+  private downloadToken: CancellationToken | null = null
+  private blockedFullFallback = false
   private deltaMode: 'delta' | 'full' | null = null
   private deltaReason: string | null = null
 
   async init(opts: {
     autoCheck: boolean
     autoDownload: boolean
-    channel: 'latest' | 'beta' | 'nightly'
+    channel: UpdateChannel
   }): Promise<void> {
     this.autoDownload = opts.autoDownload
     this.autoCheck = opts.autoCheck
+    this.channel = opts.channel
+
     if (!app.isPackaged && !process.env.NATIVE_UPDATER_DEV) {
       this.setState({ status: 'unsupported', reason: 'dev-build' })
       return
@@ -74,31 +83,40 @@ export class UpdaterService extends EventEmitter {
       })
       return
     }
+
     try {
-      // electron-updater exposes autoUpdater through a lazy CJS getter, which
-      // ESM interop may only surface on `.default`.
-      const mod = await import('electron-updater')
-      const autoUpdater =
-        mod.autoUpdater ??
-        (mod as unknown as { default: { autoUpdater: typeof mod.autoUpdater } }).default.autoUpdater
+      const imported = await import('electron-updater')
+      const updaterModule = imported.autoUpdater
+        ? imported
+        : (imported as unknown as { default: typeof imported }).default
+      const autoUpdater = updaterModule.autoUpdater
       this.updater = autoUpdater
+      const Token = updaterModule.CancellationToken
+      this.newCancellationToken = Token ? () => new Token() : null
+
       autoUpdater.logger = makeUpdaterLogger((mode, reason) => {
         this.deltaMode = mode
         this.deltaReason = reason ?? null
         if (mode === 'full') {
-          log.info(`[updater] differential download unavailable — full download (${reason})`)
+          log.info(`[updater] blocked full-installer fallback (${reason})`)
+          // This callback runs immediately before electron-updater starts the
+          // fallback request, so cancellation prevents the full setup download.
+          if (this.downloadToken) {
+            this.blockedFullFallback = true
+            this.downloadToken.cancel()
+          }
         } else {
-          log.info('[updater] attempting differential (delta) download')
+          log.info('[updater] downloading changed blocks only')
         }
       })
-      autoUpdater.autoDownload = false // we orchestrate explicitly
+      autoUpdater.autoDownload = false
       autoUpdater.autoInstallOnAppQuit = true
+      autoUpdater.disableDifferentialDownload = false
+      autoUpdater.disableWebInstaller = true
+      autoUpdater.fullChangelog = false
       this.setChannel(opts.channel)
+
       if (process.env.NATIVE_UPDATER_DEV) {
-        // Test hook: dev builds read a generic-provider feed config. When the
-        // env var is a path, it points straight at the yml. Dev builds report
-        // Electron's version, so real feed versions look like downgrades —
-        // allow them so tests can exercise the production feed.
         autoUpdater.forceDevUpdateConfig = true
         autoUpdater.allowDowngrade = true
         if (process.env.NATIVE_UPDATER_DEV.includes('/')) {
@@ -109,48 +127,67 @@ export class UpdaterService extends EventEmitter {
       autoUpdater.on('checking-for-update', () => this.setState({ status: 'checking' }))
       autoUpdater.on('update-not-available', () => this.setState({ status: 'idle' }))
       autoUpdater.on('update-available', (info) => {
-        const notes = releaseNotes(info.releaseNotes)
+        const release = this.githubRelease
+        const notes = releaseNotes(info.releaseNotes) || release?.body || ''
         const size = info.files.reduce((total, file) => total + (file.size ?? 0), 0)
-        this.setState({ status: 'available', version: info.version, notes, size })
+        this.setState({
+          status: 'available',
+          version: info.version,
+          tag: release?.tag_name ?? `v${info.version}`,
+          notes,
+          size,
+          releaseUrl: release?.html_url ?? RELEASES_URL,
+          downloadMode: 'patch'
+        })
         if (this.autoDownload) void this.download()
       })
-      autoUpdater.on('download-progress', (p) => {
-        if (this.state.status === 'downloading' || this.state.status === 'available') {
-          const prev = this.state as { version: string; notes: string; size: number }
-          this.setState({
-            status: 'downloading',
-            version: prev.version,
-            notes: prev.notes,
-            size: prev.size,
-            progress: {
-              percent: p.percent,
-              bytesPerSecond: p.bytesPerSecond,
-              transferred: p.transferred,
-              total: p.total
-            }
-          })
-        }
+      autoUpdater.on('download-progress', (progress) => {
+        if (this.state.status !== 'available' && this.state.status !== 'downloading') return
+        const previous = this.state
+        this.setState({
+          status: 'downloading',
+          version: previous.version,
+          tag: previous.tag,
+          notes: previous.notes,
+          size: previous.size,
+          releaseUrl: previous.releaseUrl,
+          downloadMode: 'patch',
+          progress: {
+            percent: progress.percent,
+            bytesPerSecond: progress.bytesPerSecond,
+            transferred: progress.transferred,
+            total: progress.total
+          }
+        })
       })
       autoUpdater.on('update-downloaded', (info) => {
-        const notes = releaseNotes(info.releaseNotes)
+        const release = this.githubRelease
+        const previous =
+          this.state.status === 'available' || this.state.status === 'downloading' ? this.state : null
+        const notes = releaseNotes(info.releaseNotes) || release?.body || previous?.notes || ''
         const size = info.files.reduce((total, file) => total + (file.size ?? 0), 0)
         this.setState({
           status: 'ready',
           version: info.version,
+          tag: release?.tag_name ?? previous?.tag ?? `v${info.version}`,
           notes,
           size,
+          releaseUrl: release?.html_url ?? previous?.releaseUrl ?? RELEASES_URL,
+          downloadMode: 'patch',
           deltaMode: this.deltaMode,
           deltaReason: this.deltaReason
         })
       })
       autoUpdater.on('error', (err) => {
         log.warn(`[updater] ${err.message}`)
-        this.setState({ status: 'error', error: err.message })
+        if (!this.blockedFullFallback) {
+          this.setState({ status: 'error', error: err.message })
+        }
       })
 
       this.configureAutoCheck(this.autoCheck, 8000)
     } catch (err) {
-      this.setState({ status: 'error', error: err instanceof Error ? err.message : String(err) })
+      this.setState({ status: 'error', error: errorMessage(err) })
     }
   }
 
@@ -160,24 +197,67 @@ export class UpdaterService extends EventEmitter {
 
   async check(): Promise<void> {
     if (!this.updater) return
+    this.setState({ status: 'checking' })
     try {
+      // Integration tests deliberately use a local generic feed.
+      if (!process.env.NATIVE_UPDATER_DEV) {
+        const release = await withRetries(() => fetchGithubRelease(this.channel), 3)
+        if (!release || !isNewerGithubTag(release.tag_name, app.getVersion())) {
+          this.githubRelease = null
+          this.setState({ status: 'idle' })
+          return
+        }
+        this.githubRelease = release
+
+        const version = release.tag_name.replace(/^v/, '')
+        const missing = requiredReleaseAssets(process.platform, process.arch, this.channel, version).filter(
+          (name) => !release.assets.some((asset) => asset.name === name)
+        )
+        if (missing.length > 0) {
+          this.setState({
+            status: 'manual',
+            version,
+            tag: release.tag_name,
+            notes: release.body ?? '',
+            releaseUrl: release.html_url,
+            reason: `Patch assets are incomplete (${missing.join(', ')})`
+          })
+          return
+        }
+      }
       await withRetries(() => this.updater!.checkForUpdates(), 3)
     } catch (err) {
-      this.setState({ status: 'error', error: err instanceof Error ? err.message : String(err) })
+      this.setState({ status: 'error', error: errorMessage(err) })
     }
   }
 
   async download(): Promise<void> {
-    if (!this.updater) return
-    if (this.state.status !== 'available') return
-    // Reset delta diagnostics; the logger hook repopulates them as the download
-    // negotiates differential vs full.
+    if (!this.updater || this.state.status !== 'available') return
+    const available = this.state
     this.deltaMode = null
     this.deltaReason = null
+    this.blockedFullFallback = false
+    const token = this.newCancellationToken?.() ?? null
+    this.downloadToken = token
     try {
-      await withRetries(() => this.updater!.downloadUpdate(), 3)
+      // Differential progress is actual network transfer, not reconstructed
+      // installer size. Do not retry: a failed delta plan is deterministic.
+      await this.updater.downloadUpdate(token ?? undefined)
     } catch (err) {
-      this.setState({ status: 'error', error: err instanceof Error ? err.message : String(err) })
+      if (this.blockedFullFallback) {
+        this.setState({
+          status: 'manual',
+          version: available.version,
+          tag: available.tag,
+          notes: available.notes,
+          releaseUrl: available.releaseUrl,
+          reason: this.deltaReason || 'A differential patch could not be created for this installation.'
+        })
+      } else {
+        this.setState({ status: 'error', error: errorMessage(err) })
+      }
+    } finally {
+      this.downloadToken = null
     }
   }
 
@@ -185,25 +265,26 @@ export class UpdaterService extends EventEmitter {
     if (this.state.status === 'ready') this.updater?.quitAndInstall(true, true)
   }
 
-  setAutoDownload(v: boolean): void {
-    this.autoDownload = v
+  setAutoDownload(value: boolean): void {
+    this.autoDownload = value
   }
 
-  /** Apply the automatic-check setting immediately, without requiring a restart. */
-  setAutoCheck(v: boolean): void {
-    this.autoCheck = v
-    this.configureAutoCheck(v, 0)
+  setAutoCheck(value: boolean): void {
+    this.autoCheck = value
+    this.configureAutoCheck(value, 0)
   }
 
-  setChannel(channel: 'latest' | 'beta' | 'nightly'): void {
+  setChannel(channel: UpdateChannel): void {
+    this.channel = channel
+    this.githubRelease = null
     if (!this.updater) return
     this.updater.channel = channel
     this.updater.allowPrerelease = channel !== 'latest'
   }
 
-  private setState(s: UpdaterState): void {
-    this.state = s
-    this.emit('state', s)
+  private setState(state: UpdaterState): void {
+    this.state = state
+    this.emit('state', state)
   }
 
   private configureAutoCheck(enabled: boolean, firstDelayMs: number): void {
@@ -223,6 +304,95 @@ export class UpdaterService extends EventEmitter {
   }
 }
 
+/** Read the newest published GitHub Release for the selected tag channel. */
+async function fetchGithubRelease(channel: UpdateChannel): Promise<GithubRelease | null> {
+  const endpoint =
+    channel === 'latest' ? `${GITHUB_API}/releases/latest` : `${GITHUB_API}/releases?per_page=50`
+  const response = await fetch(endpoint, {
+    headers: {
+      accept: 'application/vnd.github+json',
+      'x-github-api-version': '2022-11-28',
+      'user-agent': `Native/${app.getVersion()}`
+    },
+    signal: AbortSignal.timeout(15_000)
+  })
+  // A repository with no published releases yet is simply up to date.
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(`GitHub Releases returned HTTP ${response.status}`)
+  const payload = (await response.json()) as GithubRelease | GithubRelease[]
+  if (!Array.isArray(payload)) return payload.draft ? null : payload
+  const candidates = payload.filter(
+    (release) =>
+      !release.draft &&
+      releaseMatchesChannel(release.tag_name, channel) &&
+      (channel === 'latest' ? !release.prerelease : release.prerelease)
+  )
+  return candidates.reduce<GithubRelease | null>(
+    (newest, release) =>
+      !newest || isNewerGithubTag(release.tag_name, newest.tag_name) ? release : newest,
+    null
+  )
+}
+
+export function releaseMatchesChannel(tag: string, channel: UpdateChannel): boolean {
+  const prerelease = parseVersion(tag)?.prerelease[0] ?? null
+  return channel === 'latest' ? prerelease === null : prerelease === channel
+}
+
+export function isNewerGithubTag(tag: string, current: string): boolean {
+  const next = parseVersion(tag)
+  const installed = parseVersion(current)
+  if (!next || !installed) return false
+  for (let index = 0; index < 3; index++) {
+    if (next.core[index] !== installed.core[index]) return next.core[index] > installed.core[index]
+  }
+  if (next.prerelease.length === 0) return installed.prerelease.length > 0
+  if (installed.prerelease.length === 0) return false
+  const length = Math.max(next.prerelease.length, installed.prerelease.length)
+  for (let index = 0; index < length; index++) {
+    const a = next.prerelease[index]
+    const b = installed.prerelease[index]
+    if (a === b) continue
+    if (a === undefined) return false
+    if (b === undefined) return true
+    const an = /^\d+$/.test(a) ? Number(a) : null
+    const bn = /^\d+$/.test(b) ? Number(b) : null
+    if (an !== null && bn !== null) return an > bn
+    if (an !== null) return false
+    if (bn !== null) return true
+    return a > b
+  }
+  return false
+}
+
+function parseVersion(value: string): { core: [number, number, number]; prerelease: string[] } | null {
+  const match = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(value.trim())
+  if (!match) return null
+  return {
+    core: [Number(match[1]), Number(match[2]), Number(match[3])],
+    prerelease: match[4]?.split('.') ?? []
+  }
+}
+
+export function requiredReleaseAssets(
+  platform: NodeJS.Platform,
+  arch: string,
+  channel: UpdateChannel,
+  version: string
+): string[] {
+  if (platform === 'win32') {
+    const installer = `Native-Setup-${version}-${arch}.exe`
+    return [`${channel}.yml`, installer, `${installer}.blockmap`]
+  }
+  if (platform === 'darwin') {
+    const archive = `Native-${version}-${arch}.zip`
+    return [`${channel}-mac.yml`, archive, `${archive}.blockmap`]
+  }
+  const linuxArch = arch === 'x64' ? 'x86_64' : arch
+  const feed = `${channel}-linux${arch === 'x64' ? '' : `-${arch}`}.yml`
+  return [feed, `Native-${version}-${linuxArch}.AppImage`]
+}
+
 function releaseNotes(notes: unknown): string {
   if (typeof notes === 'string') return notes
   if (!Array.isArray(notes)) return ''
@@ -230,6 +400,10 @@ function releaseNotes(notes: unknown): string {
     .map((entry) => (entry && typeof entry === 'object' && 'note' in entry ? String(entry.note) : ''))
     .filter(Boolean)
     .join('\n\n')
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }
 
 async function withRetries<T>(operation: () => Promise<T>, attempts: number): Promise<T> {

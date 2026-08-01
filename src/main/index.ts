@@ -31,6 +31,20 @@ if (!app.requestSingleInstanceLock()) {
   const resource = (name: string): string =>
     app.isPackaged ? join(process.resourcesPath, name) : join(app.getAppPath(), 'resources', name)
 
+  // Use the same multi-resolution native asset for the window, taskbar and
+  // Alt+Tab identity. Windows prefers ICO here; Linux/macOS use the PNG.
+  const appIcon = (): Electron.NativeImage => {
+    const candidates =
+      process.platform === 'win32'
+        ? [resource('icon.ico'), resource('icon.png')]
+        : [resource('icon.png')]
+    for (const path of candidates) {
+      const image = nativeImage.createFromPath(path)
+      if (!image.isEmpty()) return image
+    }
+    return nativeImage.createEmpty()
+  }
+
   const createTray = (): void => {
     // CI has no tray support — skip entirely under E2E.
     if (process.env.NATIVE_E2E === '1' || tray) return
@@ -75,6 +89,7 @@ if (!app.requestSingleInstanceLock()) {
   const createWindow = (): void => {
     // Test hook: exact window geometry for visual QA (e.g. "1366x728").
     const sizeOverride = /^(\d+)x(\d+)$/.exec(process.env.NATIVE_WIN_SIZE ?? '')
+    const windowIcon = appIcon()
     win = new BrowserWindow({
       width: sizeOverride ? Number(sizeOverride[1]) : 1366,
       height: sizeOverride ? Number(sizeOverride[2]) : 768,
@@ -83,7 +98,7 @@ if (!app.requestSingleInstanceLock()) {
       minHeight: 640,
       show: false,
       frame: false,
-      icon: resource('icon.png'),
+      icon: windowIcon,
       titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : undefined,
       backgroundColor: '#000000',
       webPreferences: {
@@ -96,6 +111,10 @@ if (!app.requestSingleInstanceLock()) {
         backgroundThrottling: false
       }
     })
+
+    // Explicitly setting it after construction also covers Windows dev builds,
+    // where Electron's executable icon can otherwise win the first paint.
+    if (!windowIcon.isEmpty()) win.setIcon(windowIcon)
 
     win.once('ready-to-show', () => win?.show())
 

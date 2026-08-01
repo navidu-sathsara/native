@@ -388,17 +388,47 @@ export interface UpdateProgress {
 export type UpdaterState =
   | { status: 'idle' }
   | { status: 'checking' }
-  | { status: 'available'; version: string; notes: string; size: number }
-  | { status: 'downloading'; version: string; notes: string; size: number; progress: UpdateProgress }
+  | {
+      status: 'available'
+      version: string
+      tag: string
+      notes: string
+      /** Full artifact size for reference; the patch normally transfers much less. */
+      size: number
+      releaseUrl: string
+      downloadMode: 'patch'
+    }
+  | {
+      status: 'downloading'
+      version: string
+      tag: string
+      notes: string
+      size: number
+      releaseUrl: string
+      downloadMode: 'patch'
+      progress: UpdateProgress
+    }
   | {
       status: 'ready'
       version: string
+      tag: string
       notes: string
       size: number
+      releaseUrl: string
+      downloadMode: 'patch'
       /** How the update was fetched: 'delta' (small patch) or 'full'. Null if unknown. */
       deltaMode?: 'delta' | 'full' | null
       /** When 'full', the reason a differential download wasn't possible. */
       deltaReason?: string | null
+    }
+  | {
+      /** Release exists, but a safe differential update could not be produced. */
+      status: 'manual'
+      version: string
+      tag: string
+      notes: string
+      releaseUrl: string
+      reason: string
     }
   | { status: 'error'; error: string }
   | { status: 'unsupported'; reason: string }

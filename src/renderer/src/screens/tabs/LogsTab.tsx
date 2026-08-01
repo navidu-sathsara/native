@@ -9,7 +9,7 @@ import { DropMenu, Select } from '@/components/ui/menu'
 import { cn, formatBytes, timeAgo } from '@/lib/util'
 import { parseLogLine, levelLabel } from '@/lib/logfmt'
 
-// Console text is log-green per design-system.md §1 (ref-113614 motif);
+// Console text uses the theme's readable blue log accent.
 // warnings/errors keep their status colors.
 const LEVEL_COLOR: Record<LogLevel, string> = {
   error: 'text-danger',

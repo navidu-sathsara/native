@@ -11,6 +11,13 @@ export default {
   theme: {
     extend: {
       colors: {
+        launcher: {
+          window: 'var(--shell-window)',
+          panel: 'var(--shell-panel)',
+          card: 'var(--surface-raised)',
+          accent: 'var(--accent)',
+          'accent-bright': 'var(--accent-hover)'
+        },
         surface: {
           window: 'var(--surface-window)',
           base: 'var(--surface-base)',

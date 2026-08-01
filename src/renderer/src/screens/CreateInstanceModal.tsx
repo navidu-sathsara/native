@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, ChevronDown, FileUp, ImagePlus, Package, Search, X } from 'lucide-react'
+import { Check, ChevronDown, FileUp, ImagePlus, Package, Search } from 'lucide-react'
 import type { LoaderKind } from '@shared/types'
 import { LOADER_LABELS } from '@shared/types'
 import { useModals, useNav } from '@/stores/nav'
 import { useInstances, useManifest, useToasts, toastError } from '@/stores/data'
 import { Modal, FieldLabel } from '@/components/ui/modal'
 import { Button, Input, SearchInput, Spinner, Toggle } from '@/components/ui/ui'
-import { BUILTIN_ICONS, BUILTIN_ICON_KEYS, InstanceIcon } from '@/components/InstanceIcon'
+import { InstanceIcon } from '@/components/InstanceIcon'
+import { MINECRAFT_BLOCKS, MinecraftBlockIcon } from '@/components/MinecraftBlockIcon'
 import { LoaderMark } from '@/components/LoaderMark'
 import { Tooltip } from '@/components/ui/tooltip'
 import { cn } from '@/lib/util'
@@ -202,7 +203,7 @@ export function CreateInstanceModal(): React.JSX.Element {
   const [nameEdited, setNameEdited] = useState(false)
   const [loader, setLoader] = useState<LoaderKind>('fabric')
   const [mcVersion, setMcVersion] = useState('')
-  const [icon, setIcon] = useState('builtin:cube')
+  const [icon, setIcon] = useState('block:grass')
   const [showSnapshots, setShowSnapshots] = useState(false)
   const [loaderVersions, setLoaderVersions] = useState<{ version: string; stable: boolean }[] | null>(null)
   const [loaderVersion, setLoaderVersion] = useState<string>('stable')
@@ -249,7 +250,7 @@ export function CreateInstanceModal(): React.JSX.Element {
     setNameEdited(false)
     setLoader('fabric')
     setMcVersion(manifest?.latest.release ?? '')
-    setIcon('builtin:cube')
+    setIcon('block:grass')
     setLoaderVersion('stable')
   }
 
@@ -370,61 +371,77 @@ export function CreateInstanceModal(): React.JSX.Element {
           </div>
         </div>
 
-        {/* Icon picker: custom image first, then builtin glyph tiles */}
+        {/* SKlauncher-style Minecraft block palette. */}
         <div>
-          <FieldLabel>Icon</FieldLabel>
-          <div className="flex flex-wrap items-center gap-2">
-            <Tooltip label="Use your own image" side="top">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <FieldLabel className="mb-0">Instance icon</FieldLabel>
+            <span className="text-small font-medium text-content-secondary">
+              {icon.startsWith('image:')
+                ? 'Custom image'
+                : MINECRAFT_BLOCKS.find((block) => icon === `block:${block.id}`)?.name}
+            </span>
+          </div>
+          <div className="grid grid-cols-8 gap-2 rounded-md2 border border-line-subtle bg-surface-base p-3" role="radiogroup" aria-label="Instance block or custom image">
+            <Tooltip label="Upload custom image" side="top">
               <button
                 type="button"
+                role="radio"
+                aria-checked={icon.startsWith('image:')}
+                aria-label="Upload custom image"
                 onClick={() => void pickImage()}
                 data-testid="icon-upload"
                 className={cn(
-                  'flex h-11 w-11 items-center justify-center overflow-hidden rounded-md2 border border-dashed transition-colors duration-fast',
+                  'group relative flex aspect-square min-w-0 items-center justify-center overflow-hidden rounded-[10px] border border-dashed transition-all duration-fast',
                   icon.startsWith('image:')
-                    ? 'border-accent'
-                    : 'border-line-strong text-content-secondary hover:border-accent hover:text-content-primary'
+                    ? 'border-accent bg-accent-tint shadow-[0_0_0_2px_var(--accent)]'
+                    : 'border-line-strong bg-surface-raised text-content-secondary hover:border-accent hover:bg-surface-hover hover:text-accent'
                 )}
               >
                 {icon.startsWith('image:') ? (
-                  <InstanceIcon icon={icon} name={name || 'New'} size={44} className="rounded-none" />
+                  <InstanceIcon icon={icon} name={name || 'New'} size={48} className="!rounded-[7px]" />
                 ) : (
-                  <ImagePlus size={19} strokeWidth={1.8} />
+                  <div className="flex flex-col items-center gap-1">
+                    <ImagePlus size={20} strokeWidth={1.8} />
+                    <span className="text-[9px] font-bold uppercase tracking-wide">Upload</span>
+                  </div>
+                )}
+                {icon.startsWith('image:') && (
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-accent-contrast shadow-sm">
+                    <Check size={10} strokeWidth={3.5} />
+                  </span>
                 )}
               </button>
             </Tooltip>
-            {icon.startsWith('image:') && (
-              <Tooltip label="Remove image" side="top">
-                <button
-                  type="button"
-                  onClick={() => setIcon('builtin:cube')}
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-input text-content-secondary transition-colors duration-fast hover:bg-danger hover:text-white"
-                  aria-label="Remove image"
-                >
-                  <X size={14} />
-                </button>
-              </Tooltip>
-            )}
-            <span className="mx-1 h-8 w-px bg-line-subtle" />
-            {BUILTIN_ICON_KEYS.map((key) => {
-              const selected = icon === `builtin:${key}`
-              const { icon: Ic, from } = BUILTIN_ICONS[key]
+            {MINECRAFT_BLOCKS.map((block) => {
+              const selected = icon === `block:${block.id}`
               return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setIcon(`builtin:${key}`)}
-                  className={cn(
-                    'flex h-11 w-11 items-center justify-center rounded-md2 transition-all duration-fast',
-                    selected
-                      ? 'ring-2 ring-accent ring-offset-2 ring-offset-surface-inset'
-                      : 'opacity-75 hover:opacity-100'
-                  )}
-                  style={{ background: from }}
-                  aria-label={key}
-                >
-                  <Ic size={22} className="text-white" />
-                </button>
+                <Tooltip key={block.id} label={block.name} side="top">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    aria-label={block.name}
+                    onClick={() => setIcon(`block:${block.id}`)}
+                    data-testid={`block-picker-${block.id}`}
+                    className={cn(
+                      'group relative flex aspect-square min-w-0 items-center justify-center rounded-[10px] border transition-all duration-fast',
+                      selected
+                        ? 'border-accent bg-accent-tint shadow-[0_0_0_2px_var(--accent)]'
+                        : 'border-transparent bg-surface-raised hover:border-line-strong hover:bg-surface-hover'
+                    )}
+                  >
+                    <MinecraftBlockIcon
+                      block={block}
+                      size={44}
+                      className="transition-transform duration-fast group-hover:-translate-y-0.5 group-hover:scale-105"
+                    />
+                    {selected && (
+                      <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-accent-contrast shadow-sm">
+                        <Check size={10} strokeWidth={3.5} />
+                      </span>
+                    )}
+                  </button>
+                </Tooltip>
               )
             })}
           </div>
