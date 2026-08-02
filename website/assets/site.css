@@ -846,6 +846,74 @@ img { display: block; max-width: 100%; }
 
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
+.not-found-page {
+  min-height: 100vh;
+  background: #070b13;
+}
+
+.not-found-main {
+  position: relative;
+  display: grid;
+  min-height: calc(100vh - 58px);
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.not-found-main::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(7, 11, 19, .94) 0%, rgba(7, 11, 19, .64) 55%, rgba(7, 11, 19, .82) 100%),
+    url('minecraft-portal-desktop.png') center / cover no-repeat;
+  content: '';
+  filter: saturate(.75);
+}
+
+.not-found-main::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 60%, #070b13 100%);
+  content: '';
+}
+
+.not-found-glow {
+  position: absolute;
+  z-index: -1;
+  width: min(70vw, 760px);
+  height: min(70vw, 760px);
+  border-radius: 50%;
+  background: rgba(79, 124, 255, .14);
+  filter: blur(100px);
+}
+
+.not-found-content {
+  padding-block: 80px;
+  text-align: center;
+}
+
+.not-found-content h1 {
+  margin: 16px 0 0;
+  font-size: clamp(56px, 9vw, 128px);
+  font-weight: 900;
+  letter-spacing: -.075em;
+  line-height: .86;
+}
+
+.not-found-content h1 span { color: var(--lime-strong); }
+
+.not-found-content > p:not(.eyebrow) {
+  max-width: 540px;
+  margin: 30px auto 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.not-found-content .hero-actions { justify-content: center; }
+
 @media (max-width: 1080px) {
   .hero-grid { grid-template-columns: minmax(0, 1fr) 330px; gap: 36px; }
   .hero h1 { font-size: 58px; }
@@ -948,6 +1016,16 @@ img { display: block; max-width: 100%; }
   .footer-links a { padding: 7px 0; }
   .footer-cta { display: block; margin-top: 40px; }
   .footer-cta .button { width: 100%; margin-top: 18px; }
+
+  .not-found-main { min-height: calc(100vh - 52px); }
+  .not-found-main::before {
+    background:
+      linear-gradient(180deg, rgba(7, 11, 19, .65), rgba(7, 11, 19, .9)),
+      url('minecraft-portal-mobile.png') center / cover no-repeat;
+  }
+  .not-found-content .eyebrow { text-align: center; }
+  .not-found-content .hero-actions { display: flex; justify-content: center; }
+  .not-found-content .hero-actions .button { width: auto; }
 }
 
 @media (max-width: 470px) {
@@ -977,6 +1055,10 @@ img { display: block; max-width: 100%; }
   .platform-card h3 { margin-top: 22px; font-size: 21px; }
   .faq-wrap h2 { font-size: 27px; }
   .footer-branding .brand { font-size: 19px; }
+  .not-found-content h1 { font-size: 52px; }
+  .not-found-content > p:not(.eyebrow) { font-size: 13px; }
+  .not-found-content .hero-actions { display: grid; }
+  .not-found-content .hero-actions .button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

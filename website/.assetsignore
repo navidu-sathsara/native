@@ -1,6 +1,6 @@
-# Never upload locally built installers that pile up in updates/ (the
-# directory is gitignored except the two force-added update feeds, but a
-# manual `wrangler deploy` from a dev machine sees the local files).
+# Never upload locally built installers. These directories are gitignored,
+# but a manual `wrangler deploy` still sees the files on disk.
+downloads/*
 updates/*
 !updates/latest.yml
 !updates/latest-linux-arm64.yml

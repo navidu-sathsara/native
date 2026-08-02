@@ -35,6 +35,9 @@
     "package:win": "node scripts/gen-icon.mjs && electron-vite build && electron-builder --win",
     "package:mac": "node scripts/gen-icon.mjs && electron-vite build && electron-builder --mac",
     "package:dir": "node scripts/gen-icon.mjs && electron-vite build && electron-builder --dir",
+    "site:dev": "npx --yes wrangler@4.118.0 dev --config website/wrangler.jsonc",
+    "site:deploy:worker": "npx --yes wrangler@4.118.0 deploy --config website/wrangler.jsonc",
+    "site:deploy:pages": "npx --yes wrangler@4.118.0 pages deploy website",
     "postinstall": "node scripts/patch-nsis.mjs || true",
     "package:win-host": "node scripts/gen-icon.mjs && electron-vite build && NSIS_UNINSTALLER_READER=true electron-builder --win nsis --x64 -c.win.signAndEditExecutable=false -c.nsis.warningsAsErrors=false",
     "brand:win": "node scripts/brand-win-exe.mjs"
