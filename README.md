@@ -143,6 +143,14 @@ Settings for a Workers Builds Git integration:
 For a Pages Git integration, leave the build command empty and set the output directory
 to `website` (or `/` when the Pages root directory itself is `website`).
 
+For the production VPS, PM2 runs the repo-owned static server on private port `8787` and
+Nginx terminates HTTPS for `nativelaunch.xyz`:
+
+```bash
+npm run site:start:vps
+sudo nginx -t && sudo systemctl reload nginx
+```
+
 `website/.assetsignore` keeps locally built installers out of a deploy while still shipping
 `updates/latest.yml` and `updates/latest-linux-arm64.yml` — pre-3.1.0 installs poll
 `nativelaunch.xyz/updates/` and that path must keep working.
