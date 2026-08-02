@@ -180,7 +180,7 @@ const date = new Date().toISOString().slice(0, 10)
 let md = `# Visual QA report\n\n`
 md += `Generated ${date} · threshold **${THRESHOLD * 100}%** (empty/error states: ${SPARSE_THRESHOLD * 100}% — sparse by design) · method: perceptual similarity `
 md += `(45% quantized-palette Bhattacharyya affinity, 35% 32×18 luminance-grid layout, 20% tonal-distribution Bhattacharyya affinity) `
-md += `against the reference screenshots in \`./screenshots/\`.\n\n`
+md += `against the committed baselines in \`./screenshots/baselines/\`.\n\n`
 md += `| Screen | Reference | Palette | Layout | Tone | **Score** | Verdict | Notes |\n`
 md += `|---|---|---|---|---|---|---|---|\n`
 for (const r of rows) {

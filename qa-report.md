@@ -1,6 +1,6 @@
 # Visual QA report
 
-Generated 2026-08-02 · threshold **85%** (empty/error states: 75% — sparse by design) · method: perceptual similarity (45% quantized-palette Bhattacharyya affinity, 35% 32×18 luminance-grid layout, 20% tonal-distribution Bhattacharyya affinity) against the reference screenshots in `./screenshots/`.
+Generated 2026-08-02 · threshold **85%** (empty/error states: 75% — sparse by design) · method: perceptual similarity (45% quantized-palette Bhattacharyya affinity, 35% 32×18 luminance-grid layout, 20% tonal-distribution Bhattacharyya affinity) against the committed baselines in `./screenshots/baselines/`.
 
 | Screen | Reference | Palette | Layout | Tone | **Score** | Verdict | Notes |
 |---|---|---|---|---|---|---|---|

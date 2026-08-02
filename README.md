@@ -20,7 +20,9 @@ designed against a pixel-sampled dark design system (see [`design-system.md`](de
   and shaders. Home blends popular packs from both catalogs. One-click install with
   required-dependency resolution, enable/disable, and local file imports.
 - **Downloads** — parallel, resumable (HTTP Range), sha1-verified, with real speed/ETA.
-  Corrupt or missing files self-heal on the next launch.
+  Connect and stall watchdogs abort dead sockets and resume them; permanent failures
+  (404/403, disk full, permission denied) fail fast with a readable message instead of
+  retrying. Corrupt or missing files self-heal on the next launch.
 - **Worlds & screenshots** — list/backup (zip)/delete worlds; in-app screenshot gallery.
 - **Servers** — automatically detected from Minecraft connection logs with per-server
   playtime, visit count, last-played history, and preferred instance. Includes live Server
@@ -62,7 +64,7 @@ npx vitest run         # unit + integration + renderer store tests
 npm run build          # bundle main/preload/renderer
 npm run rebuild:electron  # better-sqlite3 → Electron ABI (for the app/E2E)
 npm run e2e            # Playwright E2E against the built app
-npm run qa:visual      # screenshot every screen + perceptual diff vs ./screenshots
+npm run qa:visual      # screenshot every screen + perceptual diff vs ./screenshots/baselines
 ```
 
 The native-module ABI dance: `better-sqlite3` must be compiled for **Node** when running
@@ -90,7 +92,7 @@ npm run package:mac     # DMG + updater ZIP (run on macOS, or CI)
 
 Releases: tag `v*` → CI builds all three platforms for x64 and ARM64, creates a GitHub
 Release, merges architecture-correct channel feeds consumed by electron-updater, mirrors
-stable feeds for older installs, and deploys the website to Cloudflare Pages.
+stable feeds for older installs, and deploys the website.
 
 Release channels are selected by tag:
 
@@ -102,17 +104,38 @@ CI produces unsigned builds by default. macOS signing/notarization activates whe
 `MAC_CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, and `APPLE_TEAM_ID`
 are configured. Windows signing uses
 `WIN_CSC_LINK` + `WIN_CSC_KEY_PASSWORD` or the configured SignPath Foundation project.
-The website deploys through its Cloudflare Pages Git integration; optional
-`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `CLOUDFLARE_PAGES_PROJECT_NAME`
-secrets enable an explicit Wrangler deployment as well.
 
 Full runbook — feed merging, the `verify-release` gate, Windows delta/signing caveats, and
 required secrets — in [`RELEASE.md`](RELEASE.md).
+
+### Website deploys
+
+The site is plain static HTML in `website/` — **there is no build step.** `npm run build`
+builds the Electron app and must not be used as the website build command.
+
+`website/wrangler.jsonc` configures it as a Cloudflare Workers static-asset project.
+Settings for the Cloudflare Git integration:
+
+| Setting | Value |
+|---|---|
+| Root directory | `website` |
+| Build command | *(empty)* |
+| Deploy command | `npx wrangler deploy` |
+
+`website/.assetsignore` keeps locally built installers out of a deploy while still shipping
+`updates/latest.yml` and `updates/latest-linux-arm64.yml` — pre-3.1.0 installs poll
+`nativelaunch.xyz/updates/` and that path must keep working.
+
+The `deploy-website` workflow runs an explicit Wrangler deploy when `CLOUDFLARE_API_TOKEN`,
+`CLOUDFLARE_ACCOUNT_ID`, and `CLOUDFLARE_PAGES_PROJECT_NAME` are set. **Without them it is a
+no-op** — it only echoes that the Git integration will handle the push, so a broken
+integration surfaces as a green job and a stale site. See [`RELEASE.md`](RELEASE.md#the-website).
 
 ## Documentation
 
 | Document | Covers |
 |---|---|
+| [`CHANGELOG.md`](CHANGELOG.md) | What changed in each release |
 | [`RELEASE.md`](RELEASE.md) | Cutting a release: the CI pipeline, update feeds, signing, required secrets |
 | [`AUTO-UPDATES.md`](AUTO-UPDATES.md) | How the running app checks, downloads and applies updates |
 | [`design-system.md`](design-system.md) | Pixel-sampled tokens: colour, type, radii, motion |

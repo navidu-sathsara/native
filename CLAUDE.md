@@ -56,8 +56,13 @@ width/height/top/left. Long lists are virtualized (`@tanstack/react-virtual`).
 
 **Design tokens, not literals.** Colours, radii, spacing and motion come from
 `design-system.md` via `tailwind.config.ts` and CSS variables. The visual-QA gate compares
-against `screenshots/`, so ad-hoc values show up as perceptual diffs. Themes:
-`mono` (default), `mono-light`, `dark`, `light`, `oled`, `system`.
+against the committed baselines in `screenshots/baselines/`, so ad-hoc values show up as
+perceptual diffs. Themes: `mono` (default), `mono-light`, `dark`, `light`, `oled`, `system`.
+
+The `ref-*.png` captures in `screenshots/` are the historical design source behind
+`design-system.md`, but are **not** scored against — the rebrand diverges from their
+palette by design. After an intentional visual change, review every changed screen by eye,
+then copy `qa-screenshots/<name>.png` over `screenshots/baselines/<name>.png`.
 
 ## Testing
 
@@ -79,6 +84,12 @@ push `v*`, CI does the rest. Runtime update behaviour is documented separately i
 
 ## Gotchas
 
+- **`npm run rebuild:electron` can produce a binary this host can't load.** It fetches a
+  prebuilt `better-sqlite3` linked against GLIBC 2.33; on older glibc the app dies with an
+  opaque `SIGSEGV` at startup. Force a source build instead:
+  `npm_config_build_from_source=true npx electron-rebuild -f -w better-sqlite3`.
+- **The version in the titlebar is injected at build time** from `package.json` via a Vite
+  `define` (`__APP_VERSION__`, declared in `src/renderer/src/assets.d.ts`). Don't hardcode it.
 - **`website/updates/` is gitignored** except two force-added `.yml` feeds. Locally built
   installers pile up there and are not in the repo — don't "clean them from git history".
 - **Release assets live in a second repo** (`navidu-sathsara/native-releases`). That is why

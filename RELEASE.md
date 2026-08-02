@@ -119,7 +119,7 @@ unsigned builds.
 | `SIGNPATH_*` (token, org, project, policy, artifact config) | Windows signing | Unsigned builds, still publishable |
 | `WIN_CSC_LINK` + `WIN_CSC_KEY_PASSWORD` | Windows signing via cert | Unsigned |
 | `MAC_CSC_LINK`, `MAC_CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` | macOS signing + notarization | Unsigned; Gatekeeper warns |
-| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_PAGES_PROJECT_NAME` | Explicit Wrangler deploy | Falls back to the Pages Git integration |
+| `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_PAGES_PROJECT_NAME` | Explicit Wrangler deploy | **The deploy job becomes a no-op** — it echoes that the Git integration will handle it, and passes green either way |
 
 `RELEASE_TOKEN` should be a fine-grained PAT scoped to `native-releases` only, with
 Contents: write. It must not be the default `GITHUB_TOKEN`, which cannot write to another
@@ -138,7 +138,18 @@ roughly 9N jobs and would republish old versions. Disable Actions first
 (`gh api -X PUT repos/OWNER/REPO/actions/permissions -F enabled=false`), push, then
 re-enable.
 
-## The legacy website feed
+## The website
+
+The site is plain static HTML under `website/` with **no build step**. `website/wrangler.jsonc`
+configures it as a Cloudflare Workers static-asset project; the Git integration should use
+root directory `website`, an **empty** build command, and `npx wrangler deploy`.
+
+Do not set the build command to `npm run build` — that builds the Electron app.
+
+`website/.assetsignore` excludes the locally built installers that accumulate in
+`website/updates/`, while still shipping the two update feeds below.
+
+### The legacy website feed
 
 Apps installed from 3.1.0 onward read GitHub Releases directly. Older installs point at
 `https://nativelaunch.xyz/updates/`, so `bridge-legacy-feed` re-downloads the freshly
@@ -148,6 +159,19 @@ and deploys.
 
 `website/updates/` is otherwise gitignored — only those two `.yml` files are force-added
 (`git add -f`), which is why local installer builds accumulating there never reach a clone.
+
+### Known-broken: the site is not deploying
+
+As of 2026-08-02 `nativelaunch.xyz` still serves a ~3.4.0-era build. The Pages Git
+integration broke when the repos moved off the renamed `ikie-cli` account (see below), and
+because no `CLOUDFLARE_*` secrets are configured the workflow's fallback branch just echoes
+a message and exits 0. Every `website/**` commit since the move is in git but not live.
+
+Unblocking needs one of:
+
+1. Connect a Cloudflare Workers project to `navidu-sathsara/native` with the settings above, or
+2. Add the three `CLOUDFLARE_*` secrets so CI deploys explicitly — this is the better
+   option, since a failed deploy then fails the job instead of passing silently.
 
 ## Repository history
 
