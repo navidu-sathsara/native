@@ -46,6 +46,10 @@ test.skip(!APPIMAGE, 'requires a packaged AppImage (npm run package:linux)')
 test.beforeAll(async () => {
   const bytes = readFileSync(APPIMAGE!)
   const sha = await sha512b64(APPIMAGE!)
+  // electron-builder AppImages embed their blockmap at the tail, with its size
+  // in the last 4 bytes. The feed must advertise it (`blockMapSize`) or the
+  // differential downloader cannot locate the remote blockmap.
+  const blockMapSize = bytes.readUInt32BE(bytes.length - 4)
   const fileName = 'Native-99.9.9-arm64.AppImage'
   const yml = [
     'version: 99.9.9',
@@ -53,6 +57,7 @@ test.beforeAll(async () => {
     `  - url: ${fileName}`,
     `    sha512: ${sha}`,
     `    size: ${bytes.length}`,
+    `    blockMapSize: ${blockMapSize}`,
     `path: ${fileName}`,
     `sha512: ${sha}`,
     `releaseDate: '2026-07-20T00:00:00.000Z'`,
@@ -67,6 +72,20 @@ test.beforeAll(async () => {
       return
     }
     if (url.endsWith('.AppImage')) {
+      // The patch updater reads the embedded blockmap and changed blocks via
+      // HTTP Range; without 206 support the differential plan cannot build
+      // and the service (correctly) refuses the silent full-installer fallback.
+      const range = /bytes=(\d+)-(\d+)?/.exec(req.headers.range ?? '')
+      res.setHeader('accept-ranges', 'bytes')
+      if (range) {
+        const start = Number(range[1])
+        const end = range[2] ? Math.min(Number(range[2]), bytes.length - 1) : bytes.length - 1
+        res.statusCode = 206
+        res.setHeader('content-range', `bytes ${start}-${end}/${bytes.length}`)
+        res.setHeader('content-length', end - start + 1)
+        res.end(bytes.subarray(start, end + 1))
+        return
+      }
       res.setHeader('content-length', bytes.length)
       res.end(bytes)
       return
@@ -110,11 +129,12 @@ test('detects update, downloads it, and reaches ready-to-install', async () => {
   await expect(toast).toContainText('99.9.9')
 
   // Ready state offers restart-to-apply.
-  await expect(toast.getByText('ready to install')).toBeVisible({ timeout: 90_000 })
+  await expect(toast.getByText(/is ready/)).toBeVisible({ timeout: 90_000 })
   await expect(toast.getByRole('button', { name: 'Restart now' })).toBeVisible()
 
   // Settings shows the same state through the updater status panel.
   await page.getByLabel('Settings').click()
-  await page.getByRole('button', { name: 'Updates' }).click()
+  // Scope to the dialog: the titlebar has its own "Updates" icon button.
+  await page.getByRole('dialog').getByRole('button', { name: 'Updates' }).click()
   await expect(page.getByTestId('update-status')).toContainText(/9\.9\.9|ready/i)
 })
