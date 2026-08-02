@@ -135,6 +135,36 @@ describe('DownloadTask', () => {
     expect(t.progress().state).toBe('error')
   })
 
+  it('fails a 404 immediately instead of burning retries', async () => {
+    const t = task()
+    await expect(
+      t.run([{ url: `${fx.baseUrl}/missing.bin`, dest: join(dir, 'missing.bin'), size: 1024 }], 1)
+    ).rejects.toThrow(/HTTP 404/)
+    // Permanent failure → exactly one request, no retry storm.
+    expect(fx.requests.filter((r) => r.path === '/missing.bin')).toHaveLength(1)
+  })
+
+  it('counts unknown-size files toward done bytes when skipped as already present', async () => {
+    const blob = makeBlob(2048)
+    const meta = fx.add('/known.bin', blob)
+    const dest = join(dir, 'nosize.bin')
+    await writeFile(dest, blob)
+
+    const t = task()
+    // No declared size or sha1 → verifies() passes on existence; progress must still balance.
+    await t.run(
+      [
+        { url: `${fx.baseUrl}/known.bin`, dest, sha1: meta.sha1 },
+        { url: `${fx.baseUrl}/known.bin`, dest: join(dir, 'known.bin'), size: meta.size, sha1: meta.sha1 }
+      ],
+      2
+    )
+    t.finish()
+    const p = t.progress()
+    expect(p.doneBytes).toBe(p.totalBytes)
+    expect(p.doneBytes).toBe(2 * blob.length)
+  })
+
   it('rejects a body whose hash does not match (poisoned mirror)', async () => {
     const blob = makeBlob(4096)
     fx.add('/evil.bin', blob)

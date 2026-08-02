@@ -25,6 +25,12 @@ export interface TaskOptions {
 }
 
 const MAX_ATTEMPTS = 4
+/** Abort if the server hasn't produced response headers in this window. */
+const CONNECT_TIMEOUT_MS = 15_000
+/** Abort a transfer that stops producing bytes — a resumed retry picks it back up. */
+const STALL_TIMEOUT_MS = 30_000
+/** Upper bound honoured for a server's Retry-After hint. */
+const MAX_RETRY_AFTER_MS = 15_000
 
 /**
  * One logical download job (e.g. "install instance X") made of many files.
@@ -32,6 +38,8 @@ const MAX_ATTEMPTS = 4
  * - resume of partial files via HTTP Range on `.part` files
  * - sha1 verification (incremental while streaming; re-hash of resumed prefix)
  * - byte-accurate progress with EMA speed + ETA
+ * - connect/stall watchdogs so a dead socket can never hang a worker
+ * - permanent HTTP failures (404/403/410…) fail fast instead of burning retries
  */
 export class DownloadTask extends EventEmitter {
   readonly id: string
@@ -43,6 +51,8 @@ export class DownloadTask extends EventEmitter {
   private inFlightBytes = new Map<DownloadItem, number>()
   private doneFiles = 0
   private totalBytesKnown = 0
+  /** content-length observed for items with no declared size, so retries don't double-count */
+  private discoveredBytes = new Map<DownloadItem, number>()
   private speedEma = 0
   private lastSampleBytes = 0
   private lastSampleAt = 0
@@ -162,14 +172,24 @@ export class DownloadTask extends EventEmitter {
     }
   }
 
+  /** Record the true size of an item that declared none, keeping totals stable across retries. */
+  private discoverSize(item: DownloadItem, bytes: number): void {
+    if (item.size != null || bytes <= 0) return
+    const prev = this.discoveredBytes.get(item) ?? 0
+    this.totalBytesKnown += bytes - prev
+    this.discoveredBytes.set(item, bytes)
+  }
+
   private async downloadOne(item: DownloadItem): Promise<void> {
     // Already present and verified → count and skip.
     if (await verifies(item.dest, item)) {
-      if (item.size == null) {
+      let bytes = item.size
+      if (bytes == null) {
         const s = await stat(item.dest).catch(() => null)
-        if (s) this.totalBytesKnown += s.size
+        bytes = s?.size ?? 0
+        this.discoverSize(item, bytes)
       }
-      this.doneBytes += item.size ?? 0
+      this.doneBytes += bytes
       return
     }
     await ensureDir(dirname(item.dest))
@@ -180,12 +200,15 @@ export class DownloadTask extends EventEmitter {
       attempt++
       const ac = new AbortController()
       this.aborts.add(ac)
+      let retryAfterMs = 0
       try {
         await this.fetchToFile(item, part, ac, allowResume)
         await rename(part, item.dest)
         if (item.executable) await makeExecutable(item.dest)
         this.inFlightBytes.delete(item)
-        this.doneBytes += item.size ?? (await stat(item.dest)).size
+        const bytes = item.size ?? (await stat(item.dest)).size
+        this.discoverSize(item, bytes)
+        this.doneBytes += bytes
         return
       } catch (err) {
         this.inFlightBytes.delete(item)
@@ -195,12 +218,16 @@ export class DownloadTask extends EventEmitter {
           allowResume = false
           await rm(part, { force: true })
         }
-        if (attempt >= MAX_ATTEMPTS) {
-          throw new Error(
-            `Download failed after ${attempt} attempts: ${item.url} → ${err instanceof Error ? err.message : err}`
-          )
+        // Missing/forbidden on the server or a local fs problem — retrying cannot help.
+        if (err instanceof PermanentFailure || isPermanentFsError(err)) {
+          throw new Error(`Download failed: ${item.url} → ${describeError(err)}`)
         }
-        await new Promise((r) => setTimeout(r, Math.min(4000, 400 * 2 ** attempt)))
+        if (err instanceof RetryableHttp) retryAfterMs = err.retryAfterMs
+        if (attempt >= MAX_ATTEMPTS) {
+          throw new Error(`Download failed after ${attempt} attempts: ${item.url} → ${describeError(err)}`)
+        }
+        const backoff = Math.min(4000, 400 * 2 ** attempt)
+        await new Promise((r) => setTimeout(r, Math.max(backoff, retryAfterMs)))
       } finally {
         this.aborts.delete(ac)
       }
@@ -214,7 +241,7 @@ export class DownloadTask extends EventEmitter {
     allowResume: boolean
   ): Promise<void> {
     let offset = 0
-    const hash = item.sha1 ? createHash('sha1') : null
+    let hash = item.sha1 ? createHash('sha1') : null
     if (allowResume) {
       const st = await stat(part).catch(() => null)
       if (st && st.size > 0 && (item.size == null || st.size < item.size)) {
@@ -232,64 +259,67 @@ export class DownloadTask extends EventEmitter {
 
     const headers: Record<string, string> = { 'user-agent': USER_AGENT }
     if (offset > 0) headers.range = `bytes=${offset}-`
-    const res = await fetch(item.url, { headers, signal: ac.signal })
-    if (offset > 0 && res.status === 200) {
-      // Server ignored Range → restart from scratch.
-      offset = 0
-      hash?.destroy?.()
-      if (item.sha1) {
-        // recreate hash state
-        return await this.fetchToFileFresh(item, part, res)
-      }
+
+    // Connect watchdog: a server that never answers must not pin a worker.
+    const connectTimer = setTimeout(() => ac.abort(new StallTimeout('connection timed out')), CONNECT_TIMEOUT_MS)
+    connectTimer.unref?.()
+    let res: Response
+    try {
+      res = await fetch(item.url, { headers, signal: ac.signal })
+    } finally {
+      clearTimeout(connectTimer)
     }
-    if (!res.ok && res.status !== 206) throw new Error(`HTTP ${res.status}`)
+
+    if (offset > 0 && res.status === 200) {
+      // Server ignored Range → restart from scratch with fresh hash state.
+      offset = 0
+      hash = item.sha1 ? createHash('sha1') : null
+    }
+    if (!res.ok && res.status !== 206) {
+      if (res.status === 429 || res.status === 503 || res.status === 408) {
+        throw new RetryableHttp(res.status, parseRetryAfter(res.headers.get('retry-after')))
+      }
+      // Other 4xx responses are the server telling us this file will never appear.
+      if (res.status >= 400 && res.status < 500) throw new PermanentFailure(`HTTP ${res.status}`)
+      throw new Error(`HTTP ${res.status}`)
+    }
     if (!res.body) throw new Error('empty body')
 
-    if (item.size == null) {
+    if (item.size == null && offset === 0) {
       const len = Number(res.headers.get('content-length') ?? 0)
-      if (len > 0 && offset === 0) this.totalBytesKnown += len
+      this.discoverSize(item, len)
     }
 
+    // Stall watchdog: reset on every chunk; a silent socket gets aborted and retried.
+    const stall = (): ReturnType<typeof setTimeout> => {
+      const t = setTimeout(() => ac.abort(new StallTimeout('transfer stalled')), STALL_TIMEOUT_MS)
+      t.unref?.()
+      return t
+    }
+    let stallTimer = stall()
     const self = this
     let received = offset
     this.inFlightBytes.set(item, offset)
     const out = createWriteStream(part, offset > 0 ? { flags: 'a' } : undefined)
-    await pipeline(
-      Readable.fromWeb(res.body as import('stream/web').ReadableStream),
-      async function* (src) {
-        for await (const chunk of src) {
-          const buf = chunk as Buffer
-          hash?.update(buf)
-          received += buf.length
-          self.inFlightBytes.set(item, received)
-          yield buf
-        }
-      },
-      out
-    )
-    await this.verifyAfter(item, part, hash?.digest('hex') ?? null)
-  }
-
-  /** Restart path when the server ignored our Range request. */
-  private async fetchToFileFresh(item: DownloadItem, part: string, res: Response): Promise<void> {
-    const hash = item.sha1 ? createHash('sha1') : null
-    const self = this
-    let received = 0
-    this.inFlightBytes.set(item, 0)
-    const out = createWriteStream(part)
-    await pipeline(
-      Readable.fromWeb(res.body as import('stream/web').ReadableStream),
-      async function* (src) {
-        for await (const chunk of src) {
-          const buf = chunk as Buffer
-          hash?.update(buf)
-          received += buf.length
-          self.inFlightBytes.set(item, received)
-          yield buf
-        }
-      },
-      out
-    )
+    try {
+      await pipeline(
+        Readable.fromWeb(res.body as import('stream/web').ReadableStream),
+        async function* (src) {
+          for await (const chunk of src) {
+            clearTimeout(stallTimer)
+            stallTimer = stall()
+            const buf = chunk as Buffer
+            hash?.update(buf)
+            received += buf.length
+            self.inFlightBytes.set(item, received)
+            yield buf
+          }
+        },
+        out
+      )
+    } finally {
+      clearTimeout(stallTimer)
+    }
     await this.verifyAfter(item, part, hash?.digest('hex') ?? null)
   }
 
@@ -318,6 +348,75 @@ class HashMismatch extends Error {
     super(msg)
     this.name = 'HashMismatch'
   }
+}
+
+/** 4xx from the origin — the file is gone/forbidden; retrying is pure waste. */
+class PermanentFailure extends Error {
+  constructor(msg: string) {
+    super(msg)
+    this.name = 'PermanentFailure'
+  }
+}
+
+/** Throttle/overload response carrying the server's Retry-After hint. */
+class RetryableHttp extends Error {
+  readonly retryAfterMs: number
+  constructor(status: number, retryAfterMs: number) {
+    super(`HTTP ${status}`)
+    this.name = 'RetryableHttp'
+    this.retryAfterMs = retryAfterMs
+  }
+}
+
+/** Watchdog abort reason — distinguishable from a user cancel. */
+class StallTimeout extends Error {
+  constructor(msg: string) {
+    super(msg)
+    this.name = 'StallTimeout'
+  }
+}
+
+function parseRetryAfter(header: string | null): number {
+  const secs = Number(header)
+  if (!Number.isFinite(secs) || secs <= 0) return 0
+  return Math.min(secs * 1000, MAX_RETRY_AFTER_MS)
+}
+
+/** Local filesystem failures that no amount of re-fetching will fix. */
+function isPermanentFsError(err: unknown): boolean {
+  const code = (err as NodeJS.ErrnoException)?.code
+  return code === 'ENOSPC' || code === 'EACCES' || code === 'EPERM' || code === 'EROFS' || code === 'EISDIR'
+}
+
+/** Translate raw error codes into something a person can act on. */
+function describeError(err: unknown): string {
+  const code = (err as NodeJS.ErrnoException)?.code
+  switch (code) {
+    case 'ENOSPC':
+      return 'disk is full'
+    case 'EACCES':
+    case 'EPERM':
+      return 'permission denied writing the file'
+    case 'EROFS':
+      return 'destination is read-only'
+    case 'ENOTFOUND':
+    case 'EAI_AGAIN':
+      return 'DNS lookup failed — check your internet connection'
+    case 'ECONNREFUSED':
+      return 'connection refused'
+    case 'ECONNRESET':
+      return 'connection reset'
+    case 'ETIMEDOUT':
+      return 'connection timed out'
+  }
+  if (err instanceof Error) {
+    // fetch wraps network errors; the useful part is usually in `cause`
+    if (err.name === 'AbortError' && !(err instanceof StallTimeout)) return 'transfer aborted'
+    const cause = (err as Error & { cause?: unknown }).cause
+    if (cause && cause !== err && (cause as NodeJS.ErrnoException)?.code) return describeError(cause)
+    return err.message
+  }
+  return String(err)
 }
 
 async function verifies(dest: string, item: DownloadItem): Promise<boolean> {
