@@ -38,6 +38,7 @@ export default {
           tint: 'rgba(255,73,110,0.12)'
         },
         warn: '#ffa347',
+        success: '#2ecc71',
         info: '#5b9dff',
         special: '#c084fc',
         content: {
@@ -56,7 +57,7 @@ export default {
         log: 'var(--log-text)'
       },
       fontFamily: {
-        sans: ['"Inter Variable"', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Geist Variable"', '"Inter Variable"', 'Inter', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
       },
       fontSize: {

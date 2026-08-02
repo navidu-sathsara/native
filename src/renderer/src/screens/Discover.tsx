@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, Download, ExternalLink, Loader2, PackageSearch, ThumbsUp } from 'lucide-react'
+import { ArrowLeft, Check, Download, ExternalLink, Loader2, PackageSearch, ThumbsUp } from 'lucide-react'
 import type {
   InstanceConfig,
   ProjectType,
@@ -262,6 +262,7 @@ export function DiscoverScreen({
   contentType?: ProjectType
 }): React.JSX.Element {
   const instances = useInstances((s) => s.instances)
+  const { go, back, canBack } = useNav()
   const [selectedId, setSelectedId] = useState<string | null>(instanceId ?? instances[0]?.id ?? null)
   const instance = instances.find((i) => i.id === selectedId) ?? null
 
@@ -340,7 +341,18 @@ export function DiscoverScreen({
   return (
     <div className="flex h-full flex-col p-6" data-testid="screen-discover">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-display text-content-primary">Discover content</h1>
+        <div className="flex min-w-0 items-center gap-3">
+          {instanceId && (
+            <button
+              aria-label="Back"
+              onClick={() => canBack() ? back() : go({ name: 'instance', id: instanceId, tab: 'content' })}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line-subtle bg-surface-raised text-content-secondary transition-colors hover:bg-surface-hover hover:text-content-primary"
+            >
+              <ArrowLeft size={16} />
+            </button>
+          )}
+          <h1 className="text-display text-content-primary">Discover content</h1>
+        </div>
         {!isPack && (
           <div className="flex items-center gap-2">
             <span className="text-small text-content-secondary">Install to</span>

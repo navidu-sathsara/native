@@ -4,13 +4,12 @@ import {
   AlertTriangle,
   ArrowLeft,
   Boxes,
-  Clock3,
   Download,
   FolderOpen,
   Globe2,
   Image,
-  MoreVertical,
   Play,
+  ScrollText,
   Settings,
   Square
 } from 'lucide-react'
@@ -43,7 +42,8 @@ const MAIN_TABS = [
   { id: 'content' as const, label: 'Content', icon: Boxes },
   { id: 'worlds' as const, label: 'Worlds', icon: Globe2 },
   { id: 'screenshots' as const, label: 'Screenshots', icon: Image },
-  { id: 'files' as const, label: 'Files', icon: FolderOpen }
+  { id: 'files' as const, label: 'Files', icon: FolderOpen },
+  { id: 'logs' as const, label: 'Logs', icon: ScrollText }
 ]
 
 function LaunchButton({ inst }: { inst: InstanceConfig }): React.JSX.Element {
@@ -81,7 +81,7 @@ function LaunchButton({ inst }: { inst: InstanceConfig }): React.JSX.Element {
 
   if (running) {
     return (
-      <Button variant="danger" icon={Square} onClick={() => void window.native.instances.kill(inst.id)} className="h-12 min-w-[192px] rounded-[12px]">
+      <Button variant="danger" icon={Square} onClick={() => void window.native.instances.kill(inst.id)} className="h-11 min-w-[150px] rounded-full">
         Stop
       </Button>
     )
@@ -96,7 +96,7 @@ function LaunchButton({ inst }: { inst: InstanceConfig }): React.JSX.Element {
         onClick={launch}
         disabled={busy}
         data-testid="instance-play"
-        className="h-12 min-w-[192px] rounded-[12px] bg-gradient-to-r from-accent to-accent-hover text-[15px] shadow-[inset_0_1px_0_rgba(255,255,255,.25)] hover:brightness-110"
+        className="h-11 min-w-[150px] rounded-full bg-gradient-to-r from-accent to-accent-hover text-[15px] shadow-[inset_0_1px_0_rgba(255,255,255,.25)] hover:brightness-110"
       >
         {busy ? <Spinner size={16} /> : inst.installed ? 'Play' : 'Install'}
       </Button>
@@ -104,70 +104,72 @@ function LaunchButton({ inst }: { inst: InstanceConfig }): React.JSX.Element {
   )
 }
 
-function InstanceOverview({ inst }: { inst: InstanceConfig }): React.JSX.Element {
-  const { go } = useNav()
+/** Compact Modrinth-style header: icon + identity on the left, actions on the right. */
+function InstanceHeader({ inst, tab }: { inst: InstanceConfig; tab: InstanceTab }): React.JSX.Element {
+  const { go, back, canBack } = useNav()
   return (
-    <section className="overflow-hidden rounded-[16px] border border-line-subtle bg-surface-raised">
-      <div className="flex min-h-[129px] items-center gap-4 px-6 py-5">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[13px] border border-line-subtle bg-surface-inset">
-          <InstanceIcon icon={inst.icon} name={inst.name} size={64} className="!rounded-[8px]" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2 text-[11px]">
-            <span className="inline-flex items-center gap-1.5 font-bold text-content-primary">
-              <LoaderMark loader={inst.loader} size={13} />
-              {LOADER_LABELS[inst.loader]}
-            </span>
-            <span className="h-4 w-px bg-line-strong" />
-            <span className="font-mono text-content-secondary">MC {inst.mcVersion}</span>
-            {inst.loaderVersion && inst.loader !== 'vanilla' && <span className="font-mono text-content-muted">• {inst.loaderVersion}</span>}
-          </div>
-          <h1 className="mt-2 truncate text-[29px] font-extrabold leading-9 tracking-[-0.035em] text-content-primary">{inst.name}</h1>
-        </div>
-        <LaunchButton inst={inst} />
+    <div className="flex items-center gap-4">
+      <button
+        aria-label="Back"
+        onClick={() => canBack() ? back() : go({ name: 'library' })}
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line-subtle bg-surface-raised text-content-secondary transition-colors hover:bg-surface-hover hover:text-content-primary"
+      >
+        <ArrowLeft size={16} />
+      </button>
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[12px] border border-line-subtle bg-surface-inset">
+        <InstanceIcon icon={inst.icon} name={inst.name} size={44} className="!rounded-[8px]" />
       </div>
-
-      <div className="grid h-16 grid-cols-[1fr_1fr_128px_58px] border-t border-line-subtle">
-        <div className="flex flex-col justify-center border-r border-line-subtle px-6">
-          <span className="text-[10px] font-medium tracking-[0.18em] text-content-muted">STATUS</span>
-          <span className="mt-1 flex items-center gap-1.5 text-[12px] text-content-secondary">
-            <AlertTriangle size={13} strokeWidth={1.6} /> {inst.installed ? 'Ready to play' : 'Not installed'}
+      <div className="min-w-0 flex-1">
+        <h1 className="truncate text-[21px] font-extrabold leading-7 tracking-[-0.025em] text-content-primary">{inst.name}</h1>
+        <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12.5px] text-content-secondary">
+          <span className="inline-flex items-center gap-1.5 font-semibold">
+            <LoaderMark loader={inst.loader} size={13} />
+            {LOADER_LABELS[inst.loader]} {inst.mcVersion}
           </span>
+          {inst.loaderVersion && inst.loader !== 'vanilla' && (
+            <span className="font-mono text-[11.5px] text-content-muted">{inst.loaderVersion}</span>
+          )}
+          <span className="text-content-muted">•</span>
+          <span>{formatPlaytime(inst.totalPlayMs)} played</span>
+          {!inst.installed && (
+            <>
+              <span className="text-content-muted">•</span>
+              <span className="text-warn">Not installed</span>
+            </>
+          )}
         </div>
-        <div className="flex flex-col justify-center border-r border-line-subtle px-6">
-          <span className="text-[10px] font-medium tracking-[0.18em] text-content-muted">PLAYTIME</span>
-          <span className="mt-1 flex items-center gap-1.5 text-[12px] text-content-secondary">
-            <Clock3 size={13} strokeWidth={1.6} /> {formatPlaytime(inst.totalPlayMs)}
-          </span>
-        </div>
-        <button
-          role="tab"
-          aria-label="Options"
-          aria-selected={false}
-          onClick={() => go({ name: 'instance', id: inst.id, tab: 'options' })}
-          className="flex flex-col items-center justify-center gap-1 border-r border-line-subtle text-content-secondary transition-colors hover:bg-surface-hover hover:text-accent"
-        >
-          <Settings size={16} strokeWidth={1.6} />
-          <span className="text-[10px]">Instance Settings</span>
-        </button>
-        <button
-          role="tab"
-          aria-label="Logs"
-          aria-selected={false}
-          onClick={() => go({ name: 'instance', id: inst.id, tab: 'logs' })}
-          className="flex flex-col items-center justify-center gap-1 text-content-secondary transition-colors hover:bg-surface-hover hover:text-accent"
-        >
-          <MoreVertical size={17} />
-          <span className="text-[10px]">More</span>
-        </button>
       </div>
-    </section>
+      <LaunchButton inst={inst} />
+      <button
+        role="tab"
+        aria-label="Options"
+        aria-selected={tab === 'options'}
+        title="Instance options"
+        onClick={() => go({ name: 'instance', id: inst.id, tab: 'options' })}
+        className={cn(
+          'flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line-subtle transition-colors',
+          tab === 'options'
+            ? 'bg-accent-tint text-accent'
+            : 'bg-surface-raised text-content-secondary hover:bg-surface-hover hover:text-content-primary'
+        )}
+      >
+        <Settings size={18} strokeWidth={1.8} />
+      </button>
+      <button
+        aria-label="Open instance folder"
+        title="Open instance folder"
+        onClick={() => void window.native.instances.openFolder(inst.id)}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-line-subtle bg-surface-raised text-content-secondary transition-colors hover:bg-surface-hover hover:text-content-primary"
+      >
+        <FolderOpen size={18} strokeWidth={1.8} />
+      </button>
+    </div>
   )
 }
 
 export function InstanceScreen({ id, tab }: { id: string; tab: InstanceTab }): React.JSX.Element {
   const inst = useInstances((s) => s.byId(id))
-  const { go, back, canBack } = useNav()
+  const { go } = useNav()
   const updateCount = useUpdateCount(id)
 
   useEffect(() => {
@@ -181,40 +183,42 @@ export function InstanceScreen({ id, tab }: { id: string; tab: InstanceTab }): R
   return (
     <div className="relative flex h-full flex-col pr-3" data-testid="screen-instance">
       <span aria-hidden className="absolute bottom-[46px] right-[30px] top-[27px] w-1 rounded-full bg-surface-active" />
-      <div className="shrink-0 pl-6 pr-6 pt-[27px]">
-        <button
-          onClick={() => canBack() ? back() : go({ name: 'library' })}
-          className="mb-6 flex items-center gap-2 text-[15px] text-content-secondary transition-colors hover:text-accent"
-        >
-          <ArrowLeft size={16} /> Back
-        </button>
-        <InstanceOverview inst={inst} />
+      <div className="shrink-0 pl-6 pr-6 pt-5">
+        <InstanceHeader inst={inst} tab={tab} />
+
+        <div role="tablist" className="mt-4 flex w-fit items-center gap-1 rounded-full border border-line-subtle bg-surface-raised p-1">
+          {MAIN_TABS.map(({ id: tabId, label, icon: Icon }) => {
+            const active = tab === tabId
+            return (
+              <button
+                key={tabId}
+                role="tab"
+                aria-selected={active}
+                onClick={() => go({ name: 'instance', id, tab: tabId })}
+                className={cn(
+                  'flex h-9 items-center gap-2 rounded-full px-4 text-[13.5px] font-semibold transition-colors',
+                  active
+                    ? 'bg-accent text-accent-contrast'
+                    : 'text-content-secondary hover:bg-surface-hover hover:text-content-primary'
+                )}
+              >
+                <Icon size={16} strokeWidth={1.8} />
+                {label}
+                {tabId === 'content' && updateCount > 0 && (
+                  <span className={cn(
+                    'rounded-full px-1.5 text-[10px]',
+                    active ? 'bg-accent-contrast/25 text-accent-contrast' : 'bg-accent text-accent-contrast'
+                  )}>
+                    {updateCount}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      <div className="mt-6 flex h-[42px] shrink-0 items-end border-b border-line-subtle px-6">
-        {MAIN_TABS.map(({ id: tabId, label, icon: Icon }) => {
-          const active = tab === tabId
-          return (
-            <button
-              key={tabId}
-              role="tab"
-              aria-selected={active}
-              onClick={() => go({ name: 'instance', id, tab: tabId })}
-              className={cn(
-                'relative flex h-[42px] items-center gap-2 px-4 text-[15px] transition-colors',
-                active ? 'text-accent' : 'text-content-secondary hover:text-content-primary'
-              )}
-            >
-              <Icon size={17} strokeWidth={1.8} />
-              {label}
-              {tabId === 'content' && updateCount > 0 && <span className="rounded-full bg-accent px-1.5 text-[10px] text-accent-contrast">{updateCount}</span>}
-              {active && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-accent" />}
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-hidden">
+      <div className="mt-3 min-h-0 flex-1 overflow-hidden">
         <motion.div key={tab} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }} className="h-full">
           <Suspense fallback={<div className="flex h-full items-center justify-center"><Spinner size={24} /></div>}>
             {tab === 'content' && <ContentTab inst={inst} />}

@@ -60,8 +60,9 @@ Every value below was pixel-sampled (5×5 average) or measured from the referenc
 
 ## 2. Typography
 
-Reference uses **Inter** (geometric, tight tracking, heavy weights for headings). Bundled via
-`@fontsource-variable/inter`. Monospace: **JetBrains Mono** (log console, file sizes, versions).
+UI face: **Geist** (crisp, geometric, tight tracking, heavy weights for headings). Bundled via
+`@fontsource-variable/geist`, with **Inter** kept as the bundled fallback. Monospace:
+**JetBrains Mono** (log console, file sizes, versions).
 
 | Style | Size/line | Weight | Usage |
 |---|---|---|---|

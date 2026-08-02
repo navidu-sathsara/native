@@ -1,6 +1,38 @@
-import { Bug, Heart, Minus, X } from 'lucide-react'
+import { Bug, Heart, Minus, Square, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useInstances, useRunning } from '@/stores/data'
+import { useNav } from '@/stores/nav'
 import markUrl from '@/assets/icon.png'
+
+/** Green running-game pill (design-system §4): name → logs, square → stop. */
+function RunningChip(): React.JSX.Element | null {
+  const running = useRunning((s) => s.running)
+  const instances = useInstances((s) => s.instances)
+  const { go } = useNav()
+  if (running.length === 0) return null
+  const current = running[running.length - 1]
+  const inst = instances.find((i) => i.id === current.instanceId)
+  return (
+    <div className="no-drag mr-5 flex h-[26px] items-center gap-1.5 rounded-full border border-line-subtle bg-surface-raised pl-2.5 pr-1">
+      <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
+      <button
+        onClick={() => inst && go({ name: 'instance', id: inst.id, tab: 'logs' })}
+        className="max-w-[180px] truncate text-[11.5px] font-semibold text-content-secondary transition-colors hover:text-content-primary"
+      >
+        {inst?.name ?? 'Running'}
+        {running.length > 1 ? ` +${running.length - 1}` : ''}
+      </button>
+      <button
+        aria-label="Stop game"
+        title="Stop game"
+        onClick={() => void window.native.instances.kill(current.instanceId)}
+        className="flex h-[18px] w-[18px] items-center justify-center rounded-full text-content-secondary transition-colors hover:bg-danger-tint hover:text-danger"
+      >
+        <Square size={9} fill="currentColor" />
+      </button>
+    </div>
+  )
+}
 
 /**
  * Compact frameless chrome modelled after the reference launcher. Navigation
@@ -25,13 +57,15 @@ export function Titlebar(): React.JSX.Element {
           draggable={false}
           className="brand-mark object-contain"
         />
-        <span className="text-[14px] font-bold tracking-[-0.02em]">Native 3.8.0</span>
+        <span className="text-[14px] font-bold tracking-[-0.02em]">Native {__APP_VERSION__}</span>
         <span className="rounded bg-accent-tint px-1.5 py-0.5 text-[10px] font-bold leading-none text-accent">
           Beta
         </span>
       </div>
 
       <div className="min-w-0 flex-1" />
+
+      <RunningChip />
 
       <button
         className="no-drag mr-5 flex h-full items-center gap-2 text-[12px] font-semibold text-content-secondary transition-colors hover:text-accent"
