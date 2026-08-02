@@ -1,0 +1,11 @@
+{
+  // Cloudflare Workers static-assets config for nativelaunch.xyz.
+  // The site is prebuilt static HTML — no build step. Deployed by the
+  // Cloudflare Git integration (root directory: website/, deploy command:
+  // `npx wrangler deploy`), or manually from this directory.
+  "name": "native",
+  "compatibility_date": "2026-08-02",
+  "assets": {
+    "directory": "./"
+  }
+}
