@@ -141,8 +141,15 @@ re-enable.
 ## The website
 
 The site is plain static HTML under `website/` with **no build step**. `website/wrangler.jsonc`
-configures it as a Cloudflare Workers static-asset project; the Git integration should use
-root directory `website`, an **empty** build command, and `npx wrangler deploy`.
+configures it as a scriptless Cloudflare Workers Static Assets project; the Workers Builds
+Git integration should use root directory `website`, an **empty** build command, and
+`npx wrangler deploy`. A direct deploy from the repository root is
+`npm run site:deploy:worker`.
+
+Cloudflare Pages is supported by the same directory through `website/_headers` and
+`website/_redirects`. Its output directory is `website` when building from the repository
+root; deploy it directly with
+`npm run site:deploy:pages -- --project-name <your-pages-project>`.
 
 Do not set the build command to `npm run build` — that builds the Electron app.
 

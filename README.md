@@ -113,14 +113,43 @@ required secrets — in [`RELEASE.md`](RELEASE.md).
 The site is plain static HTML in `website/` — **there is no build step.** `npm run build`
 builds the Electron app and must not be used as the website build command.
 
-`website/wrangler.jsonc` configures it as a Cloudflare Workers static-asset project.
-Settings for the Cloudflare Git integration:
+Run it locally through Cloudflare's asset server:
+
+```bash
+npm run site:dev
+```
+
+`website/wrangler.jsonc` configures a scriptless Cloudflare Worker with Static Assets,
+clean `/download/` URLs, and the branded `404.html` fallback. Deploy that Worker with:
+
+```bash
+npm run site:deploy:worker
+```
+
+The same directory also supports Cloudflare Pages through `_headers` and `_redirects`:
+
+```bash
+npm run site:deploy:pages -- --project-name <your-pages-project>
+```
+
+Settings for a Workers Builds Git integration:
 
 | Setting | Value |
 |---|---|
 | Root directory | `website` |
 | Build command | *(empty)* |
 | Deploy command | `npx wrangler deploy` |
+
+For a Pages Git integration, leave the build command empty and set the output directory
+to `website` (or `/` when the Pages root directory itself is `website`).
+
+For the production VPS, PM2 runs the repo-owned static server on private port `8787` and
+Nginx terminates HTTPS for `nativelaunch.xyz`:
+
+```bash
+npm run site:start:vps
+sudo nginx -t && sudo systemctl reload nginx
+```
 
 `website/.assetsignore` keeps locally built installers out of a deploy while still shipping
 `updates/latest.yml` and `updates/latest-linux-arm64.yml` — pre-3.1.0 installs poll
