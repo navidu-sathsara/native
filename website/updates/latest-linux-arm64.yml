@@ -1,12 +1,12 @@
-version: 3.8.0
+version: 3.9.0
 files:
-  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.8.0/Native-3.8.0-arm64.AppImage
-    sha512: 8GuWCHgPicaqNfnncrCNX+BXq3iJGl40JuI5Gpap9/lv9zhNR3sJrATje4jlhcnmERRwknI7rMrYzR54r2jL+Q==
-    size: 116810176
-    blockMapSize: 122124
-  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.8.0/Native-3.8.0-arm64.deb
-    sha512: R1r36amDiZHfbWLi+CYb+kRloiOfW4H4wvPR/LquBTrVsQM/K1hAG2o3+Bf8jeMkgu5oa7ruOvn/61efMuPGUw==
-    size: 84649424
-path: Native-3.8.0-arm64.AppImage
-sha512: 8GuWCHgPicaqNfnncrCNX+BXq3iJGl40JuI5Gpap9/lv9zhNR3sJrATje4jlhcnmERRwknI7rMrYzR54r2jL+Q==
-releaseDate: '2026-08-01T03:46:02.615Z'
+  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.9.0/Native-3.9.0-arm64.AppImage
+    sha512: M+H0LM+iGgz971MTpDmJ8y2cgUuNSxjcLyz0AhTRSNX/7lN2qv0Uu8zrWqKlor7oISsgK5YXlw0hKGxny1pw1w==
+    size: 117228042
+    blockMapSize: 122198
+  - url: https://github.com/navidu-sathsara/native-releases/releases/download/v3.9.0/Native-3.9.0-arm64.deb
+    sha512: VxCo3B4JY22PhAhpTVmJXMnxfbUV5E654BRUQqMN2CMqECYcfIUUu9l2s8Ymgf/OfOt5jkkgNT5DNA3Co/c08w==
+    size: 85049560
+path: Native-3.9.0-arm64.AppImage
+sha512: M+H0LM+iGgz971MTpDmJ8y2cgUuNSxjcLyz0AhTRSNX/7lN2qv0Uu8zrWqKlor7oISsgK5YXlw0hKGxny1pw1w==
+releaseDate: '2026-08-02T05:11:00.694Z'
