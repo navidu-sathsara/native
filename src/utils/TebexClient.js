@@ -43,6 +43,7 @@ class TebexClient {
 
     if (this.publicToken) {
       try {
+        let directCheckoutUrl = null;
         // 1. Fetch available packages from Tebex
         const packages = await this.getPackages();
 
@@ -95,7 +96,10 @@ class TebexClient {
               headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
               body: JSON.stringify({ package_id: matched.id })
             });
-            if (!addPkgRes.ok) {
+            if (addPkgRes.ok) {
+              const addData = await addPkgRes.json();
+              directCheckoutUrl = addData.data?.links?.checkout;
+            } else {
               console.warn('Could not attach package to basket:', await addPkgRes.text());
             }
           }
@@ -106,7 +110,7 @@ class TebexClient {
           };
         }
 
-        const checkoutLink = basketData.data?.links?.checkout || `https://checkout.tebex.io/checkout/${ident}`;
+        const checkoutLink = directCheckoutUrl || `https://pay.tebex.io/${ident}` || `https://checkout.tebex.io/checkout/${ident}`;
         return { ok: true, url: checkoutLink };
       } catch (err) {
         console.error('Tebex Headless API error:', err);
