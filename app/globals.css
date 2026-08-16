@@ -1,18 +1,15 @@
 @import "tailwindcss";
 
 /* ============================================================
-   NATIVE SaaS - Stripe-Inspired Design System
-   Ultra-modern, clean, high-converting masterpiece
-   Light theme with vibrant mesh accents
+   NATIVE SaaS - Editorial Developer Design System
+   High-contrast, ultra-modern, crisp typography
    ============================================================ */
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
-
-  /* Landing: Editorial Developer art direction */
-  --font-display: var(--font-bricolage), Georgia, serif;
-  --font-body: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
 
   --color-paper: #f9f9f6;
   --color-paper-2: #f3f3ef;
@@ -25,47 +22,52 @@
   --color-rule: #e4e4e1;
   --color-rule-dark: #27272a;
 
-  /* Stripe-inspired color palette */
-  --color-brand-50: #eef2f6;
-  --color-brand-100: #e0e6eb;
-  --color-brand-200: #c1cdd7;
-  --color-brand-300: #a2b4c3;
-  --color-brand-400: #839baf;
-  --color-brand-500: #64829b;
-  --color-brand-600: #425466; /* Secondary Text */
-  --color-brand-700: #334155;
-  --color-brand-800: #1e293b;
-  --color-brand-900: #0a2540; /* Primary Text */
+  /* Stripe & Legacy Compatibility Tokens */
+  --color-brand-50: #f3f3ef;
+  --color-brand-100: #e4e4e1;
+  --color-brand-200: #e4e4e1;
+  --color-brand-300: #8a8a85;
+  --color-brand-400: #8a8a85;
+  --color-brand-500: #52525b;
+  --color-brand-600: #52525b;
+  --color-brand-700: #111111;
+  --color-brand-800: #111111;
+  --color-brand-900: #111111;
 
-  --color-blurple-500: #635bff; /* Primary CTA */
-  --color-blurple-600: #5851eb;
-  --color-blurple-700: #4a44cc;
+  --color-blurple-500: #ff4400;
+  --color-blurple-600: #e03b00;
+  --color-blurple-700: #cc3500;
 
-  --color-bg-base: #f6f9fc;
+  --color-bg-base: #f9f9f6;
   --color-bg-white: #ffffff;
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-
-  --ease-stripe: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
 }
 
 :root {
-  --txt-primary: #0a2540;
-  --txt-secondary: #425466;
-  --bg-primary: #ffffff;
-  --bg-secondary: #f6f9fc;
-  --bg-tertiary: #eef2f6;
-  --border-subtle: rgba(10, 37, 64, 0.08);
-  --border-strong: rgba(10, 37, 64, 0.15);
-  
-  --shadow-sm: 0 2px 5px -1px rgba(50, 50, 93, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(50, 50, 93, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 13px 27px -5px rgba(50, 50, 93, 0.08), 0 8px 16px -8px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 30px 60px -12px rgba(50, 50, 93, 0.15), 0 18px 36px -18px rgba(0, 0, 0, 0.1);
+  --font-display: 'Bricolage Grotesque', Georgia, serif;
+  --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-paper: #f9f9f6;
+  --color-paper-2: #f3f3ef;
+  --color-ink: #111111;
+  --color-ink-soft: #52525b;
+  --color-ink-faint: #8a8a85;
+  --color-ember: #ff4400;
+  --color-ember-dark: #e03b00;
+  --color-jade: #059669;
+  --color-rule: #e4e4e1;
+
+  --txt-primary: #111111;
+  --txt-secondary: #52525b;
+  --bg-primary: #f9f9f6;
+  --bg-secondary: #f3f3ef;
+  --border-subtle: #e4e4e1;
 }
 
 * { -webkit-tap-highlight-color: transparent; }
@@ -74,130 +76,25 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--txt-primary);
-  font-family: var(--font-sans);
-  letter-spacing: -0.015em;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  letter-spacing: -0.01em;
   overflow-x: hidden;
   min-height: 100vh;
 }
 
-::selection { background: var(--color-blurple-500); color: #ffffff; }
+::selection {
+  background: var(--color-ember);
+  color: #ffffff;
+}
 
 @layer components {
-  /* Stripe Buttons */
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--color-blurple-500);
-    color: #ffffff;
-    font-weight: 500;
-    font-size: 15px;
-    padding: 10px 18px;
-    border-radius: 999px;
-    transition: all 0.3s var(--ease-stripe);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  
-  .btn-primary:hover {
-    background-color: var(--color-blurple-600);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  }
-
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--bg-primary);
-    color: var(--txt-primary);
-    font-weight: 500;
-    font-size: 15px;
-    padding: 10px 18px;
-    border-radius: 999px;
-    transition: all 0.3s var(--ease-stripe);
-    border: 1px solid var(--border-subtle);
-  }
-  
-  .btn-secondary:hover {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-strong);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-  }
-
-  /* Stripe Bento Cards */
-  .bento-card {
-    background: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-subtle);
-    box-shadow: var(--shadow-sm);
-    padding: 32px;
-    transition: all 0.4s var(--ease-spring);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .bento-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--border-strong);
-  }
-
-  /* Aurora Mesh Gradient Background */
-  .mesh-bg {
-    position: absolute;
-    top: -20%;
-    right: -10%;
-    width: 80%;
-    height: 120%;
-    background: radial-gradient(circle at 50% 50%, rgba(255,100,100,0.1) 0%, rgba(100,100,255,0.05) 30%, transparent 70%);
-    filter: blur(80px);
-    z-index: -1;
-    pointer-events: none;
-    opacity: 0.8;
-  }
-  
-  .mesh-colorful {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: 
-      radial-gradient(at 0% 0%, hsla(253,16%,7%,0) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, hsla(225,39%,30%,0) 0, transparent 50%), 
-      radial-gradient(at 100% 0%, hsla(339,49%,30%,0) 0, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(271, 75%, 65%, 0.15) 0, transparent 50%),
-      radial-gradient(at 0% 100%, hsla(190, 80%, 65%, 0.15) 0, transparent 50%);
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .stripe-title {
-    font-size: clamp(3rem, 6vw, 5rem);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.04em;
-    color: var(--txt-primary);
-  }
-  
-  .stripe-subtitle {
-    font-size: clamp(1.125rem, 2vw, 1.375rem);
-    font-weight: 400;
-    line-height: 1.5;
-    color: var(--txt-secondary);
-    max-width: 600px;
-  }
-  
-  /* ---------- Landing: Editorial Developer ---------- */
-
   .lp {
     background: var(--color-paper);
     color: var(--color-ink);
@@ -225,7 +122,7 @@ body {
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
   }
 
@@ -244,6 +141,7 @@ body {
     border: 1px solid var(--color-ink);
     box-shadow: 3px 3px 0 var(--color-ink);
     transition: transform 0.15s linear, box-shadow 0.15s linear, background-color 0.15s linear;
+    cursor: pointer;
   }
 
   .lp-btn:hover {
@@ -271,6 +169,7 @@ body {
     padding: 14px 22px;
     border: 1px solid var(--color-ink);
     transition: background-color 0.15s linear, color 0.15s linear;
+    cursor: pointer;
   }
 
   .lp-btn-ghost:hover {
@@ -284,24 +183,9 @@ body {
       linear-gradient(to bottom, rgba(17, 17, 17, 0.055) 1px, transparent 1px);
     background-size: 72px 72px;
   }
-
-  .stripe-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 12px;
-    background-color: var(--color-brand-50);
-    color: var(--color-blurple-500);
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-    border: 1px solid rgba(99, 91, 255, 0.1);
-  }
 }
 
-/* ============================================================
-   Scroll Reveal Animations
-   ============================================================ */
-
+/* Scroll Reveal Animations */
 .reveal {
   opacity: 0;
   transform: translateY(28px);
@@ -316,10 +200,7 @@ body {
   transform: translateY(0);
 }
 
-/* ============================================================
-   Marquee (infinite horizontal scroll)
-   ============================================================ */
-
+/* Marquee infinite horizontal scroll */
 @keyframes marquee-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -340,24 +221,7 @@ body {
   animation-play-state: paused;
 }
 
-/* ============================================================
-   Word Rise Animation
-   ============================================================ */
-
-@keyframes rise {
-  0%   { transform: translateY(110%); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
-}
-
-.anim-rise {
-  animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: var(--d, 0ms);
-}
-
-/* ============================================================
-   Spin animation (for loading spinners)
-   ============================================================ */
-
+/* Spin animation */
 @keyframes anim-spin-kf {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
