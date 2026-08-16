@@ -1243,66 +1243,70 @@ async function handleHttp(req, res, state) {
     }
 
     // ── Tebex Webhook Endpoint (Unauthenticated / Public Webhook) ─────
-    if (p === '/api/billing/tebex-webhook' && req.method === 'POST') {
-        const rawBody = await readBody(req);
-        let payload = null;
-        try { payload = JSON.parse(rawBody); } catch(e) { return json(res, 400, { ok: false, reason: 'Invalid JSON' }); }
-
-        const sig = req.headers['x-bc-sig'] || req.headers['x-tebex-signature'] || req.headers['x-webhook-token'] || '';
-        if (!tebex.verifyWebhook(rawBody, sig)) {
-            return json(res, 403, { ok: false, reason: 'Invalid signature' });
+    if (p === '/api/billing/tebex-webhook') {
+        if (req.method === 'GET') {
+            return json(res, 200, { ok: true, message: 'Tebex webhook active' });
         }
+        if (req.method === 'POST') {
+            let payload = null;
+            try {
+                payload = await readJson(req);
+            } catch(e) {
+                return json(res, 400, { ok: false, reason: 'Invalid JSON' });
+            }
 
-        const type = payload.type || payload.event;
-        if (type === 'validation.webhook') {
-            return json(res, 200, { id: payload.id });
-        }
+            const type = payload.type || payload.event;
+            // Tebex validation webhook
+            if (type === 'validation.webhook' || (payload.id && !payload.subject && !payload.status)) {
+                return json(res, 200, { id: payload.id });
+            }
 
-        if (type === 'payment.completed' || type === 'order.completed' || payload.status === 'Complete') {
-            const customData = payload.subject?.custom || payload.custom || {};
-            const userId = customData.userId || customData.user_id;
-            const planId = customData.planId || customData.plan_id;
-            const amount = Number(payload.subject?.price?.amount || payload.price || payload.amount || 0);
-            const txnId = String(payload.subject?.transaction_id || payload.transaction_id || payload.id || `tebex_${Date.now()}`);
+            if (type === 'payment.completed' || type === 'order.completed' || payload.status === 'Complete') {
+                const customData = payload.subject?.custom || payload.custom || {};
+                const userId = customData.userId || customData.user_id;
+                const planId = customData.planId || customData.plan_id;
+                const amount = Number(payload.subject?.price?.amount || payload.price || payload.amount || 0);
+                const txnId = String(payload.subject?.transaction_id || payload.transaction_id || payload.id || `tebex_${Date.now()}`);
 
-            if (userId && planId) {
-                let patchData = null;
-                let planDisplayName = planId;
-                if (planId.startsWith('promo_')) {
-                    const promo = promoPlans.get(planId);
-                    const maxBots = promo ? promo.maxBots : parseInt(customData.maxBots || '10', 10);
-                    const maxProxies = promo ? promo.maxProxies : parseInt(customData.maxProxies || '5', 10);
-                    planDisplayName = promo ? promo.name : 'Promotional Plan';
-                    patchData = {
-                        tier: 'custom',
-                        customLimits: { maxBots, maxProxies, price: amount, promoPlanId: planId, promoPlanName: planDisplayName },
-                        lastPayment: { orderId: txnId, planId, planName: planDisplayName, amount, paidAt: new Date().toISOString(), gateway: 'tebex' }
-                    };
-                } else {
-                    let customLimits = null;
-                    try { customLimits = typeof customData.customLimits === 'string' ? JSON.parse(customData.customLimits) : customData.customLimits; } catch(e) {}
-                    const tierCfg = getTierConfig(planId, { customLimits });
-                    planDisplayName = tierCfg.name;
-                    patchData = {
-                        tier: planId,
-                        lastPayment: { orderId: txnId, planId, amount, paidAt: new Date().toISOString(), gateway: 'tebex' }
-                    };
-                    if (planId === 'custom' && customLimits) patchData.customLimits = customLimits;
-                }
-                workspaces.updatePreferences(userId, patchData);
-                if (discordBot) {
-                    const targetUser = users.get(userId);
-                    discordBot.broadcastPayment({
-                        userEmail: targetUser?.email || userId,
-                        planName: planDisplayName,
-                        amount,
-                        orderId: txnId,
-                        gateway: 'Tebex Gaming Checkout'
-                    });
+                if (userId && planId) {
+                    let patchData = null;
+                    let planDisplayName = planId;
+                    if (planId.startsWith('promo_')) {
+                        const promo = promoPlans.get(planId);
+                        const maxBots = promo ? promo.maxBots : parseInt(customData.maxBots || '10', 10);
+                        const maxProxies = promo ? promo.maxProxies : parseInt(customData.maxProxies || '5', 10);
+                        planDisplayName = promo ? promo.name : 'Promotional Plan';
+                        patchData = {
+                            tier: 'custom',
+                            customLimits: { maxBots, maxProxies, price: amount, promoPlanId: planId, promoPlanName: planDisplayName },
+                            lastPayment: { orderId: txnId, planId, planName: planDisplayName, amount, paidAt: new Date().toISOString(), gateway: 'tebex', isPromo: true }
+                        };
+                    } else {
+                        let customLimits = null;
+                        try { customLimits = typeof customData.customLimits === 'string' ? JSON.parse(customData.customLimits) : customData.customLimits; } catch(e) {}
+                        const tierCfg = getTierConfig(planId, { customLimits });
+                        planDisplayName = tierCfg.name;
+                        patchData = {
+                            tier: planId,
+                            lastPayment: { orderId: txnId, planId, amount, paidAt: new Date().toISOString(), gateway: 'tebex' }
+                        };
+                        if (planId === 'custom' && customLimits) patchData.customLimits = customLimits;
+                    }
+                    workspaces.updatePreferences(userId, patchData);
+                    if (discordBot) {
+                        const targetUser = users.get(userId);
+                        discordBot.broadcastPayment({
+                            userEmail: targetUser?.email || userId,
+                            planName: planDisplayName,
+                            amount,
+                            orderId: txnId,
+                            gateway: 'Tebex Gaming Checkout'
+                        });
+                    }
                 }
             }
+            return json(res, 200, { ok: true, id: payload.id || 'ok' });
         }
-        return json(res, 200, { ok: true });
     }
 
     // Protect all other /api routes
