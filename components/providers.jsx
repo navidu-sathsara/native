@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, CircleAlert, Info, X } from 'lucide-react';
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const AuthContext = createContext(null);
@@ -70,35 +70,80 @@ function ToastProvider({ children }) {
   }, [dismiss]);
 
   const value = useMemo(() => ({ toast, dismiss }), [toast, dismiss]);
-  const icons = { success: CheckCircle2, error: CircleAlert, warning: CircleAlert, info: Info };
+
+  const meta = {
+    success: {
+      icon: CheckCircle2,
+      label: 'SYSTEM // SUCCESS',
+      iconColor: 'text-jade',
+      barColor: 'bg-jade',
+      tagColor: 'border-jade/40 bg-jade/10 text-jade',
+    },
+    error: {
+      icon: AlertCircle,
+      label: 'SYSTEM // ERROR',
+      iconColor: 'text-ember',
+      barColor: 'bg-ember',
+      tagColor: 'border-ember/40 bg-ember/10 text-ember',
+    },
+    warning: {
+      icon: AlertTriangle,
+      label: 'SYSTEM // WARNING',
+      iconColor: 'text-amber-600',
+      barColor: 'bg-amber-500',
+      tagColor: 'border-amber-500/40 bg-amber-500/10 text-amber-700',
+    },
+    info: {
+      icon: Info,
+      label: 'SYSTEM // EVENT',
+      iconColor: 'text-ink',
+      barColor: 'bg-ink',
+      tagColor: 'border-ink/20 bg-paper-2 text-ink-soft',
+    },
+  };
 
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed right-4 top-4 z-[80] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-2" aria-live="polite">
+      <div
+        className="pointer-events-none fixed right-5 top-5 z-[100] flex w-[min(26rem,calc(100vw-2.5rem))] flex-col gap-3"
+        aria-live="polite"
+      >
         {toasts.map((item) => {
-          const Icon = icons[item.type] || Info;
-          const tone = item.type === 'error'
-            ? 'border-white/35 bg-white/[0.10] text-white'
-            : item.type === 'warning'
-              ? 'border-white/20 bg-white/[0.07] text-white/90'
-              : item.type === 'success'
-                ? 'border-white/25 bg-white/[0.08] text-white'
-                : 'border-white/12 bg-white/[0.05] text-white/80';
+          const itemMeta = meta[item.type] || meta.info;
+          const Icon = itemMeta.icon;
+
           return (
             <div
               key={item.id}
-              className={`anim-rise pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3.5 shadow-[0_24px_60px_-16px_rgba(0,0,0,.95)] backdrop-blur-2xl ${tone}`}
+              className="anim-rise pointer-events-auto flex overflow-hidden border border-ink bg-white shadow-[4px_4px_0_#111111]"
             >
-              <Icon className="mt-0.5 h-4 w-4 shrink-0 opacity-70" />
-              <p className="min-w-0 flex-1 text-[13px] leading-5">{item.message}</p>
-              <button
-                onClick={() => dismiss(item.id)}
-                aria-label="Dismiss notification"
-                className="shrink-0 rounded-lg p-0.5 opacity-40 transition-opacity duration-300 hover:opacity-100"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              {/* Left Colored Stripe */}
+              <div className={`w-1.5 shrink-0 ${itemMeta.barColor}`} />
+
+              <div className="flex flex-1 flex-col gap-1.5 p-3.5 min-w-0">
+                {/* Header line */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Icon className={`h-3.5 w-3.5 shrink-0 ${itemMeta.iconColor}`} strokeWidth={2} />
+                    <span className="lp-mono text-[9px] text-ink-faint">
+                      {itemMeta.label}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => dismiss(item.id)}
+                    aria-label="Dismiss notification"
+                    className="border border-ink/20 bg-paper-2 p-0.5 text-ink-soft hover:bg-ink hover:text-white hover:border-ink transition cursor-pointer"
+                  >
+                    <X className="h-3 w-3" strokeWidth={2} />
+                  </button>
+                </div>
+
+                {/* Body message */}
+                <p className="font-mono text-xs font-bold text-ink leading-snug break-words">
+                  {item.message}
+                </p>
+              </div>
             </div>
           );
         })}

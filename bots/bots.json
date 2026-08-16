@@ -13,14 +13,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.30.151:6838",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -36,14 +46,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.181:7868",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -59,14 +79,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.110:7797",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -82,14 +112,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.118:7805",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -105,14 +145,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.29.225:7412",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -128,14 +178,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.31.195:6382",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -151,14 +211,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.30.5:6692",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -174,14 +244,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.30.62:6749",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -197,14 +277,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.30.37:6724",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -220,14 +310,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.30.32:6719",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -243,14 +343,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.29.181:7368",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -266,14 +376,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.78:7765",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -289,14 +409,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.21:7708",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -312,14 +442,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.186:7873",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -335,14 +475,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.30.175:6862",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -358,14 +508,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.60:7747",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -381,14 +541,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.29.89:7276",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -404,14 +574,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.30.165:6852",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -427,14 +607,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.228:7915",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     },
     {
@@ -450,14 +640,24 @@
         "reconnectDelay": 5000,
         "afkMode": true,
         "proxy": "socks5://iflojlek:mb1evyrnaamq@64.52.28.233:7920",
-        "discord": { "enabled": false, "token": "", "guildId": "" },
-        "boneCollector": { "collectSlot": 13, "cycleDelay": 15000 },
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
         "webhookUrl": "",
         "autoRegister": true,
         "autoLogin": true,
         "loginPassword": "sad321",
         "category": "Uncategorized",
-        "colors": { "theme": "green" }
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
       }
     }
   ]
