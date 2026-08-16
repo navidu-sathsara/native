@@ -47,7 +47,7 @@ class TebexClient {
         // 1. Fetch available packages from Tebex
         const packages = await this.getPackages();
 
-        // 2. Create the empty basket with buyer's IP and email
+        // 2. Create the empty basket with buyer's email (let Tebex bind visitor IP on browser load)
         const basketPayload = {
           complete_url: successUrl,
           cancel_url: cancelUrl,
@@ -62,7 +62,6 @@ class TebexClient {
             customLimits: JSON.stringify(customLimits || {})
           }
         };
-        if (clientIp) basketPayload.ip = clientIp;
 
         const createBasketRes = await fetch(`https://headless.tebex.io/api/accounts/${this.publicToken}/baskets`, {
           method: 'POST',
