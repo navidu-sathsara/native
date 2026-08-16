@@ -27,14 +27,6 @@ export function Hero() {
       <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <div className="grid gap-16 pb-20 lg:grid-cols-12 lg:gap-10 lg:pb-28">
           <div className="lg:col-span-7">
-            <Reveal>
-              <p className="lp-mono flex items-center gap-3 text-ink-soft">
-                <span className="h-1.5 w-1.5 bg-ember" />
-                Multi-tenant bot infrastructure
-                <span className="hidden h-px w-16 bg-ink/20 sm:block" />
-              </p>
-            </Reveal>
-
             <Reveal delay={80}>
               <h1 className="lp-display mt-8 text-[clamp(3.2rem,8.5vw,7rem)] text-ink">
                 Run four hundred

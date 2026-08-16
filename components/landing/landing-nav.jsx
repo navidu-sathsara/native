@@ -39,10 +39,7 @@ export function LandingNav() {
           className="group flex items-center gap-2.5"
           data-testid="nav-logo-link"
         >
-          <span className="flex h-8 w-8 items-center justify-center bg-ink text-paper">
-            <NoraLogo className="h-5 w-5" />
-          </span>
-          <span className="lp-display text-[20px] leading-none text-ink">Native</span>
+          <span className="lp-display text-[22px] leading-none text-ink">Native</span>
           <span className="lp-mono hidden text-ink-faint sm:block">/ v4</span>
         </Link>
 

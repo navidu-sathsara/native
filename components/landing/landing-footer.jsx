@@ -87,10 +87,7 @@ export function LandingFooter() {
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(3,1fr)]">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center bg-white text-ink">
-                <NoraLogo className="h-5 w-5" />
-              </span>
-              <span className="lp-display text-xl text-white">Native</span>
+              <span className="lp-display text-2xl text-white">Native</span>
             </div>
             <p className="mt-6 max-w-xs text-[14px] leading-relaxed text-white/55">
               The control plane for autonomous fleets. Deploy, orchestrate and observe
