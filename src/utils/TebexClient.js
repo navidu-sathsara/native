@@ -47,8 +47,9 @@ class TebexClient {
 
         if (createBasketRes.ok) {
           const basketData = await createBasketRes.json();
-          if (basketData.data?.links?.checkout) {
-            return { ok: true, url: basketData.data.links.checkout };
+          const checkoutLink = basketData.data?.links?.checkout || (basketData.data?.ident ? `https://checkout.tebex.io/checkout/${basketData.data.ident}` : null);
+          if (checkoutLink) {
+            return { ok: true, url: checkoutLink };
           }
         }
       } catch (err) {
