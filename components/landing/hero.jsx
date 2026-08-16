@@ -3,15 +3,7 @@
 import Link from 'next/link';
 import { ArrowUpRight, Terminal } from 'lucide-react';
 import { Reveal, Marquee } from '@/components/reveal';
-
-const LOG = [
-  ['12:04:01', 'fork', 'worker-alpha attached socks5://eu-3', 'ok'],
-  ['12:04:01', 'auth', 'session restored in 812ms', 'ok'],
-  ['12:04:04', 'mod', 'MineAndSell hot-reloaded (fleet-wide)', 'ok'],
-  ['12:04:09', 'net', 'endpoint us-11 failed health check', 'warn'],
-  ['12:04:09', 'net', 'rerouted 3 workers -> us-12', 'ok'],
-  ['12:04:16', 'cron', 'job restock-inventory fanned to 128 bots', 'ok'],
-];
+import { ConsoleMockup } from '@/components/landing/console-mockup';
 
 const SERVERS = ['Hypixel', '2b2t', 'Mineplex', 'Wynncraft', 'Purpur', 'Folia'];
 
@@ -25,10 +17,10 @@ export function Hero() {
       />
 
       <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8">
-        <div className="grid gap-16 pb-20 lg:grid-cols-12 lg:gap-10 lg:pb-28">
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7">
             <Reveal delay={80}>
-              <h1 className="lp-display mt-8 text-[clamp(3.2rem,8.5vw,7rem)] text-ink">
+              <h1 className="lp-display text-[clamp(3.2rem,8.5vw,7rem)] text-ink">
                 Run four hundred
                 <br />
                 bots like they are
@@ -60,73 +52,36 @@ export function Hero() {
                 </a>
               </div>
             </Reveal>
-
-            <Reveal delay={320}>
-              <dl className="mt-16 grid max-w-2xl grid-cols-2 border-t border-rule sm:grid-cols-4">
-                {[
-                  ['400+', 'workers'],
-                  ['18', 'modules'],
-                  ['40ms', 'log latency'],
-                  ['99.98%', 'uptime'],
-                ].map(([v, k]) => (
-                  <div key={k} className="border-b border-r border-rule py-5 pr-4 last:border-r-0">
-                    <dt className="lp-display text-3xl text-ink">{v}</dt>
-                    <dd className="lp-mono mt-2 text-ink-faint">{k}</dd>
-                  </div>
-                ))}
-              </dl>
-            </Reveal>
           </div>
 
-          <Reveal delay={200} className="lg:col-span-5">
-            <div className="border border-ink bg-white shadow-[8px_8px_0_#111111]">
-              <div className="flex items-center justify-between border-b border-ink px-4 py-3">
-                <span className="lp-mono text-ink">fleet.stream</span>
-                <span className="lp-mono flex items-center gap-2 text-ember">
-                  <span className="h-1.5 w-1.5 animate-pulse bg-ember" />
-                  live
-                </span>
-              </div>
-
-              <div className="divide-y divide-rule font-mono text-[12px]">
-                {LOG.map(([time, tag, msg, level], i) => (
-                  <div key={i} className="flex items-start gap-3 px-4 py-3">
-                    <span className="text-ink-faint">{time}</span>
-                    <span
-                      className={
-                        level === 'warn'
-                          ? 'w-12 shrink-0 font-bold uppercase text-ember'
-                          : 'w-12 shrink-0 font-bold uppercase text-jade'
-                      }
-                    >
-                      {tag}
-                    </span>
-                    <span className="text-ink-soft">{msg}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="border-t border-ink bg-paper-2 px-4 py-3">
-                <div className="flex items-center justify-between">
-                  <span className="lp-mono text-ink-soft">cpu 41% · mem 2.7gb · shards 6</span>
-                  <span className="lp-mono text-ink">⌘K</span>
+          <Reveal delay={200} className="flex flex-col justify-end lg:col-span-5">
+            <dl className="grid grid-cols-2 gap-px border border-rule bg-rule">
+              {[
+                ['400+', 'concurrent workers'],
+                ['18', 'behaviour modules'],
+                ['40ms', 'log latency'],
+                ['99.98%', 'plane uptime'],
+              ].map(([v, k]) => (
+                <div key={k} className="bg-paper p-5">
+                  <dt className="lp-display text-3xl text-ink">{v}</dt>
+                  <dd className="lp-mono mt-2 text-ink-faint">{k}</dd>
                 </div>
-                <div className="mt-3 flex h-1.5 gap-px">
-                  {Array.from({ length: 48 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className={i % 7 === 3 ? 'flex-1 bg-ember' : 'flex-1 bg-ink/15'}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <p className="lp-mono mt-6 text-ink-faint">
+              ))}
+            </dl>
+            <p className="lp-mono mt-5 text-ink-faint">
               // no polling. server-sent events all the way down.
             </p>
           </Reveal>
         </div>
+
+        {/* Real console preview */}
+        <Reveal delay={280} className="mt-20 pb-24 lg:mt-24 lg:pb-28">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <p className="lp-mono text-ink-soft">The console — /overview</p>
+            <p className="lp-mono hidden text-ink-faint sm:block">not a mockup you cannot use. this is the product.</p>
+          </div>
+          <ConsoleMockup />
+        </Reveal>
       </div>
 
       <div className="relative border-t border-rule bg-paper-2 py-5">
