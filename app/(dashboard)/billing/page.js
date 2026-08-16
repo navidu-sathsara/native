@@ -516,10 +516,10 @@ export default function BillingPage() {
                     <Button
                       variant={plan.highlight ? 'primary' : 'secondary'}
                       className="w-full"
-                      disabled={isCurrent || loading}
+                      disabled={loading}
                       onClick={() => initiatePromoPayment(plan)}
                     >
-                      {isCurrent ? 'Current Plan' : `Claim Deal ($${Number(plan.price).toFixed(2)})`}
+                      {isCurrent ? `Renew Promo ($${Number(plan.price).toFixed(2)})` : `Claim / Switch Deal ($${Number(plan.price).toFixed(2)})`}
                     </Button>
                   </div>
                 </div>
@@ -824,21 +824,25 @@ export default function BillingPage() {
                       disabled={isCurrent || loading}
                       onClick={downgradeToFree}
                     >
-                      {isCurrent ? 'Active Plan' : 'Downgrade to Free'}
+                      {isCurrent ? 'Active Plan (Free)' : 'Downgrade to Free ($0)'}
                     </Button>
                   ) : (
                     <Button
                       variant={plan.highlight ? 'primary' : 'secondary'}
                       className="w-full"
-                      disabled={isCurrent || loading}
+                      disabled={loading}
                       onClick={() => initiatePresetPayment(plan)}
                     >
                       {loading ? (
                         <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
-                        !isCurrent && <Zap className="h-4 w-4 mr-2" />
+                        <Zap className="h-4 w-4 mr-2" />
                       )}
-                      {isCurrent ? 'Subscribed' : `Upgrade (${plan.price})`}
+                      {isCurrent
+                        ? `Renew / Extend (${plan.price})`
+                        : plan.id === 'unlimited_15'
+                        ? `Upgrade to Unlimited (${plan.price})`
+                        : `Switch / Upgrade (${plan.price})`}
                     </Button>
                   )}
                 </div>
