@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import {
   CreditCard, ShieldCheck, Zap, Sparkles, CheckCircle2, Bot,
   Network, Lock, X, AlertCircle, Sliders, Layers, ArrowRight,
   Plus, Minus, RefreshCw, Check, Info, Server, Cpu, Shield,
-  DollarSign, Globe, CheckCheck
+  DollarSign, Globe, CheckCheck, Clock, Tag, Flame
 } from 'lucide-react';
 import { useAuth, useToast } from '@/components/providers';
 import { Button, Modal, PageHeader, Panel, StatusBadge } from '@/components/ui';
@@ -92,12 +92,16 @@ export default function BillingPage() {
   const { user, setUser, refresh } = useAuth();
   const { toast } = useToast();
 
-  // Active view tab: 'custom' or 'preset'
+  // Active view tab: 'preset', 'custom', or 'promo'
   const [viewMode, setViewMode] = useState('preset');
 
   // Custom Plan Builder State
   const [customBots, setCustomBots] = useState(5);
   const [customProxies, setCustomProxies] = useState(2);
+
+  // Promotional Plans State
+  const [promoPlans, setPromoPlans] = useState([]);
+  const [promoLoading, setPromoLoading] = useState(false);
 
   // Payment & Subscription State
   const [activePlan, setActivePlan] = useState(user?.preferences?.tier || 'free');
@@ -110,6 +114,28 @@ export default function BillingPage() {
       setActivePlan(user.preferences.tier);
     }
   }, [user]);
+
+  // Load Active Promotional Plans
+  const loadPromoPlans = useCallback(async () => {
+    setPromoLoading(true);
+    try {
+      const res = await api('/plans/promo');
+      if (res.ok && Array.isArray(res.plans)) {
+        setPromoPlans(res.plans);
+        if (res.plans.length > 0) {
+          // Keep preset as default or allow user to see promo
+        }
+      }
+    } catch (e) {
+      // ignore
+    } finally {
+      setPromoLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPromoPlans();
+  }, [loadPromoPlans]);
 
   // Handle Stripe Redirection Success / Cancel
   useEffect(() => {
@@ -233,6 +259,21 @@ export default function BillingPage() {
     setCheckoutModalOpen(true);
   };
 
+  // Open checkout modal for promotional plan
+  const initiatePromoPayment = (plan) => {
+    setSelectedPlanForPayment({
+      id: plan.id,
+      name: plan.name,
+      price: `$${Number(plan.price).toFixed(2)}`,
+      amount: plan.price,
+      limit: plan.maxBots,
+      proxiesLimit: plan.maxProxies,
+      isCustom: false,
+      isPromo: true,
+    });
+    setCheckoutModalOpen(true);
+  };
+
   // Open checkout modal for custom configured plan
   const initiateCustomPayment = () => {
     setSelectedPlanForPayment({
@@ -256,7 +297,7 @@ export default function BillingPage() {
   const userTier = user?.preferences?.tier || 'free';
   const customLimits = user?.preferences?.customLimits;
   const currentPlanTitle = userTier === 'custom'
-    ? `Custom (${customLimits?.maxBots || 1} Bots${customLimits?.maxProxies ? `, ${customLimits.maxProxies} Proxies` : ''})`
+    ? (customLimits?.promoPlanName || `Custom (${customLimits?.maxBots || 1} Bots${customLimits?.maxProxies ? `, ${customLimits.maxProxies} Proxies` : ''})`)
     : PRESET_PLANS.find((p) => p.id === userTier)?.name || 'Free Starter';
 
   const currentBotLimit = userTier === 'custom'
@@ -268,7 +309,7 @@ export default function BillingPage() {
       <PageHeader
         eyebrow="Fleet Scalability & Real-Time Billing"
         title="Plans & Billing"
-        description="Choose a preset package or scale dynamically with $0.50/bot and $0.50/proxy pricing."
+        description="Choose a preset package, grab a limited-time deal, or scale dynamically with $0.50/bot and $0.50/proxy pricing."
         actions={
           <div className="flex border border-ink bg-paper-2 p-0.5">
             <button
@@ -280,8 +321,21 @@ export default function BillingPage() {
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
-              Preset Packages
+              Standard Plans
             </button>
+            {promoPlans.length > 0 && (
+              <button
+                onClick={() => setViewMode('promo')}
+                className={`flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold uppercase transition cursor-pointer ${
+                  viewMode === 'promo'
+                    ? 'border border-ember bg-ember text-white shadow-[1px_1px_0_#111111]'
+                    : 'text-ember hover:bg-ember/10 font-bold'
+                }`}
+              >
+                <Flame className="h-3.5 w-3.5" />
+                Limited Deals ({promoPlans.length})
+              </button>
+            )}
             <button
               onClick={() => setViewMode('custom')}
               className={`flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold uppercase transition cursor-pointer ${
@@ -347,6 +401,103 @@ export default function BillingPage() {
       </Panel>
 
       {/* ========================================================================= */}
+      {/* ⚡ VIEW 0: LIMITED-TIME PROMOTIONAL DEALS                                  */}
+      {/* ========================================================================= */}
+      {viewMode === 'promo' && (
+        <div className="space-y-6">
+          <div className="border border-ember bg-white p-6 shadow-[4px_4px_0_#ff4400]">
+            <div className="flex items-center gap-2.5">
+              <span className="border border-ember bg-ember p-1.5 text-white">
+                <Flame className="h-5 w-5 animate-pulse" />
+              </span>
+              <div>
+                <h3 className="lp-display text-lg font-bold text-ink">Exclusive Limited-Time Flash Deals</h3>
+                <p className="text-xs text-ink-soft font-mono mt-0.5">
+                  Grab high-capacity bot and proxy packages at special promotional discounts before the timer runs out!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {promoPlans.map((plan) => {
+              const isCurrent = userTier === 'custom' && customLimits?.promoPlanId === plan.id;
+              return (
+                <div
+                  key={plan.id}
+                  className={`relative flex flex-col justify-between p-7 transition-all duration-150 font-mono ${
+                    plan.highlight
+                      ? 'border-2 border-ember bg-white shadow-[6px_6px_0_#ff4400] z-10'
+                      : 'border border-ink bg-white shadow-[4px_4px_0_#111111]'
+                  }`}
+                >
+                  {/* Badge & Timer Header */}
+                  <div>
+                    <div className="flex items-center justify-between pb-3 border-b border-rule">
+                      <span className="border border-ember bg-ember text-white px-2.5 py-1 text-[10px] lp-mono font-bold">
+                        {plan.badge}
+                      </span>
+                      {plan.expiresAt && (
+                        <div className="flex items-center gap-1.5 text-[10px] text-ember font-bold">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>Ends {new Date(plan.expiresAt).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Plan Name & Price */}
+                    <div className="mt-4">
+                      <h3 className="lp-display text-2xl font-bold text-ink tracking-tight">{plan.name}</h3>
+                      <div className="mt-3 flex items-baseline gap-1">
+                        <span className="lp-display text-5xl font-bold text-ink">${Number(plan.price).toFixed(2)}</span>
+                        <span className="text-xs text-ink-soft">{plan.period || '/ month'}</span>
+                      </div>
+                    </div>
+
+                    {/* Quota Specs */}
+                    <div className="mt-5 grid grid-cols-2 gap-2 border border-rule bg-paper-2 p-3 text-xs">
+                      <div>
+                        <span className="block lp-mono text-[9px] text-ink-faint">Bot Capacity</span>
+                        <strong className="text-ink text-sm font-bold">{plan.maxBots === 9999 ? 'Unlimited' : `${plan.maxBots} Bots`}</strong>
+                      </div>
+                      <div>
+                        <span className="block lp-mono text-[9px] text-ink-faint">Dedicated Proxies</span>
+                        <strong className="text-ink text-sm font-bold">{plan.maxProxies} Proxies</strong>
+                      </div>
+                    </div>
+
+                    {/* Features list */}
+                    {plan.features && plan.features.length > 0 && (
+                      <ul className="mt-6 space-y-2.5 text-xs">
+                        {plan.features.map((feat, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <Check className="h-4 w-4 text-jade shrink-0 mt-0.5" />
+                            <span className="text-ink-soft leading-snug">{feat}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {/* Checkout Button */}
+                  <div className="mt-8 pt-4 border-t border-rule">
+                    <Button
+                      variant={plan.highlight ? 'primary' : 'secondary'}
+                      className="w-full"
+                      disabled={isCurrent || loading}
+                      onClick={() => initiatePromoPayment(plan)}
+                    >
+                      {isCurrent ? 'Current Plan' : `Claim Deal ($${Number(plan.price).toFixed(2)})`}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
       {/* 🛠️ VIEW 1: CUSTOM PLAN BUILDER                                            */}
       {/* ========================================================================= */}
       {viewMode === 'custom' && (
@@ -401,11 +552,11 @@ export default function BillingPage() {
                 </div>
               </div>
 
-              {/* Range slider */}
+              {/* Bot Range Slider */}
               <input
                 type="range"
                 min="1"
-                max="50"
+                max="100"
                 step="1"
                 value={customBots}
                 onChange={(e) => setCustomBots(parseInt(e.target.value, 10))}
@@ -417,7 +568,6 @@ export default function BillingPage() {
                 {[1, 3, 5, 10, 20, 30, 50].map((b) => (
                   <button
                     key={b}
-                    type="button"
                     onClick={() => setCustomBots(b)}
                     className={`border px-2.5 py-1 text-[11px] transition cursor-pointer ${
                       customBots === b
@@ -467,11 +617,11 @@ export default function BillingPage() {
                 </div>
               </div>
 
-              {/* Range slider */}
+              {/* Proxy Range Slider */}
               <input
                 type="range"
                 min="0"
-                max="20"
+                max="30"
                 step="1"
                 value={customProxies}
                 onChange={(e) => setCustomProxies(parseInt(e.target.value, 10))}
@@ -483,7 +633,6 @@ export default function BillingPage() {
                 {[0, 1, 2, 5, 10, 15, 20].map((p) => (
                   <button
                     key={p}
-                    type="button"
                     onClick={() => setCustomProxies(p)}
                     className={`border px-2.5 py-1 text-[11px] transition cursor-pointer ${
                       customProxies === p
@@ -562,7 +711,7 @@ export default function BillingPage() {
               </div>
             </div>
 
-            <div className="mt-8">
+            <div className="mt-8 pt-6 border-t border-rule">
               <Button
                 variant="primary"
                 size="lg"
@@ -578,12 +727,12 @@ export default function BillingPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 📦 VIEW 2: PRESET PACKAGES                                                */}
+      {/* 📦 VIEW 2: PRESET PACKAGES                                                 */}
       {/* ========================================================================= */}
       {viewMode === 'preset' && (
-        <div className="grid gap-6 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {PRESET_PLANS.map((plan) => {
-            const isCurrent = activePlan === plan.id;
+            const isCurrent = userTier === plan.id;
             return (
               <div
                 key={plan.id}
@@ -594,43 +743,45 @@ export default function BillingPage() {
                 }`}
               >
                 {/* Active Plan or Badge */}
-                <div className="mb-6 flex justify-between items-start">
-                  <span
-                    className={`inline-flex px-2.5 py-1 border text-[10px] lp-mono font-bold ${
-                      isCurrent
-                        ? 'border-jade bg-jade/10 text-jade'
-                        : plan.highlight
-                        ? 'border-ember bg-ember text-white shadow-[1px_1px_0_#111111]'
-                        : 'border-rule bg-paper-2 text-ink-soft'
-                    }`}
-                  >
-                    {isCurrent ? 'Current Plan' : plan.badge}
-                  </span>
-                  {plan.highlight && !isCurrent && (
-                    <Sparkles className="h-5 w-5 text-ember" />
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="lp-display text-xl font-bold text-ink">{plan.name}</h3>
-                  
-                  <div className="mt-4 flex items-baseline gap-1">
-                    <span className="lp-display text-4xl font-bold tracking-tight text-ink">{plan.price}</span>
-                    {plan.period && <span className="text-xs font-mono text-ink-soft">{plan.period}</span>}
+                <div>
+                  <div className="flex items-center justify-between pb-4 border-b border-rule">
+                    <span
+                      className={`inline-flex px-2.5 py-1 border text-[10px] lp-mono font-bold ${
+                        isCurrent
+                          ? 'border-jade bg-jade/10 text-jade'
+                          : plan.highlight
+                          ? 'border-ember bg-ember text-white shadow-[1px_1px_0_#111111]'
+                          : 'border-rule bg-paper-2 text-ink-soft'
+                      }`}
+                    >
+                      {isCurrent ? 'Current Plan' : plan.badge}
+                    </span>
+                    {plan.highlight && !isCurrent && (
+                      <Sparkles className="h-5 w-5 text-ember" />
+                    )}
                   </div>
-                  
-                  <p className="mt-3 text-xs text-ink-soft leading-relaxed min-h-[36px]">
-                    {plan.description}
-                  </p>
 
-                  <ul className="mt-6 space-y-3 font-mono text-xs">
-                    {plan.features.map((feat, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.highlight ? 'text-ember' : 'text-jade'}`} />
-                        <span className="text-ink-soft leading-snug">{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="mt-5">
+                    <h3 className="lp-display text-xl font-bold text-ink">{plan.name}</h3>
+                    
+                    <div className="mt-4 flex items-baseline gap-1">
+                      <span className="lp-display text-4xl font-bold tracking-tight text-ink">{plan.price}</span>
+                      {plan.period && <span className="text-xs font-mono text-ink-soft">{plan.period}</span>}
+                    </div>
+                    
+                    <p className="mt-3 text-xs text-ink-soft leading-relaxed min-h-[36px]">
+                      {plan.description}
+                    </p>
+
+                    <ul className="mt-6 space-y-3 font-mono text-xs">
+                      {plan.features.map((feat, idx) => (
+                        <li key={idx} className="flex items-start gap-2.5">
+                          <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.highlight ? 'text-ember' : 'text-jade'}`} />
+                          <span className="text-ink-soft leading-snug">{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
 
                 <div className="mt-8">
@@ -650,7 +801,7 @@ export default function BillingPage() {
                       disabled={isCurrent || loading}
                       onClick={() => initiatePresetPayment(plan)}
                     >
-                      {loading && selectedPlanForPayment?.id === plan.id ? (
+                      {loading ? (
                         <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
                         !isCurrent && <Zap className="h-4 w-4 mr-2" />
@@ -665,15 +816,12 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 💳 REAL CHECKOUT & SECURE PAYMENT MODAL                                   */}
-      {/* ========================================================================= */}
+      {/* ── SECURE STRIPE CHECKOUT MODAL ────────────────────────────────────── */}
       <Modal
         open={checkoutModalOpen}
         onClose={() => setCheckoutModalOpen(false)}
-        title="Secure Checkout"
-        description="Complete payment securely via Stripe to activate your fleet."
-        wide={false}
+        title="Complete Subscription Upgrade"
+        description="Secure online payment processing via Stripe Payment Gateway"
       >
         <div className="space-y-5 py-2">
           
@@ -737,7 +885,6 @@ export default function BillingPage() {
               Cancel
             </button>
           </div>
-
         </div>
       </Modal>
 

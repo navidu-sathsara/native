@@ -311,6 +311,8 @@ const { ProxyStore, toUri: proxyToUri, toLabel: proxyToLabel } = require('./util
 const proxies = new ProxyStore();
 const { WorkspaceStore, normalizeScript, TIER_CONFIG, getTierConfig } = require('./utils/WorkspaceStore.js');
 const workspaces = new WorkspaceStore();
+const { PromoPlanStore } = require('./utils/PromoPlanStore.js');
+const promoPlans = new PromoPlanStore();
 
 function aliasesFor(userId) {
     return userId ? workspaces.aliases(userId) : [];
@@ -1244,6 +1246,39 @@ async function handleHttp(req, res, state) {
         return json(res, 401, { ok: false, reason: 'Unauthorized' });
     }
 
+    // ── Promotional & Limited Time Plans ─────────────────────────────
+    if (p === '/api/plans/promo' && req.method === 'GET') {
+        return json(res, 200, { ok: true, plans: promoPlans.listActive() });
+    }
+
+    if (p === '/api/admin/promo-plans' && req.method === 'GET') {
+        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
+        return json(res, 200, { ok: true, plans: promoPlans.listAll() });
+    }
+
+    if (p === '/api/admin/promo-plans' && req.method === 'POST') {
+        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
+        const body = await readJson(req);
+        const created = promoPlans.create(body);
+        return json(res, 201, { ok: true, plan: created });
+    }
+
+    const promoPatchMatch = p.match(/^\/api\/admin\/promo-plans\/([a-zA-Z0-9_-]+)$/);
+    if (promoPatchMatch && req.method === 'PATCH') {
+        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
+        const body = await readJson(req);
+        const updated = promoPlans.update(promoPatchMatch[1], body);
+        if (!updated) return json(res, 404, { ok: false, reason: 'Promo plan not found' });
+        return json(res, 200, { ok: true, plan: updated });
+    }
+
+    const promoDelMatch = p.match(/^\/api\/admin\/promo-plans\/([a-zA-Z0-9_-]+)$/);
+    if (promoDelMatch && req.method === 'DELETE') {
+        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
+        const deleted = promoPlans.delete(promoDelMatch[1]);
+        return json(res, deleted ? 200 : 404, { ok: deleted });
+    }
+
     // ── Stripe Checkout & Billing ─────────────────────────────────────
     if (p === '/api/billing/stripe-checkout' && req.method === 'POST') {
         if (!stripe) return json(res, 500, { ok: false, reason: 'Stripe not configured' });
@@ -1256,11 +1291,31 @@ async function handleHttp(req, res, state) {
             price: Number(body.customLimits.price != null ? body.customLimits.price : (Number(body.customLimits.maxBots || 1) * 0.50 + Number(body.customLimits.maxProxies || 0) * 0.50))
         } : null;
 
-        if (!['free', 'bronze_3', 'silver_5', 'unlimited_15', 'custom'].includes(planId)) {
-            return json(res, 400, { ok: false, reason: 'Invalid subscription tier selected' });
-        }
+        let tierCfg = null;
+        let isPromo = false;
 
-        const tierCfg = getTierConfig(planId, { customLimits });
+        if (planId.startsWith('promo_')) {
+            const promo = promoPlans.get(planId);
+            if (!promo || !promo.active) {
+                return json(res, 400, { ok: false, reason: 'Promotional deal expired or not available' });
+            }
+            if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
+                return json(res, 400, { ok: false, reason: 'This limited-time promotional offer has expired' });
+            }
+            isPromo = true;
+            tierCfg = {
+                id: promo.id,
+                name: `${promo.name} (${promo.badge})`,
+                price: promo.price,
+                maxBots: promo.maxBots,
+                maxProxies: promo.maxProxies
+            };
+        } else {
+            if (!['free', 'bronze_3', 'silver_5', 'unlimited_15', 'custom'].includes(planId)) {
+                return json(res, 400, { ok: false, reason: 'Invalid subscription tier selected' });
+            }
+            tierCfg = getTierConfig(planId, { customLimits });
+        }
         
         try {
             const baseUrl = body.returnUrl || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host || 'localhost:3318'}`;
@@ -1271,7 +1326,7 @@ async function handleHttp(req, res, state) {
                         currency: 'usd',
                         product_data: {
                             name: `Native Launch SaaS - ${tierCfg.name}`,
-                            description: `Fleet Capacity: ${tierCfg.maxBots} Bots | ${tierCfg.maxProxies} Proxies`
+                            description: `Fleet Capacity: ${tierCfg.maxBots === Infinity ? 'Unlimited' : tierCfg.maxBots} Bots | ${tierCfg.maxProxies === Infinity ? 'Unlimited' : tierCfg.maxProxies} Proxies`
                         },
                         unit_amount: Math.round(tierCfg.price * 100),
                     },
@@ -1284,6 +1339,9 @@ async function handleHttp(req, res, state) {
                 metadata: {
                     userId: user.id,
                     planId: planId,
+                    isPromo: isPromo ? 'true' : 'false',
+                    maxBots: String(tierCfg.maxBots),
+                    maxProxies: String(tierCfg.maxProxies),
                     customLimits: JSON.stringify(customLimits || {})
                 }
             });
@@ -1309,6 +1367,7 @@ async function handleHttp(req, res, state) {
             }
 
             const planId = session.metadata.planId;
+            const isPromo = session.metadata.isPromo === 'true';
             let customLimits = null;
             try { customLimits = JSON.parse(session.metadata.customLimits); } catch(e) {}
             
@@ -1318,34 +1377,64 @@ async function handleHttp(req, res, state) {
                 return json(res, 200, { ok: true, tier: planId, preferences: currentPrefs });
             }
 
-            const tierCfg = getTierConfig(planId, { customLimits: customLimits && Object.keys(customLimits).length ? customLimits : undefined });
             const amount = session.amount_total / 100;
+            let patchData = null;
+            let planDisplayName = planId;
 
-            const patchData = {
-                tier: planId,
-                lastPayment: {
-                    orderId: sessionId,
-                    planId,
-                    amount: amount,
-                    paidAt: new Date().toISOString(),
-                    customLimits: planId === 'custom' ? customLimits : null
+            if (isPromo) {
+                const promo = promoPlans.get(planId);
+                const maxBots = promo ? promo.maxBots : parseInt(session.metadata.maxBots || '10', 10);
+                const maxProxies = promo ? promo.maxProxies : parseInt(session.metadata.maxProxies || '5', 10);
+                planDisplayName = promo ? promo.name : 'Promotional Plan';
+
+                patchData = {
+                    tier: 'custom',
+                    customLimits: {
+                        maxBots,
+                        maxProxies,
+                        price: amount,
+                        promoPlanId: planId,
+                        promoPlanName: planDisplayName
+                    },
+                    lastPayment: {
+                        orderId: sessionId,
+                        planId,
+                        planName: planDisplayName,
+                        amount: amount,
+                        paidAt: new Date().toISOString(),
+                        isPromo: true
+                    }
+                };
+            } else {
+                const tierCfg = getTierConfig(planId, { customLimits: customLimits && Object.keys(customLimits).length ? customLimits : undefined });
+                planDisplayName = tierCfg.name;
+                patchData = {
+                    tier: planId,
+                    lastPayment: {
+                        orderId: sessionId,
+                        planId,
+                        amount: amount,
+                        paidAt: new Date().toISOString(),
+                        customLimits: planId === 'custom' ? customLimits : null
+                    }
+                };
+                if (planId === 'custom' && customLimits && Object.keys(customLimits).length) {
+                    patchData.customLimits = customLimits;
                 }
-            };
-            if (planId === 'custom' && customLimits && Object.keys(customLimits).length) {
-                patchData.customLimits = customLimits;
             }
+
             const preferences = workspaces.updatePreferences(user.id, patchData);
 
             if (discordBot) {
                 discordBot.broadcastPayment({
                     userEmail: user.email,
-                    planName: tierCfg.name,
+                    planName: planDisplayName,
                     amount: amount,
                     orderId: sessionId
                 });
             }
 
-            return json(res, 200, { ok: true, tier: planId, preferences });
+            return json(res, 200, { ok: true, tier: patchData.tier, preferences });
         } catch (err) {
             console.error('Stripe verification error:', err);
             return json(res, 500, { ok: false, reason: err.message });
