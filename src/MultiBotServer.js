@@ -51,11 +51,7 @@ function loadEnv() {
 }
 loadEnv();
 
-const Stripe = require('stripe');
-let stripe = null;
-if (process.env.STRIPE_SECRET_KEY) {
-    stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-}
+const { paypal } = require('./utils/PayPalClient.js');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_ROOT = process.env.BOTHIVE_DATA_DIR ? path.resolve(process.env.BOTHIVE_DATA_DIR) : ROOT;
@@ -1309,6 +1305,62 @@ async function handleHttp(req, res, state) {
         }
     }
 
+    // ── PayPal Public Webhook Endpoint (Unauthenticated) ─────────────
+    if (p === '/api/billing/paypal-webhook') {
+        if (req.method === 'GET') {
+            return json(res, 200, { ok: true, message: 'PayPal webhook active' });
+        }
+        if (req.method === 'POST') {
+            let payload = null;
+            try { payload = await readJson(req); } catch(e) { return json(res, 400, { ok: false }); }
+            const eventType = payload.event_type || payload.type;
+            if (eventType === 'PAYMENT.CAPTURE.COMPLETED' || eventType === 'CHECKOUT.ORDER.APPROVED') {
+                const resource = payload.resource || {};
+                const customData = JSON.parse(resource.custom_id || resource.purchase_units?.[0]?.custom_id || '{}');
+                const userId = customData.userId;
+                const planId = customData.planId;
+                const amount = Number(resource.amount?.value || 0);
+                const orderId = resource.id || `paypal_${Date.now()}`;
+
+                if (userId && planId) {
+                    let patchData = null;
+                    let planDisplayName = planId;
+                    if (planId.startsWith('promo_')) {
+                        const promo = promoPlans.get(planId);
+                        const maxBots = promo ? promo.maxBots : parseInt(customData.maxBots || '10', 10);
+                        const maxProxies = promo ? promo.maxProxies : parseInt(customData.maxProxies || '5', 10);
+                        planDisplayName = promo ? promo.name : 'Promotional Plan';
+                        patchData = {
+                            tier: 'custom',
+                            customLimits: { maxBots, maxProxies, price: amount, promoPlanId: planId, promoPlanName: planDisplayName },
+                            lastPayment: { orderId, planId, planName: planDisplayName, amount, paidAt: new Date().toISOString(), gateway: 'PayPal', isPromo: true }
+                        };
+                    } else {
+                        const tierCfg = getTierConfig(planId, { customLimits: customData.customLimits });
+                        planDisplayName = tierCfg.name;
+                        patchData = {
+                            tier: planId,
+                            lastPayment: { orderId, planId, amount, paidAt: new Date().toISOString(), gateway: 'PayPal' }
+                        };
+                        if (planId === 'custom' && customData.customLimits) patchData.customLimits = customData.customLimits;
+                    }
+                    workspaces.updatePreferences(userId, patchData);
+                    if (discordBot) {
+                        const targetUser = users.get(userId);
+                        discordBot.broadcastPayment({
+                            userEmail: targetUser?.email || userId,
+                            planName: planDisplayName,
+                            amount,
+                            orderId,
+                            gateway: 'PayPal'
+                        });
+                    }
+                }
+            }
+            return json(res, 200, { ok: true });
+        }
+    }
+
     // Protect all other /api routes
     if (p.startsWith('/api/') && !isAuthenticated(req)) {
         return json(res, 401, { ok: false, reason: 'Unauthorized' });
@@ -1319,198 +1371,34 @@ async function handleHttp(req, res, state) {
         return json(res, 200, { ok: true, plans: promoPlans.listActive() });
     }
 
-    if (p === '/api/admin/promo-plans' && req.method === 'GET') {
-        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
-        return json(res, 200, { ok: true, plans: promoPlans.listAll() });
-    }
-
-    if (p === '/api/admin/promo-plans' && req.method === 'POST') {
-        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
+    if (p === '/api/plans/promo' && req.method === 'POST') {
+        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Admin only' });
         const body = await readJson(req);
+        if (!body.name || !body.price || !body.maxBots) {
+            return json(res, 400, { ok: false, reason: 'Missing required promo plan fields' });
+        }
         const created = promoPlans.create(body);
         return json(res, 201, { ok: true, plan: created });
     }
 
-    const promoPatchMatch = p.match(/^\/api\/admin\/promo-plans\/([a-zA-Z0-9_-]+)$/);
-    if (promoPatchMatch && req.method === 'PATCH') {
-        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
+    if (p.startsWith('/api/plans/promo/') && req.method === 'PUT') {
+        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Admin only' });
+        const planId = p.replace('/api/plans/promo/', '');
         const body = await readJson(req);
-        const updated = promoPlans.update(promoPatchMatch[1], body);
-        if (!updated) return json(res, 404, { ok: false, reason: 'Promo plan not found' });
+        const updated = promoPlans.update(planId, body);
+        if (!updated) return json(res, 404, { ok: false, reason: 'Plan not found' });
         return json(res, 200, { ok: true, plan: updated });
     }
 
-    const promoDelMatch = p.match(/^\/api\/admin\/promo-plans\/([a-zA-Z0-9_-]+)$/);
-    if (promoDelMatch && req.method === 'DELETE') {
-        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Forbidden' });
-        const deleted = promoPlans.delete(promoDelMatch[1]);
-        return json(res, deleted ? 200 : 404, { ok: deleted });
+    if (p.startsWith('/api/plans/promo/') && req.method === 'DELETE') {
+        if (!requireAdmin(req)) return json(res, 403, { ok: false, reason: 'Admin only' });
+        const planId = p.replace('/api/plans/promo/', '');
+        const deleted = promoPlans.delete(planId);
+        return json(res, 200, { ok: true, deleted });
     }
 
-    // ── Stripe Checkout & Billing ─────────────────────────────────────
-    if (p === '/api/billing/stripe-checkout' && req.method === 'POST') {
-        if (!stripe) return json(res, 500, { ok: false, reason: 'Stripe not configured' });
-        const user = currentUser(req);
-        const body = await readJson(req);
-        const planId = String(body.planId || '').trim();
-        const customLimits = body.customLimits ? {
-            maxBots: Math.max(1, parseInt(body.customLimits.maxBots || 1, 10)),
-            maxProxies: Math.max(0, parseInt(body.customLimits.maxProxies || 0, 10)),
-            price: Number(body.customLimits.price != null ? body.customLimits.price : (Number(body.customLimits.maxBots || 1) * 0.50 + Number(body.customLimits.maxProxies || 0) * 0.50))
-        } : null;
-
-        let tierCfg = null;
-        let isPromo = false;
-
-        if (planId.startsWith('promo_')) {
-            const promo = promoPlans.get(planId);
-            if (!promo || !promo.active) {
-                return json(res, 400, { ok: false, reason: 'Promotional deal expired or not available' });
-            }
-            if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
-                return json(res, 400, { ok: false, reason: 'This limited-time promotional offer has expired' });
-            }
-            isPromo = true;
-            tierCfg = {
-                id: promo.id,
-                name: `${promo.name} (${promo.badge})`,
-                price: promo.price,
-                maxBots: promo.maxBots,
-                maxProxies: promo.maxProxies
-            };
-        } else {
-            if (!['free', 'bronze_3', 'silver_5', 'unlimited_15', 'custom'].includes(planId)) {
-                return json(res, 400, { ok: false, reason: 'Invalid subscription tier selected' });
-            }
-            tierCfg = getTierConfig(planId, { customLimits });
-        }
-        
-        try {
-            const baseUrl = body.returnUrl || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host || 'localhost:3318'}`;
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: [{
-                    price_data: {
-                        currency: 'usd',
-                        product_data: {
-                            name: `Native Launch SaaS - ${tierCfg.name}`,
-                            description: `Fleet Capacity: ${tierCfg.maxBots === Infinity ? 'Unlimited' : tierCfg.maxBots} Bots | ${tierCfg.maxProxies === Infinity ? 'Unlimited' : tierCfg.maxProxies} Proxies`
-                        },
-                        unit_amount: Math.round(tierCfg.price * 100),
-                    },
-                    quantity: 1,
-                }],
-                mode: 'payment',
-                success_url: `${baseUrl}/billing?session_id={CHECKOUT_SESSION_ID}`,
-                cancel_url: `${baseUrl}/billing?cancel=true`,
-                customer_email: user.email,
-                metadata: {
-                    userId: user.id,
-                    planId: planId,
-                    isPromo: isPromo ? 'true' : 'false',
-                    maxBots: String(tierCfg.maxBots),
-                    maxProxies: String(tierCfg.maxProxies),
-                    customLimits: JSON.stringify(customLimits || {})
-                }
-            });
-            return json(res, 200, { ok: true, url: session.url });
-        } catch (err) {
-            console.error('Stripe error:', err);
-            return json(res, 500, { ok: false, reason: err.message });
-        }
-    }
-
-    if (p === '/api/billing/stripe-verify' && req.method === 'POST') {
-        if (!stripe) return json(res, 500, { ok: false, reason: 'Stripe not configured' });
-        const user = currentUser(req);
-        const body = await readJson(req);
-        const sessionId = String(body.session_id || '').trim();
-        
-        if (!sessionId) return json(res, 400, { ok: false, reason: 'Missing session_id' });
-
-        try {
-            const session = await stripe.checkout.sessions.retrieve(sessionId);
-            if (session.payment_status !== 'paid') {
-                return json(res, 400, { ok: false, reason: 'Payment not successful yet' });
-            }
-
-            const planId = session.metadata.planId;
-            const isPromo = session.metadata.isPromo === 'true';
-            let customLimits = null;
-            try { customLimits = JSON.parse(session.metadata.customLimits); } catch(e) {}
-            
-            // Check if already applied to prevent double application
-            const currentPrefs = workspaces.preferences(user.id) || {};
-            if (currentPrefs.lastPayment?.orderId === sessionId) {
-                return json(res, 200, { ok: true, tier: planId, preferences: currentPrefs });
-            }
-
-            const amount = session.amount_total / 100;
-            let patchData = null;
-            let planDisplayName = planId;
-
-            if (isPromo) {
-                const promo = promoPlans.get(planId);
-                const maxBots = promo ? promo.maxBots : parseInt(session.metadata.maxBots || '10', 10);
-                const maxProxies = promo ? promo.maxProxies : parseInt(session.metadata.maxProxies || '5', 10);
-                planDisplayName = promo ? promo.name : 'Promotional Plan';
-
-                patchData = {
-                    tier: 'custom',
-                    customLimits: {
-                        maxBots,
-                        maxProxies,
-                        price: amount,
-                        promoPlanId: planId,
-                        promoPlanName: planDisplayName
-                    },
-                    lastPayment: {
-                        orderId: sessionId,
-                        planId,
-                        planName: planDisplayName,
-                        amount: amount,
-                        paidAt: new Date().toISOString(),
-                        isPromo: true
-                    }
-                };
-            } else {
-                const tierCfg = getTierConfig(planId, { customLimits: customLimits && Object.keys(customLimits).length ? customLimits : undefined });
-                planDisplayName = tierCfg.name;
-                patchData = {
-                    tier: planId,
-                    lastPayment: {
-                        orderId: sessionId,
-                        planId,
-                        amount: amount,
-                        paidAt: new Date().toISOString(),
-                        customLimits: planId === 'custom' ? customLimits : null
-                    }
-                };
-                if (planId === 'custom' && customLimits && Object.keys(customLimits).length) {
-                    patchData.customLimits = customLimits;
-                }
-            }
-
-            const preferences = workspaces.updatePreferences(user.id, patchData);
-
-            if (discordBot) {
-                discordBot.broadcastPayment({
-                    userEmail: user.email,
-                    planName: planDisplayName,
-                    amount: amount,
-                    orderId: sessionId
-                });
-            }
-
-            return json(res, 200, { ok: true, tier: patchData.tier, preferences });
-        } catch (err) {
-            console.error('Stripe verification error:', err);
-            return json(res, 500, { ok: false, reason: err.message });
-        }
-    }
-
-    // ── Tebex Gaming Checkout & Verify ─────────────────────────────────
-    if (p === '/api/billing/tebex-checkout' && req.method === 'POST') {
+    // ── PayPal Create Order Endpoint ──────────────────────────────────
+    if (p === '/api/billing/paypal-create-order' && req.method === 'POST') {
         const user = currentUser(req);
         const body = await readJson(req);
         const planId = String(body.planId || '').trim();
@@ -1548,29 +1436,87 @@ async function handleHttp(req, res, state) {
 
         try {
             const baseUrl = body.returnUrl || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host || 'localhost:3318'}`;
-            const clientIp = (req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
-            const result = await tebex.createCheckoutSession({
+            const result = await paypal.createOrder({
                 user,
                 planId,
                 tierCfg,
                 returnUrl: baseUrl,
                 isPromo,
-                customLimits,
-                clientIp: clientIp && clientIp !== '127.0.0.1' && !clientIp.startsWith('::') ? clientIp : undefined
+                customLimits
             });
             return json(res, 200, result);
         } catch (err) {
-            console.error('Tebex checkout error:', err);
+            console.error('PayPal create order error:', err);
             return json(res, 500, { ok: false, reason: err.message });
         }
     }
 
-    if (p === '/api/billing/tebex-verify' && req.method === 'POST') {
+    // ── PayPal Capture Order & Provisioning ───────────────────────────
+    if (p === '/api/billing/paypal-capture-order' && req.method === 'POST') {
+        const user = currentUser(req);
+        const body = await readJson(req);
+        const orderId = String(body.orderId || body.order_id || '').trim();
+
+        if (!orderId) return json(res, 400, { ok: false, reason: 'Missing orderId' });
+
+        try {
+            const capture = await paypal.captureOrder(orderId);
+            if (!capture.ok) {
+                return json(res, 400, { ok: false, reason: capture.reason || 'Payment capture failed' });
+            }
+
+            const customData = capture.customData || {};
+            const planId = customData.planId || body.planId || 'bronze_3';
+            const amount = capture.amount || Number(body.amount || 0);
+
+            let patchData = null;
+            let planDisplayName = planId;
+
+            if (planId.startsWith('promo_')) {
+                const promo = promoPlans.get(planId);
+                const maxBots = promo ? promo.maxBots : parseInt(customData.maxBots || '10', 10);
+                const maxProxies = promo ? promo.maxProxies : parseInt(customData.maxProxies || '5', 10);
+                planDisplayName = promo ? promo.name : 'Promotional Plan';
+                patchData = {
+                    tier: 'custom',
+                    customLimits: { maxBots, maxProxies, price: amount, promoPlanId: planId, promoPlanName: planDisplayName },
+                    lastPayment: { orderId, planId, planName: planDisplayName, amount, paidAt: new Date().toISOString(), gateway: 'PayPal', isPromo: true }
+                };
+            } else {
+                const tierCfg = getTierConfig(planId, { customLimits: customData.customLimits });
+                planDisplayName = tierCfg.name;
+                patchData = {
+                    tier: planId,
+                    lastPayment: { orderId, planId, amount, paidAt: new Date().toISOString(), gateway: 'PayPal' }
+                };
+                if (planId === 'custom' && customData.customLimits) patchData.customLimits = customData.customLimits;
+            }
+
+            const preferences = workspaces.updatePreferences(user.id, patchData);
+            if (discordBot) {
+                discordBot.broadcastPayment({
+                    userEmail: user.email,
+                    planName: planDisplayName,
+                    amount,
+                    orderId,
+                    gateway: 'PayPal'
+                });
+            }
+
+            return json(res, 200, { ok: true, tier: patchData.tier, preferences });
+        } catch (err) {
+            console.error('PayPal capture error:', err);
+            return json(res, 500, { ok: false, reason: err.message });
+        }
+    }
+
+    // ── PayPal Return Callback Verification ───────────────────────────
+    if (p === '/api/billing/paypal-verify' && req.method === 'POST') {
         const user = currentUser(req);
         const body = await readJson(req);
         const planId = String(body.plan_id || '').trim();
         const amount = Number(body.amount || 0);
-        const txnId = String(body.txn_id || `tebex_${Date.now()}`).trim();
+        const orderId = String(body.order_id || `paypal_${Date.now()}`).trim();
 
         if (!planId) return json(res, 400, { ok: false, reason: 'Missing plan_id' });
 
@@ -1592,12 +1538,12 @@ async function handleHttp(req, res, state) {
                     promoPlanName: planDisplayName
                 },
                 lastPayment: {
-                    orderId: txnId,
+                    orderId,
                     planId,
                     planName: planDisplayName,
                     amount: amount || (promo ? promo.price : 4.99),
                     paidAt: new Date().toISOString(),
-                    gateway: 'tebex',
+                    gateway: 'PayPal',
                     isPromo: true
                 }
             };
@@ -1607,11 +1553,11 @@ async function handleHttp(req, res, state) {
             patchData = {
                 tier: planId,
                 lastPayment: {
-                    orderId: txnId,
+                    orderId,
                     planId,
                     amount: amount || tierCfg.price,
                     paidAt: new Date().toISOString(),
-                    gateway: 'tebex'
+                    gateway: 'PayPal'
                 }
             };
         }
@@ -1622,13 +1568,15 @@ async function handleHttp(req, res, state) {
                 userEmail: user.email,
                 planName: planDisplayName,
                 amount: amount || patchData.lastPayment?.amount || 0,
-                orderId: txnId,
-                gateway: 'Tebex Gaming'
+                orderId,
+                gateway: 'PayPal'
             });
         }
 
         return json(res, 200, { ok: true, tier: patchData.tier, preferences });
     }
+
+
 
     // ── Account workspace ───────────────────────────────────────────
     if (p === '/api/preferences') {

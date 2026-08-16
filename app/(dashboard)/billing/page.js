@@ -107,7 +107,6 @@ export default function BillingPage() {
   const [activePlan, setActivePlan] = useState(user?.preferences?.tier || 'free');
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
-  const [paymentGateway, setPaymentGateway] = useState('tebex'); // 'tebex' | 'stripe'
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -135,62 +134,36 @@ export default function BillingPage() {
     loadPromoPlans();
   }, [loadPromoPlans]);
 
-  // Handle Return Callback (Stripe & Tebex)
+  // Handle PayPal Return Callback
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session_id');
-    const tebexStatus = params.get('tebex_status');
+    const paypalStatus = params.get('paypal_status');
+    const token = params.get('token'); // PayPal Order ID
     const planId = params.get('plan_id');
     const amount = params.get('amount');
-    const txnId = params.get('txn_id') || params.get('payment_id');
     const cancel = params.get('cancel');
 
-    // 1. Stripe Return Callback
-    if (sessionId) {
+    // 1. PayPal Approved Order Return
+    if (token || paypalStatus === 'success') {
       setLoading(true);
-      api('/billing/stripe-verify', {
-        method: 'POST',
-        body: JSON.stringify({ session_id: sessionId })
-      })
-      .then(res => {
-        if (res.ok) {
-          toast('🎉 Stripe Payment Verified! Subscription is active.', 'success');
-          setUser(prev => ({
-            ...prev,
-            preferences: res.preferences || prev.preferences
-          }));
-          setActivePlan(res.tier);
-        } else {
-          toast(`Verification failed: ${res.reason}`, 'error');
-        }
-      })
-      .catch(err => {
-        toast(`Verification error: ${err.message}`, 'error');
-      })
-      .finally(() => {
-        setLoading(false);
-        window.history.replaceState({}, document.title, window.location.pathname);
-      });
-    }
+      const verifyEndpoint = token ? '/billing/paypal-capture-order' : '/billing/paypal-verify';
+      const verifyBody = token ? { orderId: token } : { plan_id: planId, amount };
 
-    // 2. Tebex Return Callback
-    if (tebexStatus === 'success' && planId) {
-      setLoading(true);
-      api('/billing/tebex-verify', {
+      api(verifyEndpoint, {
         method: 'POST',
-        body: JSON.stringify({ plan_id: planId, amount, txn_id: txnId })
+        body: JSON.stringify(verifyBody)
       })
       .then(res => {
         if (res.ok) {
-          toast('🎉 Tebex Payment Verified! Subscription is active.', 'success');
+          toast('🎉 PayPal Payment Verified! Your subscription and quotas are now active.', 'success');
           setUser(prev => ({
             ...prev,
             preferences: res.preferences || prev.preferences
           }));
           setActivePlan(res.tier);
         } else {
-          toast(`Tebex verification failed: ${res.reason}`, 'error');
+          toast(`PayPal verification failed: ${res.reason}`, 'error');
         }
       })
       .catch(err => {
@@ -223,7 +196,7 @@ export default function BillingPage() {
     };
   }, [customBots, customProxies]);
 
-  // Proceed to Checkout (Tebex or Stripe)
+  // Proceed to PayPal Checkout
   const proceedToCheckout = async () => {
     if (!selectedPlanForPayment) return;
     setLoading(true);
@@ -234,8 +207,7 @@ export default function BillingPage() {
         returnUrl: window.location.origin,
       };
 
-      const endpoint = paymentGateway === 'tebex' ? '/billing/tebex-checkout' : '/billing/stripe-checkout';
-      const res = await api(endpoint, {
+      const res = await api('/billing/paypal-create-order', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
@@ -243,11 +215,11 @@ export default function BillingPage() {
       if (res.ok && res.url) {
         window.location.href = res.url;
       } else {
-        toast(res.reason || 'Failed to initialize checkout gateway', 'error');
+        toast(res.reason || 'Failed to initialize PayPal checkout', 'error');
         setLoading(false);
       }
     } catch (err) {
-      toast(err.message || 'Checkout connection failed', 'error');
+      toast(err.message || 'PayPal connection failed', 'error');
       setLoading(false);
     }
   };
@@ -738,7 +710,7 @@ export default function BillingPage() {
                 </p>
                 <p className="flex items-center gap-1.5">
                   <Lock className="h-3.5 w-3.5 text-ink-soft" />
-                  <span>Tebex Gaming & Stripe 256-bit SSL secured checkout</span>
+                  <span>PayPal & Card 256-bit SSL secured checkout</span>
                 </p>
               </div>
             </div>
@@ -885,12 +857,12 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* ── MULTI-GATEWAY CHECKOUT MODAL ────────────────────────────────────── */}
+      {/* ── PAYPAL CHECKOUT MODAL ────────────────────────────────────── */}
       <Modal
         open={checkoutModalOpen}
         onClose={() => setCheckoutModalOpen(false)}
         title="Complete Subscription Upgrade"
-        description="Select your preferred payment gateway to finalize your order"
+        description="Checkout securely with PayPal or Credit/Debit Card"
       >
         <div className="space-y-5 py-2">
           
@@ -906,7 +878,7 @@ export default function BillingPage() {
                 </p>
               </div>
               <span className="border border-jade/40 bg-jade/10 text-jade text-[10px] px-2.5 py-1 font-bold">
-                Instant Provisioning
+                Instant Auto-Activation
               </span>
             </div>
 
@@ -922,55 +894,20 @@ export default function BillingPage() {
             </div>
           </div>
 
-          {/* Payment Gateway Selector */}
-          <div className="space-y-2 font-mono">
-            <label className="block text-[10px] lp-mono text-ink-soft font-bold">
-              Select Payment Method
-            </label>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {/* Option 1: Tebex Gaming */}
-              <button
-                type="button"
-                onClick={() => setPaymentGateway('tebex')}
-                className={`p-3.5 border text-left flex flex-col justify-between transition cursor-pointer ${
-                  paymentGateway === 'tebex'
-                    ? 'border-2 border-ember bg-white shadow-[3px_3px_0_#ff4400]'
-                    : 'border-rule bg-paper-2 hover:border-ink'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Gamepad2 className="h-4 w-4 text-ember" />
-                    <span className="text-xs font-bold text-ink">Tebex Gaming</span>
-                  </div>
-                  <span className="border border-jade/40 bg-jade/10 text-jade text-[8px] font-bold px-1 py-0.5">
-                    RECOMMENDED
-                  </span>
-                </div>
-                <p className="text-[10px] text-ink-soft mt-2 leading-relaxed">
-                  Cards, PayPal, Crypto (USDT/BTC/LTC), Apple Pay, Paysafecard
-                </p>
-              </button>
-
-              {/* Option 2: Stripe */}
-              <button
-                type="button"
-                onClick={() => setPaymentGateway('stripe')}
-                className={`p-3.5 border text-left flex flex-col justify-between transition cursor-pointer ${
-                  paymentGateway === 'stripe'
-                    ? 'border-2 border-ember bg-white shadow-[3px_3px_0_#ff4400]'
-                    : 'border-rule bg-paper-2 hover:border-ink'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-ink" />
-                  <span className="text-xs font-bold text-ink">Direct Stripe</span>
-                </div>
-                <p className="text-[10px] text-ink-soft mt-2 leading-relaxed">
-                  Direct Credit & Debit Card payments (Visa, Mastercard, AMEX)
-                </p>
-              </button>
+          {/* PayPal Payment Method Details */}
+          <div className="border-2 border-ember bg-white p-4 shadow-[3px_3px_0_#ff4400] font-mono space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="bg-ember text-white px-2 py-0.5 text-[10px] font-bold">
+                  PAYPAL SECURE
+                </span>
+                <span className="text-xs font-bold text-ink">PayPal Express & Card Checkout</span>
+              </div>
+              <Check className="h-4 w-4 text-jade" />
             </div>
+            <p className="text-xs text-ink-soft leading-relaxed">
+              Pay using your <strong>PayPal Account Balance</strong> or use <strong>Debit / Credit Card (Visa, Mastercard, AMEX)</strong> via PayPal Guest Checkout.
+            </p>
           </div>
 
           {/* Checkout Action Button */}
@@ -984,16 +921,12 @@ export default function BillingPage() {
             >
               {loading ? (
                 <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-              ) : paymentGateway === 'tebex' ? (
-                <Gamepad2 className="h-4 w-4 mr-2" />
               ) : (
-                <CreditCard className="h-4 w-4 mr-2" />
+                <Zap className="h-4 w-4 mr-2" />
               )}
               {loading
-                ? 'Connecting to Gateway...'
-                : paymentGateway === 'tebex'
-                ? `Proceed to Tebex Checkout (${selectedPlanForPayment?.price})`
-                : `Proceed to Stripe Checkout (${selectedPlanForPayment?.price})`}
+                ? 'Opening PayPal Checkout...'
+                : `Proceed to PayPal (${selectedPlanForPayment?.price})`}
             </Button>
           </div>
 
@@ -1001,7 +934,7 @@ export default function BillingPage() {
           <div className="pt-2 border-t border-rule flex items-center justify-between text-[11px] font-mono text-ink-soft">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-jade shrink-0" />
-              <span>256-Bit SSL Encrypted & Gaming Buyer Protection</span>
+              <span>256-Bit SSL Encrypted & PayPal Buyer Protection</span>
             </div>
             <button
               type="button"
@@ -1023,7 +956,7 @@ export default function BillingPage() {
           <h3 className="lp-display text-sm font-bold text-ink">Multi-Tenant Isolation & Global Payments</h3>
           <p className="text-xs leading-relaxed text-ink-soft font-mono">
             Every custom bot slot runs in an isolated worker sandbox with its own memory allocations and pathfinder instances.
-            Subscriptions support both Tebex Gaming (Cards, PayPal, Crypto, Apple Pay) and Direct Stripe with instant automated quota provisioning.
+            Subscriptions support PayPal Express and Debit/Credit Cards with instant automated quota provisioning.
           </p>
         </div>
       </Panel>
