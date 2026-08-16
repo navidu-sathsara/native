@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { ArrowUpRight, Terminal } from 'lucide-react';
 import { Reveal, Marquee } from '@/components/reveal';
-import { ConsoleMockup } from '@/components/landing/console-mockup';
 
 const SERVERS = ['Hypixel', '2b2t', 'Mineplex', 'Wynncraft', 'Purpur', 'Folia'];
 
@@ -17,7 +16,7 @@ export function Hero() {
       />
 
       <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-10">
+        <div className="grid gap-12 pb-20 lg:grid-cols-12 lg:gap-10 lg:pb-28">
           <div className="lg:col-span-7">
             <Reveal delay={80}>
               <h1 className="lp-display text-[clamp(3.2rem,8.5vw,7rem)] text-ink">
@@ -73,15 +72,6 @@ export function Hero() {
             </p>
           </Reveal>
         </div>
-
-        {/* Real console preview */}
-        <Reveal delay={280} className="mt-20 pb-24 lg:mt-24 lg:pb-28">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <p className="lp-mono text-ink-soft">The console — /overview</p>
-            <p className="lp-mono hidden text-ink-faint sm:block">not a mockup you cannot use. this is the product.</p>
-          </div>
-          <ConsoleMockup />
-        </Reveal>
       </div>
 
       <div className="relative border-t border-rule bg-paper-2 py-5">
