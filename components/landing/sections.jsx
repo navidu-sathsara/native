@@ -310,38 +310,62 @@ export function Testimonials() {
 const PLANS = [
   {
     name: 'Free Starter',
+    planId: 'free',
     price: '$0',
-    badge: 'Always free',
+    badge: 'Always Free',
     note: 'Perfect to test autonomous bots and basic grinds.',
-    features: ['1 bot running concurrently', 'Admin shared proxy access', 'Live web console & chat', 'Anti-AFK & basic automation'],
-    cta: 'Start for free',
+    features: [
+      '1 Minecraft Bot running concurrently',
+      'Admin Free Proxy access only',
+      'Live Web Console & Inventory view',
+      'Anti-AFK & standard behaviors'
+    ],
+    cta: 'Start for Free',
   },
   {
-    name: 'Bronze Squad',
+    name: 'Bronze Pro',
+    planId: 'bronze_3',
     price: '$2',
     unit: '/mo',
-    badge: 'Squad tier',
+    badge: 'Starter Squad',
     note: 'Ideal for personal farms and small squads.',
-    features: ['Up to 3 bots running', 'Private SOCKS5 proxy dialing', 'Live visual script execution', 'Auto-reconnect & auto-login'],
-    cta: 'Get Bronze ($2)',
+    features: [
+      'Up to 3 Minecraft Bots running',
+      'Use any private SOCKS5 proxies',
+      'All Behavior Modules enabled',
+      'Fast console streaming latency'
+    ],
+    cta: 'Get Bronze Pro ($2)',
   },
   {
     name: 'Silver Pro',
+    planId: 'silver_5',
     price: '$5',
     unit: '/mo',
-    badge: 'Most popular',
+    badge: 'Most Popular',
     note: 'For serious bot operators and faction clans.',
-    features: ['Up to 10 bots running', 'Dedicated proxy pool integration', 'Visual command & script builder', 'Automated cron job schedules'],
+    features: [
+      'Up to 10 Minecraft Bots running',
+      'Custom SOCKS5 Proxy pool support',
+      'Visual Command & Script Builder',
+      'Scheduled actions & Auto-reconnect'
+    ],
     cta: 'Get Silver Pro ($5)',
     featured: true,
   },
   {
     name: 'Unlimited Pro',
+    planId: 'unlimited_15',
     price: '$12',
     unit: '/mo',
-    badge: 'Enterprise fleet',
+    badge: 'Enterprise Fleet',
     note: 'Uncapped power for massive multi-server ops.',
-    features: ['Unlimited (∞) bots running', 'Dedicated & custom proxy endpoints', 'Mass broadcast commands & aliases', '24/7 priority compute sandbox'],
+    features: [
+      'Unlimited (∞) Minecraft Bots running',
+      'Dedicated & Custom SOCKS5 Proxies',
+      'Mass Broadcast & Custom Aliases',
+      '24/7 Priority compute sandboxes'
+    ],
     cta: 'Get Unlimited ($12)',
     dark: true,
   },
@@ -353,9 +377,9 @@ export function Pricing() {
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
         <SectionHead
           index="05"
-          eyebrow="Pricing & Capacity"
-          title="Predictable pricing."
-          sub="No hidden overages, no complex seat formulas. Choose a plan or take advantage of our limited-time flash deals."
+          eyebrow="Pricing & Fleet Capacity"
+          title="Simple, transparent plans."
+          sub="No hidden overages or seat formulas. Choose a plan or grab our limited-time flash discount."
         />
 
         {/* ── LIMITED TIME FLASH DEAL BANNER ────────────────────── */}
@@ -372,15 +396,15 @@ export function Pricing() {
                 </span>
               </div>
               <h3 className="lp-display text-2xl sm:text-3xl font-bold text-ink">
-                Flash Fleet Special — 20 Bots + 10 Proxies
+                Flash Fleet Special — 20 Bots + 10 Dedicated Proxies
               </h3>
               <p className="text-sm font-mono text-ink-soft max-w-2xl">
-                Get high-capacity bot deployment with 20 dedicated Minecraft bot slots and 10 dedicated SOCKS5 proxies for just $6.99/mo.
+                Deploy 20 concurrent Minecraft bots with 10 dedicated premium SOCKS5 proxies, Anti-AFK & auto-mining modules for just $6.99/mo.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
               <div className="text-left sm:text-right">
-                <span className="text-xs font-mono text-ink-faint line-through block">$15.00/mo</span>
+                <span className="text-xs font-mono text-ink-faint line-through block font-bold">$15.00/mo</span>
                 <span className="lp-display text-4xl font-bold text-ink">$6.99</span>
                 <span className="text-xs font-mono text-ink-soft ml-1">/ month</span>
               </div>
@@ -442,7 +466,7 @@ export function Pricing() {
               </ul>
 
               <Link
-                href="/login"
+                href={plan.planId === 'free' ? '/login' : `/login?plan=${plan.planId}`}
                 data-testid={`pricing-cta-${plan.name.toLowerCase()}`}
                 className={cn(
                   'lp-mono mt-10 inline-flex items-center justify-center gap-2 border px-6 py-3.5 text-xs font-bold transition-colors duration-150',
