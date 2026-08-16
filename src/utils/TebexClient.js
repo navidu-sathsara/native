@@ -36,7 +36,7 @@ class TebexClient {
   /**
    * Creates a Tebex Headless Basket, attaches the matching package, and returns checkout URL
    */
-  async createCheckoutSession({ user, planId, tierCfg, returnUrl, isPromo, customLimits }) {
+  async createCheckoutSession({ user, planId, tierCfg, returnUrl, isPromo, customLimits, clientIp }) {
     const baseUrl = returnUrl || 'http://localhost:3318';
     const successUrl = `${baseUrl}/billing?tebex_status=success&plan_id=${encodeURIComponent(planId)}&amount=${tierCfg.price}`;
     const cancelUrl = `${baseUrl}/billing?cancel=true`;
@@ -46,23 +46,27 @@ class TebexClient {
         // 1. Fetch available packages from Tebex
         const packages = await this.getPackages();
 
-        // 2. Create the empty basket
+        // 2. Create the empty basket with buyer's IP and email
+        const basketPayload = {
+          complete_url: successUrl,
+          cancel_url: cancelUrl,
+          email: user.email,
+          custom: {
+            userId: user.id,
+            userEmail: user.email,
+            planId: planId,
+            isPromo: isPromo ? 'true' : 'false',
+            maxBots: String(tierCfg.maxBots),
+            maxProxies: String(tierCfg.maxProxies),
+            customLimits: JSON.stringify(customLimits || {})
+          }
+        };
+        if (clientIp) basketPayload.ip = clientIp;
+
         const createBasketRes = await fetch(`https://headless.tebex.io/api/accounts/${this.publicToken}/baskets`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({
-            complete_url: successUrl,
-            cancel_url: cancelUrl,
-            custom: {
-              userId: user.id,
-              userEmail: user.email,
-              planId: planId,
-              isPromo: isPromo ? 'true' : 'false',
-              maxBots: String(tierCfg.maxBots),
-              maxProxies: String(tierCfg.maxProxies),
-              customLimits: JSON.stringify(customLimits || {})
-            }
-          })
+          body: JSON.stringify(basketPayload)
         });
 
         if (!createBasketRes.ok) {

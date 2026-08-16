@@ -1548,13 +1548,15 @@ async function handleHttp(req, res, state) {
 
         try {
             const baseUrl = body.returnUrl || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host || 'localhost:3318'}`;
+            const clientIp = (req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
             const result = await tebex.createCheckoutSession({
                 user,
                 planId,
                 tierCfg,
                 returnUrl: baseUrl,
                 isPromo,
-                customLimits
+                customLimits,
+                clientIp: clientIp && clientIp !== '127.0.0.1' && !clientIp.startsWith('::') ? clientIp : undefined
             });
             return json(res, 200, result);
         } catch (err) {
