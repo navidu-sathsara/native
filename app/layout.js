@@ -1,5 +1,5 @@
 import './globals.css';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono, Bricolage_Grotesque, IBM_Plex_Sans } from 'next/font/google';
 import { Providers } from '@/components/providers';
 
 const inter = Inter({
@@ -11,6 +11,20 @@ const inter = Inter({
 const mono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains',
+  display: 'swap',
+});
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-bricolage',
+  display: 'swap',
+});
+
+const plex = IBM_Plex_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-plex',
   display: 'swap',
 });
 
@@ -41,7 +55,11 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${mono.variable} ${bricolage.variable} ${plex.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         <Providers>{children}</Providers>
       </body>

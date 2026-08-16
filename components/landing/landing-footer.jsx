@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { Reveal, Marquee } from '@/components/reveal';
+import { ArrowUpRight } from 'lucide-react';
+import { Reveal } from '@/components/reveal';
 import { NoraLogo } from '@/components/nora-logo';
 
 const COLUMNS = [
@@ -11,8 +11,8 @@ const COLUMNS = [
     links: [
       { label: 'Overview', href: '#platform' },
       { label: 'Workflow', href: '#workflow' },
+      { label: 'Registry', href: '#registry' },
       { label: 'Pricing', href: '#pricing' },
-      { label: 'FAQ', href: '#faq' },
     ],
   },
   {
@@ -28,89 +28,92 @@ const COLUMNS = [
     title: 'Resources',
     links: [
       { label: 'Documentation', href: '#platform' },
-      { label: 'Module registry', href: '#platform' },
-      { label: 'Status', href: '#platform' },
-      { label: 'Changelog', href: '#platform' },
+      { label: 'Module registry', href: '#registry' },
+      { label: 'Status', href: '#faq' },
+      { label: 'Changelog', href: '#faq' },
     ],
   },
 ];
 
 export function LandingFooter() {
   return (
-    <footer className="relative overflow-hidden bg-white border-t border-brand-100">
-      
-      {/* Closing statement */}
-      <div className="relative mx-auto max-w-5xl px-6 pt-24 sm:pt-32">
-        <Reveal className="text-center">
-          <p className="stripe-badge mb-7">Ready when you are</p>
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-brand-900 tracking-tight leading-tight">
-            Run the fleet.
-            <br />
-            <span className="text-brand-400">Not the chaos.</span>
-          </h2>
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/login"
-              className="btn-primary group"
-            >
-              Launch console
-              <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <a
-              href="#pricing"
-              className="btn-secondary"
-            >
-              Compare plans
-            </a>
-          </div>
-        </Reveal>
+    <footer className="border-t border-ink bg-ink text-white" data-testid="landing-footer">
+      {/* Closing CTA */}
+      <div className="border-b border-white/12">
+        <div className="mx-auto grid max-w-[1400px] gap-12 px-5 py-24 sm:px-8 sm:py-32 lg:grid-cols-12">
+          <Reveal className="lg:col-span-7">
+            <p className="lp-mono flex items-center gap-3 text-ember">
+              <span className="h-1.5 w-1.5 bg-ember" />
+              Ready when you are
+            </p>
+            <h2 className="lp-display mt-8 text-[clamp(2.8rem,6.5vw,5.5rem)] text-white">
+              Run the fleet.
+              <br />
+              <span className="text-white/35">Not the chaos.</span>
+            </h2>
+          </Reveal>
+
+          <Reveal delay={120} className="flex flex-col justify-end gap-4 lg:col-span-5 lg:items-end">
+            <p className="max-w-sm text-[15px] leading-relaxed text-white/55 lg:text-right">
+              One bot, free, forever. Spin up the console and fork your first worker in
+              under two seconds.
+            </p>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <Link href="/login" className="lp-btn justify-center" data-testid="footer-cta-button">
+                Launch console
+                <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
+              </Link>
+              <a
+                href="#pricing"
+                data-testid="footer-pricing-link"
+                className="lp-mono inline-flex items-center justify-center gap-2 border border-white/40 px-6 py-4 text-white transition-colors duration-150 hover:bg-white hover:text-ink"
+              >
+                Compare plans
+              </a>
+            </div>
+          </Reveal>
+        </div>
       </div>
 
-      {/* Oversized wordmark marquee */}
-      <div className="relative mt-24 select-none border-y border-brand-100 py-6 bg-brand-50">
-        <Marquee duration={40}>
-          {[0, 1, 2, 3].map((i) => (
-            <span
-              key={i}
-              className="flex items-center gap-8 pr-8 text-6xl sm:text-8xl font-bold text-brand-200"
-            >
-              NATIVE
-              <span className="h-4 w-4 rounded-full bg-brand-200" />
-            </span>
-          ))}
-        </Marquee>
+      {/* Oversized wordmark */}
+      <div className="overflow-hidden border-b border-white/12">
+        <p className="lp-display select-none px-5 pb-2 pt-8 text-[19vw] leading-[0.8] text-white/[0.07] sm:px-8">
+          NATIVE
+        </p>
       </div>
 
       {/* Link columns */}
-      <div className="relative mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_repeat(3,1fr)]">
+      <div className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_repeat(3,1fr)]">
           <div>
-            <div className="flex items-center gap-2">
-              <NoraLogo className="h-8 w-8 text-brand-900" />
-              <span className="text-lg font-bold tracking-tight text-brand-900">Native</span>
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center bg-white text-ink">
+                <NoraLogo className="h-5 w-5" />
+              </span>
+              <span className="lp-display text-xl text-white">Native</span>
             </div>
-            <p className="mt-5 max-w-xs text-sm leading-relaxed text-brand-600">
+            <p className="mt-6 max-w-xs text-[14px] leading-relaxed text-white/55">
               The control plane for autonomous fleets. Deploy, orchestrate and observe
-              hundreds of bots from one obsessively designed dashboard.
+              hundreds of bots from one obsessively designed console.
             </p>
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-brand-100 bg-brand-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-brand-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-sm" />
+            <div className="lp-mono mt-7 inline-flex items-center gap-2 border border-white/20 px-3 py-2 text-white/70">
+              <span className="h-1.5 w-1.5 bg-jade" />
               All systems operational
             </div>
           </div>
 
           {COLUMNS.map((column) => (
             <div key={column.title}>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-brand-900">{column.title}</p>
-              <ul className="mt-5 space-y-4">
+              <p className="lp-mono text-white/40">{column.title}</p>
+              <ul className="mt-6 space-y-4">
                 {column.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 transition-colors hover:text-blurple-500"
+                      data-testid={`footer-link-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="text-[14px] text-white/70 transition-colors duration-150 hover:text-ember"
                     >
                       {link.label}
-                      <ArrowRight className="h-3 w-3 opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0" />
                     </Link>
                   </li>
                 ))}
@@ -119,9 +122,9 @@ export function LandingFooter() {
           ))}
         </div>
 
-        <div className="mt-16 flex flex-col gap-4 border-t border-brand-100 pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs font-medium text-brand-500">© {new Date().getFullYear()} Native. All rights reserved.</p>
-          <p className="text-xs font-medium text-brand-500">Built for operators who care about the details.</p>
+        <div className="lp-mono mt-16 flex flex-col gap-3 border-t border-white/12 pt-8 text-white/35 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Native</p>
+          <p>Built for operators who care about the details</p>
         </div>
       </div>
     </footer>

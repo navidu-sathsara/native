@@ -10,6 +10,21 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 
+  /* Landing: Editorial Developer art direction */
+  --font-display: var(--font-bricolage), Georgia, serif;
+  --font-body: var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #f9f9f6;
+  --color-paper-2: #f3f3ef;
+  --color-ink: #111111;
+  --color-ink-soft: #52525b;
+  --color-ink-faint: #8a8a85;
+  --color-ember: #ff4400;
+  --color-ember-dark: #e03b00;
+  --color-jade: #059669;
+  --color-rule: #e4e4e1;
+  --color-rule-dark: #27272a;
+
   /* Stripe-inspired color palette */
   --color-brand-50: #eef2f6;
   --color-brand-100: #e0e6eb;
@@ -181,6 +196,95 @@ body {
     max-width: 600px;
   }
   
+  /* ---------- Landing: Editorial Developer ---------- */
+
+  .lp {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    letter-spacing: 0;
+  }
+
+  .lp-noise {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .lp-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 0.94;
+  }
+
+  .lp-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .lp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-ember);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 22px;
+    border: 1px solid var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
+    transition: transform 0.15s linear, box-shadow 0.15s linear, background-color 0.15s linear;
+  }
+
+  .lp-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--color-ink);
+    background: var(--color-ember-dark);
+  }
+
+  .lp-btn:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 var(--color-ink);
+  }
+
+  .lp-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 14px 22px;
+    border: 1px solid var(--color-ink);
+    transition: background-color 0.15s linear, color 0.15s linear;
+  }
+
+  .lp-btn-ghost:hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  .lp-grid-lines {
+    background-image:
+      linear-gradient(to right, rgba(17, 17, 17, 0.055) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(17, 17, 17, 0.055) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
   .stripe-badge {
     display: inline-flex;
     align-items: center;

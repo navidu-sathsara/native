@@ -19,7 +19,8 @@ export const metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden">
+    <div className="lp relative min-h-screen overflow-x-hidden" data-testid="landing-page">
+      <div className="lp-noise" aria-hidden="true" />
       <LandingNav />
       <main>
         <Hero />
