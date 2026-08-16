@@ -762,7 +762,39 @@ export default function BillingPage() {
       {/* 📦 VIEW 2: PRESET PACKAGES                                                 */}
       {/* ========================================================================= */}
       {viewMode === 'preset' && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-6">
+          {/* Active Flash Deal Banner in Standard Plans */}
+          {promoPlans.length > 0 && promoPlans[0] && (
+            <div className="border-2 border-ember bg-white p-6 shadow-[5px_5px_0_#ff4400] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-mono">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="border border-ember bg-ember text-white px-2 py-0.5 text-[9px] font-bold uppercase">
+                    {promoPlans[0].badge}
+                  </span>
+                  <span className="text-[11px] text-ember font-bold flex items-center gap-1">
+                    <Clock className="h-3.5 w-3.5" />
+                    Special Promotional Deal
+                  </span>
+                </div>
+                <h4 className="lp-display text-xl font-bold text-ink tracking-tight">
+                  {promoPlans[0].name} ({promoPlans[0].maxBots} Bots + {promoPlans[0].maxProxies} Proxies)
+                </h4>
+                <p className="text-xs text-ink-soft">
+                  Exclusive discount: Upgrade your fleet to {promoPlans[0].maxBots} bot slots for only ${Number(promoPlans[0].price).toFixed(2)}/mo.
+                </p>
+              </div>
+              <Button
+                variant="primary"
+                onClick={() => initiatePromoPayment(promoPlans[0])}
+                className="shrink-0"
+              >
+                <Flame className="h-4 w-4 mr-1.5" />
+                Claim Flash Offer (${Number(promoPlans[0].price).toFixed(2)})
+              </Button>
+            </div>
+          )}
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {PRESET_PLANS.map((plan) => {
             const isCurrent = userTier === plan.id;
             return (
@@ -849,6 +881,7 @@ export default function BillingPage() {
               </div>
             );
           })}
+          </div>
         </div>
       )}
 

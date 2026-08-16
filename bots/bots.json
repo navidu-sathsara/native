@@ -659,6 +659,39 @@
         },
         "boneDropper": {}
       }
+    },
+    {
+      "id": "1",
+      "ownerId": "a2a42408-daca-4520-8c12-3c11788a487f",
+      "config": {
+        "host": "play.bananasmp.net",
+        "port": 25565,
+        "username": "MeteorForge91",
+        "version": "1.20.1",
+        "auth": "offline",
+        "autoReconnect": true,
+        "reconnectDelay": 5000,
+        "afkMode": true,
+        "proxy": "socks5://iflojlekdatacenter:mb1evyrnaamq@23.27.78.111:5691",
+        "discord": {
+          "enabled": false,
+          "token": "",
+          "guildId": ""
+        },
+        "boneCollector": {
+          "collectSlot": 13,
+          "cycleDelay": 15000
+        },
+        "webhookUrl": "",
+        "autoRegister": false,
+        "autoLogin": true,
+        "loginPassword": "fag2123",
+        "category": "Default",
+        "colors": {
+          "theme": "green"
+        },
+        "boneDropper": {}
+      }
     }
   ]
 }

@@ -309,31 +309,40 @@ export function Testimonials() {
 
 const PLANS = [
   {
-    name: 'Starter',
+    name: 'Free Starter',
     price: '$0',
     badge: 'Always free',
-    note: 'Perfect to test autonomous bots.',
-    features: ['1 bot running concurrently', 'Shared free proxy access', 'Live web console', 'Standard module access'],
+    note: 'Perfect to test autonomous bots and basic grinds.',
+    features: ['1 bot running concurrently', 'Admin shared proxy access', 'Live web console & chat', 'Anti-AFK & basic automation'],
     cta: 'Start for free',
   },
   {
-    name: 'Pro',
-    price: '$15',
+    name: 'Bronze Squad',
+    price: '$2',
+    unit: '/mo',
+    badge: 'Squad tier',
+    note: 'Ideal for personal farms and small squads.',
+    features: ['Up to 3 bots running', 'Private SOCKS5 proxy dialing', 'Live visual script execution', 'Auto-reconnect & auto-login'],
+    cta: 'Get Bronze ($2)',
+  },
+  {
+    name: 'Silver Pro',
+    price: '$5',
     unit: '/mo',
     badge: 'Most popular',
-    note: 'For serious bot operations.',
-    features: ['Up to 10 bots running', 'Private SOCKS5 proxy pools', 'Visual command & script builder', 'Scheduled automation'],
-    cta: 'Get started',
+    note: 'For serious bot operators and faction clans.',
+    features: ['Up to 10 bots running', 'Dedicated proxy pool integration', 'Visual command & script builder', 'Automated cron job schedules'],
+    cta: 'Get Silver Pro ($5)',
     featured: true,
   },
   {
-    name: 'Enterprise',
-    price: '$99',
+    name: 'Unlimited Pro',
+    price: '$12',
     unit: '/mo',
-    badge: 'Unlimited scale',
-    note: 'Massive scale for huge fleets.',
-    features: ['Unlimited bots running', 'Dedicated proxy endpoints', 'Mass broadcast commands', '24/7 priority support'],
-    cta: 'Contact sales',
+    badge: 'Enterprise fleet',
+    note: 'Uncapped power for massive multi-server ops.',
+    features: ['Unlimited (∞) bots running', 'Dedicated & custom proxy endpoints', 'Mass broadcast commands & aliases', '24/7 priority compute sandbox'],
+    cta: 'Get Unlimited ($12)',
     dark: true,
   },
 ];
@@ -344,12 +353,49 @@ export function Pricing() {
       <div className="mx-auto max-w-[1400px] px-5 sm:px-8">
         <SectionHead
           index="05"
-          eyebrow="Pricing"
+          eyebrow="Pricing & Capacity"
           title="Predictable pricing."
-          sub="No hidden overages, no seat formulas. Pick a ceiling, scale the fleet underneath it."
+          sub="No hidden overages, no complex seat formulas. Choose a plan or take advantage of our limited-time flash deals."
         />
 
-        <div className="mt-16 grid gap-px border border-ink bg-ink lg:grid-cols-3">
+        {/* ── LIMITED TIME FLASH DEAL BANNER ────────────────────── */}
+        <div className="mt-12 border-2 border-ember bg-white p-6 sm:p-8 shadow-[6px_6px_0_#ff4400]">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="border border-ember bg-ember text-white px-2.5 py-0.5 text-xs font-mono font-bold uppercase tracking-wider">
+                  🔥 LIMITED FLASH DEAL · 40% OFF
+                </span>
+                <span className="text-xs font-mono text-ember font-bold flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-full bg-ember animate-ping" />
+                  Special Offer Active
+                </span>
+              </div>
+              <h3 className="lp-display text-2xl sm:text-3xl font-bold text-ink">
+                Flash Fleet Special — 20 Bots + 10 Proxies
+              </h3>
+              <p className="text-sm font-mono text-ink-soft max-w-2xl">
+                Get high-capacity bot deployment with 20 dedicated Minecraft bot slots and 10 dedicated SOCKS5 proxies for just $6.99/mo.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+              <div className="text-left sm:text-right">
+                <span className="text-xs font-mono text-ink-faint line-through block">$15.00/mo</span>
+                <span className="lp-display text-4xl font-bold text-ink">$6.99</span>
+                <span className="text-xs font-mono text-ink-soft ml-1">/ month</span>
+              </div>
+              <Link
+                href="/login?plan=promo_flash_starter"
+                className="lp-mono inline-flex items-center justify-center gap-2 border border-ink bg-ember px-6 py-4 text-white font-bold hover:bg-ember-dark transition shadow-[3px_3px_0_#111111]"
+              >
+                Claim Flash Deal
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 grid gap-px border border-ink bg-ink md:grid-cols-2 lg:grid-cols-4">
           {PLANS.map((plan, i) => (
             <Reveal
               key={plan.name}
@@ -362,10 +408,10 @@ export function Pricing() {
               )}
             >
               <div className="flex items-center justify-between">
-                <p className="lp-display text-2xl">{plan.name}</p>
+                <p className="lp-display text-xl">{plan.name}</p>
                 <span
                   className={cn(
-                    'lp-mono px-2.5 py-1',
+                    'lp-mono px-2.5 py-1 text-xs',
                     plan.featured
                       ? 'bg-ember text-white'
                       : plan.dark
@@ -378,19 +424,19 @@ export function Pricing() {
               </div>
 
               <div className="mt-8 flex items-baseline gap-2">
-                <span className="lp-display text-[clamp(3rem,5vw,4.5rem)]">{plan.price}</span>
+                <span className="lp-display text-[clamp(2.5rem,4vw,3.5rem)]">{plan.price}</span>
                 {plan.unit && (
                   <span className={cn('lp-mono', plan.dark ? 'text-white/50' : 'text-ink-faint')}>{plan.unit}</span>
                 )}
               </div>
 
-              <p className={cn('mt-4 text-[15px]', plan.dark ? 'text-white/60' : 'text-ink-soft')}>{plan.note}</p>
+              <p className={cn('mt-4 text-[14px]', plan.dark ? 'text-white/60' : 'text-ink-soft')}>{plan.note}</p>
 
-              <ul className={cn('mt-9 space-y-4 border-t pt-8', plan.dark ? 'border-white/15' : 'border-ink/12')}>
+              <ul className={cn('mt-9 space-y-3.5 border-t pt-8 font-mono text-xs', plan.dark ? 'border-white/15' : 'border-ink/12')}>
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
+                  <li key={feature} className="flex items-start gap-2.5">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-ember" strokeWidth={1.5} />
-                    <span className={cn('text-[15px]', plan.dark ? 'text-white/80' : 'text-ink')}>{feature}</span>
+                    <span className={cn(plan.dark ? 'text-white/80' : 'text-ink')}>{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -399,7 +445,7 @@ export function Pricing() {
                 href="/login"
                 data-testid={`pricing-cta-${plan.name.toLowerCase()}`}
                 className={cn(
-                  'lp-mono mt-12 inline-flex items-center justify-center gap-2 border px-6 py-4 transition-colors duration-150',
+                  'lp-mono mt-10 inline-flex items-center justify-center gap-2 border px-6 py-3.5 text-xs font-bold transition-colors duration-150',
                   plan.featured
                     ? 'border-ink bg-ember text-white hover:bg-ember-dark'
                     : plan.dark
