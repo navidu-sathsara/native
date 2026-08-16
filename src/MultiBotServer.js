@@ -313,6 +313,7 @@ const { WorkspaceStore, normalizeScript, TIER_CONFIG, getTierConfig } = require(
 const workspaces = new WorkspaceStore();
 const { PromoPlanStore } = require('./utils/PromoPlanStore.js');
 const promoPlans = new PromoPlanStore();
+const { tebex } = require('./utils/TebexClient.js');
 
 function aliasesFor(userId) {
     return userId ? workspaces.aliases(userId) : [];
@@ -1241,6 +1242,69 @@ async function handleHttp(req, res, state) {
         return res.end(JSON.stringify({ ok: true }));
     }
 
+    // ── Tebex Webhook Endpoint (Unauthenticated / Public Webhook) ─────
+    if (p === '/api/billing/tebex-webhook' && req.method === 'POST') {
+        const rawBody = await readBody(req);
+        let payload = null;
+        try { payload = JSON.parse(rawBody); } catch(e) { return json(res, 400, { ok: false, reason: 'Invalid JSON' }); }
+
+        const sig = req.headers['x-bc-sig'] || req.headers['x-tebex-signature'] || req.headers['x-webhook-token'] || '';
+        if (!tebex.verifyWebhook(rawBody, sig)) {
+            return json(res, 403, { ok: false, reason: 'Invalid signature' });
+        }
+
+        const type = payload.type || payload.event;
+        if (type === 'validation.webhook') {
+            return json(res, 200, { id: payload.id });
+        }
+
+        if (type === 'payment.completed' || type === 'order.completed' || payload.status === 'Complete') {
+            const customData = payload.subject?.custom || payload.custom || {};
+            const userId = customData.userId || customData.user_id;
+            const planId = customData.planId || customData.plan_id;
+            const amount = Number(payload.subject?.price?.amount || payload.price || payload.amount || 0);
+            const txnId = String(payload.subject?.transaction_id || payload.transaction_id || payload.id || `tebex_${Date.now()}`);
+
+            if (userId && planId) {
+                let patchData = null;
+                let planDisplayName = planId;
+                if (planId.startsWith('promo_')) {
+                    const promo = promoPlans.get(planId);
+                    const maxBots = promo ? promo.maxBots : parseInt(customData.maxBots || '10', 10);
+                    const maxProxies = promo ? promo.maxProxies : parseInt(customData.maxProxies || '5', 10);
+                    planDisplayName = promo ? promo.name : 'Promotional Plan';
+                    patchData = {
+                        tier: 'custom',
+                        customLimits: { maxBots, maxProxies, price: amount, promoPlanId: planId, promoPlanName: planDisplayName },
+                        lastPayment: { orderId: txnId, planId, planName: planDisplayName, amount, paidAt: new Date().toISOString(), gateway: 'tebex' }
+                    };
+                } else {
+                    let customLimits = null;
+                    try { customLimits = typeof customData.customLimits === 'string' ? JSON.parse(customData.customLimits) : customData.customLimits; } catch(e) {}
+                    const tierCfg = getTierConfig(planId, { customLimits });
+                    planDisplayName = tierCfg.name;
+                    patchData = {
+                        tier: planId,
+                        lastPayment: { orderId: txnId, planId, amount, paidAt: new Date().toISOString(), gateway: 'tebex' }
+                    };
+                    if (planId === 'custom' && customLimits) patchData.customLimits = customLimits;
+                }
+                workspaces.updatePreferences(userId, patchData);
+                if (discordBot) {
+                    const targetUser = users.get(userId);
+                    discordBot.broadcastPayment({
+                        userEmail: targetUser?.email || userId,
+                        planName: planDisplayName,
+                        amount,
+                        orderId: txnId,
+                        gateway: 'Tebex Gaming Checkout'
+                    });
+                }
+            }
+        }
+        return json(res, 200, { ok: true });
+    }
+
     // Protect all other /api routes
     if (p.startsWith('/api/') && !isAuthenticated(req)) {
         return json(res, 401, { ok: false, reason: 'Unauthorized' });
@@ -1439,6 +1503,125 @@ async function handleHttp(req, res, state) {
             console.error('Stripe verification error:', err);
             return json(res, 500, { ok: false, reason: err.message });
         }
+    }
+
+    // ── Tebex Gaming Checkout & Verify ─────────────────────────────────
+    if (p === '/api/billing/tebex-checkout' && req.method === 'POST') {
+        const user = currentUser(req);
+        const body = await readJson(req);
+        const planId = String(body.planId || '').trim();
+        const customLimits = body.customLimits ? {
+            maxBots: Math.max(1, parseInt(body.customLimits.maxBots || 1, 10)),
+            maxProxies: Math.max(0, parseInt(body.customLimits.maxProxies || 0, 10)),
+            price: Number(body.customLimits.price != null ? body.customLimits.price : (Number(body.customLimits.maxBots || 1) * 0.50 + Number(body.customLimits.maxProxies || 0) * 0.50))
+        } : null;
+
+        let tierCfg = null;
+        let isPromo = false;
+
+        if (planId.startsWith('promo_')) {
+            const promo = promoPlans.get(planId);
+            if (!promo || !promo.active) {
+                return json(res, 400, { ok: false, reason: 'Promotional deal expired or not available' });
+            }
+            if (promo.expiresAt && new Date(promo.expiresAt) < new Date()) {
+                return json(res, 400, { ok: false, reason: 'This promotional offer has expired' });
+            }
+            isPromo = true;
+            tierCfg = {
+                id: promo.id,
+                name: `${promo.name} (${promo.badge})`,
+                price: promo.price,
+                maxBots: promo.maxBots,
+                maxProxies: promo.maxProxies
+            };
+        } else {
+            if (!['free', 'bronze_3', 'silver_5', 'unlimited_15', 'custom'].includes(planId)) {
+                return json(res, 400, { ok: false, reason: 'Invalid subscription tier selected' });
+            }
+            tierCfg = getTierConfig(planId, { customLimits });
+        }
+
+        try {
+            const baseUrl = body.returnUrl || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host || 'localhost:3318'}`;
+            const result = await tebex.createCheckoutSession({
+                user,
+                planId,
+                tierCfg,
+                returnUrl: baseUrl,
+                isPromo,
+                customLimits
+            });
+            return json(res, 200, result);
+        } catch (err) {
+            console.error('Tebex checkout error:', err);
+            return json(res, 500, { ok: false, reason: err.message });
+        }
+    }
+
+    if (p === '/api/billing/tebex-verify' && req.method === 'POST') {
+        const user = currentUser(req);
+        const body = await readJson(req);
+        const planId = String(body.plan_id || '').trim();
+        const amount = Number(body.amount || 0);
+        const txnId = String(body.txn_id || `tebex_${Date.now()}`).trim();
+
+        if (!planId) return json(res, 400, { ok: false, reason: 'Missing plan_id' });
+
+        let patchData = null;
+        let planDisplayName = planId;
+
+        if (planId.startsWith('promo_')) {
+            const promo = promoPlans.get(planId);
+            const maxBots = promo ? promo.maxBots : 10;
+            const maxProxies = promo ? promo.maxProxies : 5;
+            planDisplayName = promo ? promo.name : 'Promotional Plan';
+            patchData = {
+                tier: 'custom',
+                customLimits: {
+                    maxBots,
+                    maxProxies,
+                    price: amount || (promo ? promo.price : 4.99),
+                    promoPlanId: planId,
+                    promoPlanName: planDisplayName
+                },
+                lastPayment: {
+                    orderId: txnId,
+                    planId,
+                    planName: planDisplayName,
+                    amount: amount || (promo ? promo.price : 4.99),
+                    paidAt: new Date().toISOString(),
+                    gateway: 'tebex',
+                    isPromo: true
+                }
+            };
+        } else {
+            const tierCfg = getTierConfig(planId);
+            planDisplayName = tierCfg.name;
+            patchData = {
+                tier: planId,
+                lastPayment: {
+                    orderId: txnId,
+                    planId,
+                    amount: amount || tierCfg.price,
+                    paidAt: new Date().toISOString(),
+                    gateway: 'tebex'
+                }
+            };
+        }
+
+        const preferences = workspaces.updatePreferences(user.id, patchData);
+        if (discordBot) {
+            discordBot.broadcastPayment({
+                userEmail: user.email,
+                planName: planDisplayName,
+                amount: amount || patchData.lastPayment?.amount || 0,
+                orderId: txnId,
+                gateway: 'Tebex Gaming'
+            });
+        }
+
+        return json(res, 200, { ok: true, tier: patchData.tier, preferences });
     }
 
     // ── Account workspace ───────────────────────────────────────────
