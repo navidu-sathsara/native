@@ -196,7 +196,98 @@ export default function BillingPage() {
     };
   }, [customBots, customProxies]);
 
-  // Proceed to PayPal Checkout
+  // Load PayPal SDK and Render Smart Buttons (PayPal + Credit/Debit Card)
+  const [sdkReady, setSdkReady] = useState(false);
+
+  useEffect(() => {
+    if (!checkoutModalOpen || !selectedPlanForPayment) return;
+    const clientId = 'BAA-eIpYyAocmlcYlVOBkAhqZl8AHYdODjHMKNc47xnoTnnt93kEK2Cm1mNRXgp5XUTGALMe7Zq21jZKOU';
+    
+    if (window.paypal) {
+      setSdkReady(true);
+      return;
+    }
+
+    const existing = document.getElementById('paypal-sdk-script');
+    if (!existing) {
+      const script = document.createElement('script');
+      script.id = 'paypal-sdk-script';
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&components=buttons`;
+      script.onload = () => setSdkReady(true);
+      document.body.appendChild(script);
+    } else {
+      setSdkReady(true);
+    }
+  }, [checkoutModalOpen, selectedPlanForPayment]);
+
+  useEffect(() => {
+    if (!sdkReady || !checkoutModalOpen || !selectedPlanForPayment || typeof window === 'undefined' || !window.paypal) return;
+    const container = document.getElementById('paypal-button-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    try {
+      window.paypal.Buttons({
+        style: {
+          layout: 'vertical',
+          color: 'gold',
+          shape: 'rect',
+          label: 'paypal',
+          height: 46,
+        },
+        createOrder: async () => {
+          const res = await api('/billing/paypal-create-order', {
+            method: 'POST',
+            body: JSON.stringify({
+              planId: selectedPlanForPayment.id,
+              customLimits: selectedPlanForPayment.isCustom ? selectedPlanForPayment.customLimits : undefined,
+              returnUrl: window.location.origin,
+            }),
+          });
+          if (res.ok && res.orderId) {
+            return res.orderId;
+          }
+          throw new Error(res.reason || 'Could not create PayPal order');
+        },
+        onApprove: async (data) => {
+          setLoading(true);
+          try {
+            const captureRes = await api('/billing/paypal-capture-order', {
+              method: 'POST',
+              body: JSON.stringify({
+                orderId: data.orderID,
+                planId: selectedPlanForPayment.id,
+              }),
+            });
+            if (captureRes.ok) {
+              toast('🎉 Payment successful! Your fleet capacity is active.', 'success');
+              setUser((prev) => ({
+                ...prev,
+                preferences: captureRes.preferences || prev.preferences,
+              }));
+              setActivePlan(captureRes.tier);
+              setCheckoutModalOpen(false);
+              setSelectedPlanForPayment(null);
+            } else {
+              toast(`Capture failed: ${captureRes.reason}`, 'error');
+            }
+          } catch (err) {
+            toast(`Payment error: ${err.message}`, 'error');
+          } finally {
+            setLoading(false);
+          }
+        },
+        onError: (err) => {
+          console.error('PayPal button error:', err);
+          toast('Payment was cancelled or encountered an issue.', 'info');
+        },
+      }).render('#paypal-button-container');
+    } catch (e) {
+      console.error('PayPal Buttons render error:', e);
+    }
+  }, [sdkReady, checkoutModalOpen, selectedPlanForPayment, toast, setUser]);
+
+  // Proceed to Hosted PayPal Checkout fallback
   const proceedToCheckout = async () => {
     if (!selectedPlanForPayment) return;
     setLoading(true);
@@ -894,40 +985,34 @@ export default function BillingPage() {
             </div>
           </div>
 
-          {/* PayPal Payment Method Details */}
-          <div className="border-2 border-ember bg-white p-4 shadow-[3px_3px_0_#ff4400] font-mono space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="bg-ember text-white px-2 py-0.5 text-[10px] font-bold">
-                  PAYPAL SECURE
-                </span>
-                <span className="text-xs font-bold text-ink">PayPal Express & Card Checkout</span>
-              </div>
-              <Check className="h-4 w-4 text-jade" />
-            </div>
-            <p className="text-xs text-ink-soft leading-relaxed">
-              Pay using your <strong>PayPal Account Balance</strong> or use <strong>Debit / Credit Card (Visa, Mastercard, AMEX)</strong> via PayPal Guest Checkout.
-            </p>
-          </div>
-
-          {/* Checkout Action Button */}
-          <div className="pt-2">
-            <Button
-              type="button"
-              variant="primary"
-              onClick={proceedToCheckout}
-              disabled={loading}
-              className="w-full py-3 text-sm font-mono font-bold uppercase tracking-wider shadow-[3px_3px_0_#111111]"
-            >
-              {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Zap className="h-4 w-4 mr-2" />
+          {/* Live PayPal Smart Buttons Container (PayPal + Debit/Credit Card) */}
+          <div className="space-y-3 font-mono">
+            <label className="block text-[10px] lp-mono text-ink-soft font-bold uppercase tracking-wider">
+              Select Payment Option (PayPal or Debit/Credit Card)
+            </label>
+            
+            {/* PayPal Buttons Render Target */}
+            <div className="relative min-h-[90px] flex flex-col justify-center">
+              {!sdkReady && (
+                <div className="flex items-center justify-center p-6 border border-dashed border-rule bg-paper-2 text-ink-soft text-xs gap-2">
+                  <RefreshCw className="h-4 w-4 animate-spin text-ember" />
+                  <span>Loading PayPal & Card Gateway...</span>
+                </div>
               )}
-              {loading
-                ? 'Opening PayPal Checkout...'
-                : `Proceed to PayPal (${selectedPlanForPayment?.price})`}
-            </Button>
+              <div id="paypal-button-container" className="w-full space-y-2" />
+            </div>
+
+            {/* Fallback Direct Link */}
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={proceedToCheckout}
+                disabled={loading}
+                className="text-[11px] text-ink-soft underline hover:text-ink cursor-pointer"
+              >
+                Having trouble? Open full PayPal checkout page →
+              </button>
+            </div>
           </div>
 
           {/* Security & Buyer Protection Footer */}
