@@ -153,7 +153,6 @@ function AdminOverviewPage() {
               variant="secondary"
               loading={checkingProxies}
               onClick={handleCheckAllProxies}
-              className="text-xs"
             >
               <ShieldCheck className="h-3.5 w-3.5 mr-1" />
               Test All Proxies
@@ -163,7 +162,6 @@ function AdminOverviewPage() {
               variant="secondary"
               loading={adminLoading}
               onClick={() => { fetchAdminTelemetry(); refreshBots(); refreshProxies(); }}
-              className="text-xs"
             >
               <RefreshCw className="h-3.5 w-3.5 mr-1" />
               Refresh HQ
@@ -178,48 +176,48 @@ function AdminOverviewPage() {
       />
 
       {/* 👑 Super Admin Hero Banner */}
-      <Panel className="p-6 border-purple-500/20 bg-gradient-to-r from-brand-100 via-brand-50 to-white shadow-sm relative overflow-hidden">
+      <Panel className="p-6 border-ink bg-white shadow-[3px_3px_0_#111111] relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative z-10">
           <div className="flex items-start sm:items-center gap-4">
             <div className="relative">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-purple-500/30 bg-purple-500/10 p-3.5 text-purple-300 shadow-inner">
-                <Shield className="h-7 w-7" />
+              <span className="flex h-14 w-14 items-center justify-center border border-ink bg-paper-2 p-3.5 text-ink shadow-[2px_2px_0_#111111]">
+                <Shield className="h-7 w-7 text-ember" />
               </span>
-              <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-[#0b0b0b] bg-emerald-400 animate-pulse" />
+              <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 border border-ink bg-jade animate-pulse" />
             </div>
 
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-lg font-bold text-brand-900 tracking-tight">Super Administrator HQ</h2>
-                <span className="rounded-full bg-purple-500/20 border border-purple-500/40 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-300">
+                <h2 className="lp-display text-xl font-bold text-ink tracking-tight">Super Administrator HQ</h2>
+                <span className="border border-ink bg-ember text-white px-2.5 py-0.5 lp-mono text-[9px] font-bold uppercase tracking-wider shadow-[1px_1px_0_#111111]">
                   Global Access Plane
                 </span>
               </div>
-              <p className="text-xs text-brand-500 mt-1 flex flex-wrap items-center gap-3">
-                <span>Platform MRR: <strong className="text-emerald-400 font-bold font-mono">${metrics.totalMRR.toFixed(2)}</strong></span>
+              <p className="text-xs text-ink-soft mt-1.5 flex flex-wrap items-center gap-3 font-mono">
+                <span>Platform MRR: <strong className="text-jade font-bold">${metrics.totalMRR.toFixed(2)}</strong></span>
                 <span>•</span>
-                <span>Active Fleets: <strong className="text-brand-900">{runningBotsCount}</strong> / {bots.length} Running</span>
+                <span>Active Fleets: <strong className="text-ink font-bold">{runningBotsCount}</strong> / {bots.length} Running</span>
                 <span>•</span>
-                <span>Subscribers: <strong className="text-brand-900">{metrics.totalUsers}</strong> Accounts</span>
+                <span>Subscribers: <strong className="text-ink font-bold">{metrics.totalUsers}</strong> Accounts</span>
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
             <Link href="/plans">
-              <Button size="sm" variant="secondary" className="text-xs">
-                <DollarSign className="h-3.5 w-3.5 mr-1 text-emerald-400" />
+              <Button size="sm" variant="secondary">
+                <DollarSign className="h-3.5 w-3.5 mr-1 text-jade" />
                 Plans & MRR
               </Button>
             </Link>
             <Link href="/users">
-              <Button size="sm" variant="secondary" className="text-xs">
-                <Users className="h-3.5 w-3.5 mr-1 text-blue-400" />
+              <Button size="sm" variant="secondary">
+                <Users className="h-3.5 w-3.5 mr-1 text-ink" />
                 Users & Quotas
               </Button>
             </Link>
             <Link href="/tiles">
-              <Button size="sm" variant="primary" className="text-xs font-semibold shadow-lg">
+              <Button size="sm" variant="primary">
                 <LayoutGrid className="h-3.5 w-3.5 mr-1" />
                 Multi-Console Matrix
               </Button>
@@ -262,95 +260,95 @@ function AdminOverviewPage() {
       </div>
 
       {/* 🖥️ Server Node & Runtime Infrastructure Telemetry */}
-      <Panel className="p-6 border-brand-200 bg-brand-50 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-brand-200">
+      <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-rule">
           <div className="flex items-center gap-2.5">
-            <Server className="h-4 w-4 text-emerald-400" />
-            <h3 className="text-sm font-bold text-brand-900">Server Node & Process Telemetry</h3>
+            <Server className="h-4 w-4 text-ember" />
+            <h3 className="lp-display text-sm font-bold text-ink">Server Node & Process Telemetry</h3>
           </div>
-          <span className="font-mono text-[10px] text-brand-500 bg-white border border-brand-200 px-2 py-0.5 rounded">
+          <span className="font-mono text-[10px] text-ink-soft bg-paper-2 border border-rule px-2 py-0.5">
             Node.js {serverInfo.nodeVersion || process.version}
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Server Uptime</span>
-            <span className="text-base font-bold text-brand-900 mt-1 block font-mono">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Server Uptime</span>
+            <span className="text-base font-bold text-ink mt-1 block font-mono">
               {uptimeStr}
             </span>
-            <span className="text-[10px] text-emerald-400/90 font-mono">Zero crash recovery</span>
+            <span className="text-[10px] text-jade font-mono">Zero crash recovery</span>
           </div>
 
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Memory (Heap Used)</span>
-            <span className="text-base font-bold text-brand-900 mt-1 block font-mono">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Memory (Heap Used)</span>
+            <span className="text-base font-bold text-ink mt-1 block font-mono">
               {serverInfo.memoryUsageMB || 60} MB / {serverInfo.totalMemoryMB || 85} MB
             </span>
-            <span className="text-[10px] text-brand-500 font-mono">RSS: {serverInfo.rssMB || 95} MB</span>
+            <span className="text-[10px] text-ink-soft font-mono">RSS: {serverInfo.rssMB || 95} MB</span>
           </div>
 
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Child Bot Processes</span>
-            <span className="text-base font-bold text-brand-900 mt-1 block font-mono">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Child Bot Processes</span>
+            <span className="text-base font-bold text-ink mt-1 block font-mono">
               {runningBotsCount} Spawned
             </span>
-            <span className="text-[10px] text-brand-500 font-mono">{bots.length} total managed</span>
+            <span className="text-[10px] text-ink-soft font-mono">{bots.length} total managed</span>
           </div>
 
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Active Tenants</span>
-            <span className="text-base font-bold text-brand-900 mt-1 block font-mono">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Active Tenants</span>
+            <span className="text-base font-bold text-ink mt-1 block font-mono">
               {metrics.totalUsers} Registered
             </span>
-            <span className="text-[10px] text-purple-300 font-mono">{metrics.activePaidUsers} Paid SaaS Tiers</span>
+            <span className="text-[10px] text-ember font-mono">{metrics.activePaidUsers} Paid SaaS Tiers</span>
           </div>
         </div>
       </Panel>
 
       {/* 📊 SaaS Tiers & Subscriber Breakdown */}
-      <Panel className="p-6 border-brand-200 bg-brand-50 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-brand-200">
+      <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-rule">
           <div>
-            <h3 className="text-sm font-bold text-brand-900">SaaS Subscription Tiers Distribution</h3>
-            <p className="text-xs text-brand-500 mt-0.5">Active subscriber distribution across plans</p>
+            <h3 className="lp-display text-sm font-bold text-ink">SaaS Subscription Tiers Distribution</h3>
+            <p className="text-xs text-ink-soft mt-0.5">Active subscriber distribution across plans</p>
           </div>
           <Link href="/plans">
-            <Button size="sm" variant="ghost" className="text-xs text-brand-500 hover:text-brand-900">
+            <Button size="sm" variant="ghost" className="text-xs text-ink-soft hover:text-ink">
               Manage Tiers <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
           </Link>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Free Starter ($0)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">{metrics.tierDistribution?.free || 0}</span>
-            <span className="text-[10px] text-brand-500">1 bot limit</span>
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Free Starter ($0)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">{metrics.tierDistribution?.free || 0}</span>
+            <span className="text-[10px] font-mono text-ink-soft">1 bot limit</span>
           </div>
 
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Bronze Pro ($2)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">{metrics.tierDistribution?.bronze_3 || 0}</span>
-            <span className="text-[10px] text-brand-500">3 bots limit</span>
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Bronze Pro ($2)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">{metrics.tierDistribution?.bronze_3 || 0}</span>
+            <span className="text-[10px] font-mono text-ink-soft">3 bots limit</span>
           </div>
 
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Silver Pro ($5)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">{metrics.tierDistribution?.silver_5 || 0}</span>
-            <span className="text-[10px] text-brand-500">10 bots limit</span>
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Silver Pro ($5)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">{metrics.tierDistribution?.silver_5 || 0}</span>
+            <span className="text-[10px] font-mono text-ink-soft">10 bots limit</span>
           </div>
 
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Unlimited Pro ($12)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">{metrics.tierDistribution?.unlimited_15 || 0}</span>
-            <span className="text-[10px] text-brand-500">∞ bots limit</span>
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Unlimited Pro ($12)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">{metrics.tierDistribution?.unlimited_15 || 0}</span>
+            <span className="text-[10px] font-mono text-ink-soft">∞ bots limit</span>
           </div>
 
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Custom Fleets</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block text-emerald-400">{metrics.tierDistribution?.custom || 0}</span>
-            <span className="text-[10px] text-brand-500">$0.50/bot + $0.50/proxy</span>
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Custom Fleets</span>
+            <span className="lp-display text-xl font-bold text-jade mt-1 block">{metrics.tierDistribution?.custom || 0}</span>
+            <span className="text-[10px] font-mono text-ink-soft">$0.50/bot + $0.50/proxy</span>
           </div>
         </div>
       </Panel>
@@ -358,14 +356,14 @@ function AdminOverviewPage() {
       {/* 🚀 Main Global Fleet Grid & Global Terminal Deck */}
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Left Column: All Managed Bots (8 Cols) */}
-        <Panel className="p-6 lg:col-span-8 border-brand-200 bg-brand-50 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-brand-200">
+        <Panel className="p-6 lg:col-span-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-rule">
             <div className="flex items-center gap-2">
-              <Bot className="h-4 w-4 text-brand-500" />
-              <h3 className="text-base font-bold text-brand-900">Global Managed Fleets Roster</h3>
+              <Bot className="h-4 w-4 text-ember" />
+              <h3 className="lp-display text-base font-bold text-ink">Global Managed Fleets Roster</h3>
             </div>
             <Link href="/bots">
-              <Button size="sm" variant="ghost" className="text-xs text-brand-500 hover:text-brand-900">
+              <Button size="sm" variant="ghost" className="text-xs text-ink-soft hover:text-ink">
                 View All <ArrowUpRight className="h-3 w-3 ml-1" />
               </Button>
             </Link>
@@ -389,25 +387,25 @@ function AdminOverviewPage() {
                 return (
                   <div
                     key={bot.id}
-                    className="rounded-xl border border-brand-200 bg-white p-3.5 flex flex-col justify-between space-y-3 hover:border-brand-200 transition"
+                    className="border border-ink/20 bg-paper p-3.5 flex flex-col justify-between space-y-3 shadow-sm hover:border-ink transition"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <Link
                           href={`/bots?bot=${encodeURIComponent(bot.id)}`}
-                          className="block truncate text-xs font-bold text-brand-900 hover:underline"
+                          className="block truncate text-xs font-bold text-ink hover:underline font-mono"
                         >
                           {botLabel(bot)}
                         </Link>
-                        <span className="block font-mono text-[9px] text-brand-500 truncate mt-0.5">
+                        <span className="block font-mono text-[9px] text-ink-soft truncate mt-0.5">
                           {bot.config?.host || 'No server'}:{bot.config?.port || '25565'}
                         </span>
                       </div>
                       <StatusBadge status={bot.status} />
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-brand-200 pt-2 text-[10px]">
-                      <span className="font-mono text-amber-400 font-bold">
+                    <div className="flex items-center justify-between border-t border-rule pt-2 text-[10px]">
+                      <span className="font-mono text-ember font-bold">
                         {shardVal !== null ? `✦ ${shardVal.toLocaleString()}` : '-- shards'}
                       </span>
 
@@ -415,7 +413,7 @@ function AdminOverviewPage() {
                         <button
                           onClick={() => handleLifecycle(bot, 'stop')}
                           disabled={busyBot === `${bot.id}:stop`}
-                          className="rounded bg-red-500/20 border border-red-500/40 px-2 py-0.5 text-red-300 hover:bg-red-500/30 transition flex items-center gap-1 font-semibold"
+                          className="border border-ember bg-white px-2 py-0.5 text-ember hover:bg-ember hover:text-white transition flex items-center gap-1 font-mono font-bold uppercase text-[10px] cursor-pointer shadow-[1px_1px_0_#ff4400]"
                         >
                           <CircleStop className="h-3 w-3" /> Stop
                         </button>
@@ -423,7 +421,7 @@ function AdminOverviewPage() {
                         <button
                           onClick={() => handleLifecycle(bot, 'start')}
                           disabled={busyBot === `${bot.id}:start`}
-                          className="rounded bg-brand-50 border border-brand-200 px-2 py-0.5 text-brand-900 hover:bg-brand-50 transition flex items-center gap-1 font-semibold"
+                          className="border border-ink bg-white px-2 py-0.5 text-ink hover:bg-paper-2 transition flex items-center gap-1 font-mono font-bold uppercase text-[10px] cursor-pointer shadow-[1px_1px_0_#111111]"
                         >
                           <Play className="h-3 w-3" /> Start
                         </button>
@@ -449,13 +447,13 @@ function AdminOverviewPage() {
 
         {/* Right Column: Global Broadcaster & Quick Links (4 Cols) */}
         <div className="space-y-6 lg:col-span-4">
-          <Panel className="p-6 border-brand-200 bg-brand-50 space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-brand-200">
-              <Terminal className="h-4 w-4 text-brand-500" />
-              <h3 className="text-sm font-bold text-brand-900">Global Command Broadcaster</h3>
+          <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-rule">
+              <Terminal className="h-4 w-4 text-ember" />
+              <h3 className="lp-display text-sm font-bold text-ink">Global Command Broadcaster</h3>
             </div>
 
-            <p className="text-xs text-brand-500">
+            <p className="text-xs text-ink-soft">
               Broadcast commands to all {runningBotsCount} currently running bots instantly.
             </p>
 
@@ -471,13 +469,13 @@ function AdminOverviewPage() {
                 value={globalCmd}
                 onChange={(e) => setGlobalCmd(e.target.value)}
                 placeholder="e.g. !say Server restarting in 5m, !sell, !drop"
-                className="w-full rounded-xl border border-brand-200 bg-white px-3 py-2 text-xs font-mono text-brand-900 placeholder-brand-400 focus:border-brand-200 focus:outline-none"
+                className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
               />
               <Button
                 type="submit"
                 variant="primary"
                 size="sm"
-                className="w-full font-semibold"
+                className="w-full"
                 loading={broadcasting}
                 disabled={!globalCmd.trim()}
               >
@@ -485,13 +483,13 @@ function AdminOverviewPage() {
               </Button>
             </form>
 
-            <div className="flex flex-wrap gap-1.5 pt-2 border-t border-brand-200">
+            <div className="flex flex-wrap gap-1.5 pt-2 border-t border-rule">
               {['!status', '!ping', '!shard', '!mine', '!sell', '!drop'].map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => handleBroadcast(m)}
-                  className="rounded border border-brand-200 bg-brand-50 px-2 py-0.5 font-mono text-[9px] text-brand-500 hover:border-brand-200 hover:text-brand-900 transition"
+                  className="border border-ink/20 bg-paper-2 px-2 py-0.5 font-mono text-[9px] text-ink hover:border-ink hover:bg-white transition cursor-pointer shadow-sm"
                 >
                   {m}
                 </button>
@@ -500,24 +498,24 @@ function AdminOverviewPage() {
           </Panel>
 
           {/* Quick Hub Navigation Cards */}
-          <Panel className="p-5 border-brand-200 bg-brand-50 space-y-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-500 block">Admin Command Hubs</span>
+          <Panel className="p-5 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-3">
+            <span className="lp-mono text-[10px] text-ink-faint block">Admin Command Hubs</span>
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/network"
-                className="p-3 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-50 transition space-y-1 block"
+                className="p-3 border border-rule bg-paper-2 hover:bg-white hover:border-ink transition space-y-1 block shadow-sm"
               >
-                <Network className="h-4 w-4 text-emerald-400" />
-                <span className="block text-xs font-bold text-brand-900">Proxy Pool</span>
-                <span className="block text-[10px] text-brand-500">{proxies.length} endpoints</span>
+                <Network className="h-4 w-4 text-jade" />
+                <span className="block text-xs font-bold text-ink font-mono">Proxy Pool</span>
+                <span className="block text-[10px] text-ink-soft font-mono">{proxies.length} endpoints</span>
               </Link>
               <Link
                 href="/tiles"
-                className="p-3 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-50 transition space-y-1 block"
+                className="p-3 border border-rule bg-paper-2 hover:bg-white hover:border-ink transition space-y-1 block shadow-sm"
               >
-                <LayoutGrid className="h-4 w-4 text-purple-400" />
-                <span className="block text-xs font-bold text-brand-900">Fleet Matrix</span>
-                <span className="block text-[10px] text-brand-500">Multi-Console</span>
+                <LayoutGrid className="h-4 w-4 text-ember" />
+                <span className="block text-xs font-bold text-ink font-mono">Fleet Matrix</span>
+                <span className="block text-[10px] text-ink-soft font-mono">Multi-Console</span>
               </Link>
             </div>
           </Panel>
@@ -631,29 +629,29 @@ function TenantOverviewPage() {
       />
 
       {/* Hero Plan & Capacity Status */}
-      <Panel className="p-6 border-brand-200 bg-brand-50 relative overflow-hidden">
+      <Panel className="p-6 border-ink bg-white shadow-[3px_3px_0_#111111] relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative z-10">
           <div className="flex items-start sm:items-center gap-4">
             <div className="relative">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-200 bg-brand-50 p-3 text-brand-900 shadow-inner">
-                <Cpu className="h-6 w-6" />
+              <span className="flex h-12 w-12 items-center justify-center border border-ink bg-paper-2 p-3 text-ink shadow-[2px_2px_0_#111111]">
+                <Cpu className="h-6 w-6 text-ember" />
               </span>
-              <span className={`absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-[#0b0b0b] ${stats.running > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-brand-50'}`} />
+              <span className={`absolute -bottom-1 -right-1 h-3.5 w-3.5 border border-ink ${stats.running > 0 ? 'bg-jade animate-pulse' : 'bg-paper-2'}`} />
             </div>
 
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-base font-bold text-brand-900 tracking-tight">{planDisplayName}</h2>
-                <span className="rounded-full bg-brand-50 border border-brand-200 px-2.5 py-0.5 text-[10px] font-bold text-brand-500">
+                <h2 className="lp-display text-base font-bold text-ink tracking-tight">{planDisplayName}</h2>
+                <span className="border border-ink bg-paper-2 px-2.5 py-0.5 lp-mono text-[9px] font-bold text-ink shadow-sm">
                   {user?.role === 'admin' ? 'Super Admin' : 'Active Subscription'}
                 </span>
               </div>
-              <p className="text-xs text-brand-500 mt-1 flex items-center gap-2">
+              <p className="text-xs text-ink-soft mt-1.5 flex items-center gap-2 font-mono">
                 <span>
-                  Worker Capacity: <strong className="text-brand-900">{stats.running}</strong> / <strong className="text-brand-900">{maxAllowedBots === 9999 ? 'Unlimited (∞)' : maxAllowedBots}</strong> Running
+                  Worker Capacity: <strong className="text-ink">{stats.running}</strong> / <strong className="text-ink">{maxAllowedBots === 9999 ? 'Unlimited (∞)' : maxAllowedBots}</strong> Running
                 </span>
                 <span>•</span>
-                <span>Proxies: <strong className="text-brand-900">{stats.healthyProxies}</strong> Healthy</span>
+                <span>Proxies: <strong className="text-ink">{stats.healthyProxies}</strong> Healthy</span>
               </p>
             </div>
           </div>
@@ -661,9 +659,9 @@ function TenantOverviewPage() {
           <div className="flex items-center gap-3">
             {userTier === 'free' ? (
               <Link href="/billing">
-                <Button size="sm" variant="primary" className="shadow-lg font-semibold">
+                <Button size="sm" variant="primary">
                   <Sparkles className="h-3.5 w-3.5 mr-1" />
-                  Upgrade to Custom Fleet ($0.50/bot)
+                  Upgrade Plan ($0.50/bot)
                 </Button>
               </Link>
             ) : isAtLimit ? (
@@ -685,14 +683,14 @@ function TenantOverviewPage() {
 
         {/* Dynamic Capacity Meter */}
         <div className="mt-5 space-y-1.5">
-          <div className="flex justify-between text-[11px] font-mono text-brand-500">
+          <div className="flex justify-between text-[11px] font-mono text-ink-soft">
             <span>Fleet Allocation</span>
             <span>{maxAllowedBots === 9999 ? 'Unlimited Tier' : `${Math.round((stats.running / maxAllowedBots) * 100)}% utilized`}</span>
           </div>
-          <div className="w-full bg-brand-50 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-paper-2 border border-rule h-2 overflow-hidden relative">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                isAtLimit ? 'bg-amber-400 shadow-sm' : 'bg-white'
+              className={`h-full transition-all duration-500 ${
+                isAtLimit ? 'bg-ember' : 'bg-ink'
               }`}
               style={{
                 width: maxAllowedBots === 9999 ? '25%' : `${Math.min(100, Math.max(4, (stats.running / maxAllowedBots) * 100))}%`,
@@ -765,14 +763,14 @@ function TenantOverviewPage() {
       {/* Main Bot Grid & Command Broadcast Deck */}
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Left Column: Interactive Bot Cards (8 cols) */}
-        <Panel className="p-6 lg:col-span-8 border-brand-200 bg-brand-50">
-          <div className="flex items-center justify-between pb-4 border-b border-brand-200">
+        <Panel className="p-6 lg:col-span-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+          <div className="flex items-center justify-between pb-4 border-b border-rule">
             <div className="flex items-center gap-2">
-              <Bot className="h-4 w-4 text-brand-500" />
-              <h3 className="text-base font-bold text-brand-900">Active Bot Deployments</h3>
+              <Bot className="h-4 w-4 text-ember" />
+              <h3 className="lp-display text-base font-bold text-ink">Active Bot Deployments</h3>
             </div>
             <Link href="/bots">
-              <Button size="sm" variant="ghost" className="text-xs text-brand-500 hover:text-brand-900">
+              <Button size="sm" variant="ghost" className="text-xs text-ink-soft hover:text-ink">
                 View All <ArrowUpRight className="h-3 w-3 ml-1" />
               </Button>
             </Link>
@@ -796,26 +794,26 @@ function TenantOverviewPage() {
                 return (
                   <article
                     key={bot.id}
-                    className="rounded-2xl border border-brand-200 bg-white p-4 transition-all duration-300 hover:border-brand-200 hover:bg-white flex flex-col justify-between gap-3"
+                    className="border border-ink/20 bg-paper p-4 flex flex-col justify-between gap-3 shadow-sm hover:border-ink transition"
                   >
                     <div className="flex items-start gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-200 bg-brand-50 font-mono text-xs font-bold uppercase text-brand-900 shadow-inner">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-ink bg-white font-mono text-xs font-bold uppercase text-ink shadow-[1px_1px_0_#111111]">
                         {botLabel(bot).slice(0, 2)}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <Link href={`/bots?bot=${encodeURIComponent(bot.id)}`} className="block truncate text-xs font-bold text-brand-900 hover:underline">
+                        <Link href={`/bots?bot=${encodeURIComponent(bot.id)}`} className="block truncate text-xs font-bold text-ink hover:underline font-mono">
                           {botLabel(bot)}
                         </Link>
-                        <p className="mt-0.5 truncate text-[11px] text-brand-500 flex items-center gap-1.5">
-                          <Globe className="h-3 w-3 text-brand-500 shrink-0" />
+                        <p className="mt-0.5 truncate text-[11px] text-ink-soft flex items-center gap-1.5 font-mono">
+                          <Globe className="h-3 w-3 text-ink-faint shrink-0" />
                           <span>{bot.config?.host || 'No server'}</span>
                         </p>
                         <div className="flex items-center gap-1.5 mt-1.5">
-                          <span className="inline-block text-[9px] font-mono px-1.5 py-0.5 rounded bg-brand-50 border border-brand-200 text-brand-500">
+                          <span className="inline-block text-[9px] font-mono px-1.5 py-0.5 border border-rule bg-paper-2 text-ink-soft">
                             {categoryOf(bot)}
                           </span>
                           {shardVal !== null && (
-                            <span className="text-[9px] font-mono text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                            <span className="text-[9px] font-mono text-ember font-bold border border-ember/30 bg-ember/10 px-1.5 py-0.5">
                               ✦ {shardVal.toLocaleString()}
                             </span>
                           )}
@@ -824,13 +822,13 @@ function TenantOverviewPage() {
                       <StatusBadge status={bot.status} />
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-brand-200 pt-3">
-                      <span className="font-mono text-[10px] text-brand-500">#{bot.id}</span>
+                    <div className="flex items-center justify-between border-t border-rule pt-3">
+                      <span className="font-mono text-[10px] text-ink-faint">#{bot.id}</span>
                       {isRunning ? (
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-red-300 hover:text-red-200"
+                          className="text-ember hover:bg-ember/10"
                           loading={busy === `${bot.id}:stop`}
                           onClick={() => lifecycle(bot, 'stop')}
                         >
@@ -870,12 +868,12 @@ function TenantOverviewPage() {
 
         {/* Right Column: Fleet Command Terminal & Activity Stream */}
         <div className="space-y-6 lg:col-span-4">
-          <Panel className="p-6 border-brand-200 bg-brand-50 space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-brand-200">
-              <Terminal className="h-4 w-4 text-brand-500" />
-              <h3 className="text-sm font-bold text-brand-900">Broadcast Command</h3>
+          <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-rule">
+              <Terminal className="h-4 w-4 text-ember" />
+              <h3 className="lp-display text-sm font-bold text-ink">Broadcast Command</h3>
             </div>
-            <p className="text-xs text-brand-500">
+            <p className="text-xs text-ink-soft">
               Broadcast real-time Minecraft commands across all {stats.running} active bots.
             </p>
 
@@ -891,13 +889,13 @@ function TenantOverviewPage() {
                 value={command}
                 onChange={(e) => setCommand(e.target.value)}
                 placeholder="e.g. !say Hello everyone, !goto 100 64 200, !mine iron_ore"
-                className="w-full rounded-xl border border-brand-200 bg-white px-3 py-2 text-xs font-mono text-brand-900 placeholder-brand-400 focus:border-brand-200 focus:outline-none"
+                className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
               />
               <Button
                 type="submit"
                 variant="primary"
                 size="sm"
-                className="w-full font-semibold"
+                className="w-full"
                 loading={sending}
                 disabled={!command.trim()}
               >
@@ -905,13 +903,13 @@ function TenantOverviewPage() {
               </Button>
             </form>
 
-            <div className="flex flex-wrap gap-1.5 pt-2 border-t border-brand-200">
+            <div className="flex flex-wrap gap-1.5 pt-2 border-t border-rule">
               {['!status', '!ping', '!shard', '!mine', '!sell', '!drop'].map((cmd) => (
                 <button
                   key={cmd}
                   type="button"
                   onClick={() => broadcast(cmd)}
-                  className="rounded border border-brand-200 bg-brand-50 px-2 py-0.5 font-mono text-[9px] text-brand-500 hover:border-brand-200 hover:text-brand-900 transition"
+                  className="border border-ink/20 bg-paper-2 px-2 py-0.5 font-mono text-[9px] text-ink hover:border-ink hover:bg-white transition cursor-pointer shadow-sm"
                 >
                   {cmd}
                 </button>
@@ -920,24 +918,24 @@ function TenantOverviewPage() {
           </Panel>
 
           {/* Quick Hub Navigation Cards */}
-          <Panel className="p-5 border-brand-200 bg-brand-50 space-y-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-500 block">Workspace Navigation</span>
+          <Panel className="p-5 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-3">
+            <span className="lp-mono text-[10px] text-ink-faint block">Workspace Navigation</span>
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/tiles"
-                className="p-3 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-50 transition space-y-1 block"
+                className="p-3 border border-rule bg-paper-2 hover:bg-white hover:border-ink transition space-y-1 block shadow-sm"
               >
-                <LayoutGrid className="h-4 w-4 text-purple-400" />
-                <span className="block text-xs font-bold text-brand-900">Fleet Matrix</span>
-                <span className="block text-[10px] text-brand-500">Multi-Console</span>
+                <LayoutGrid className="h-4 w-4 text-ember" />
+                <span className="block text-xs font-bold text-ink font-mono">Fleet Matrix</span>
+                <span className="block text-[10px] text-ink-soft font-mono">Multi-Console</span>
               </Link>
               <Link
                 href="/network"
-                className="p-3 rounded-xl border border-brand-200 bg-brand-50 hover:bg-brand-50 transition space-y-1 block"
+                className="p-3 border border-rule bg-paper-2 hover:bg-white hover:border-ink transition space-y-1 block shadow-sm"
               >
-                <Network className="h-4 w-4 text-emerald-400" />
-                <span className="block text-xs font-bold text-brand-900">My Proxies</span>
-                <span className="block text-[10px] text-brand-500">SOCKS5 Hub</span>
+                <Network className="h-4 w-4 text-jade" />
+                <span className="block text-xs font-bold text-ink font-mono">My Proxies</span>
+                <span className="block text-[10px] text-ink-soft font-mono">SOCKS5 Hub</span>
               </Link>
             </div>
           </Panel>

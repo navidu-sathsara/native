@@ -70,9 +70,9 @@ export default function AdminPlansPage() {
   // Calculated custom price for modal
   const modalCalculatedPrice = useMemo(() => {
     if (formTier === 'free') return 0;
-    if (formTier === 'bronze_3') return 7;
-    if (formTier === 'silver_5') return 15;
-    if (formTier === 'unlimited_15') return 29;
+    if (formTier === 'bronze_3') return 2;
+    if (formTier === 'silver_5') return 5;
+    if (formTier === 'unlimited_15') return 12;
     return Number(((customBots * BOT_UNIT_PRICE) + (customProxies * PROXY_UNIT_PRICE)).toFixed(2));
   }, [formTier, customBots, customProxies]);
 
@@ -118,7 +118,7 @@ export default function AdminPlansPage() {
 
   if (me?.role !== 'admin') {
     return (
-      <div className="p-8 text-center text-brand-500">
+      <div className="p-8 text-center text-ink-soft font-mono">
         Access restricted to Administrators only.
       </div>
     );
@@ -145,9 +145,8 @@ export default function AdminPlansPage() {
             size="sm"
             onClick={loadData}
             loading={loading}
-            className="flex items-center gap-1.5"
           >
-            <RefreshCw className="h-3.5 w-3.5" />
+            <RefreshCw className="h-3.5 w-3.5 mr-1" />
             Refresh Metrics
           </Button>
         }
@@ -187,62 +186,62 @@ export default function AdminPlansPage() {
       </div>
 
       {/* Plan Distribution Breakdown */}
-      <Panel className="p-6 border-brand-200 bg-brand-50">
-        <div className="flex items-center justify-between pb-4 border-b border-brand-200">
+      <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+        <div className="flex items-center justify-between pb-4 border-b border-rule">
           <div>
-            <h3 className="text-sm font-bold text-brand-900">Tier Breakdown</h3>
-            <p className="text-xs text-brand-500 mt-0.5">Active subscriptions across available pricing tiers</p>
+            <h3 className="lp-display text-sm font-bold text-ink">Tier Breakdown</h3>
+            <p className="text-xs text-ink-soft mt-0.5 font-mono">Active subscriptions across available pricing tiers</p>
           </div>
-          <span className="text-xs font-mono text-brand-500">
+          <span className="text-xs font-mono text-ink-soft bg-paper-2 border border-rule px-2 py-0.5">
             {metrics.totalUsers} Total Accounts
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-4">
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Free Starter ($0)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-4 font-mono">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Free Starter ($0)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">
               {metrics.tierDistribution?.free || 0}
             </span>
-            <span className="text-[10px] text-brand-500">1 bot limit</span>
+            <span className="text-[10px] text-ink-soft">1 bot limit</span>
           </div>
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Bronze Pro ($7)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Bronze Pro ($2)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">
               {metrics.tierDistribution?.bronze_3 || 0}
             </span>
-            <span className="text-[10px] text-brand-500">3 bots limit</span>
+            <span className="text-[10px] text-ink-soft">3 bots limit</span>
           </div>
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Silver Pro ($15)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Silver Pro ($5)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">
               {metrics.tierDistribution?.silver_5 || 0}
             </span>
-            <span className="text-[10px] text-brand-500">10 bots limit</span>
+            <span className="text-[10px] text-ink-soft">10 bots limit</span>
           </div>
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Unlimited ($29)</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Unlimited ($12)</span>
+            <span className="lp-display text-xl font-bold text-ink mt-1 block">
               {metrics.tierDistribution?.unlimited_15 || 0}
             </span>
-            <span className="text-[10px] text-brand-500">∞ bots limit</span>
+            <span className="text-[10px] text-ink-soft">∞ bots limit</span>
           </div>
-          <div className="rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500">Custom Fleets</span>
-            <span className="text-xl font-bold text-brand-900 mt-1 block text-emerald-400">
+          <div className="border border-rule bg-paper-2 p-3.5 shadow-sm">
+            <span className="block lp-mono text-[10px] text-ink-faint">Custom Fleets</span>
+            <span className="lp-display text-xl font-bold text-jade mt-1 block">
               {metrics.tierDistribution?.custom || 0}
             </span>
-            <span className="text-[10px] text-brand-500">$0.50/bot + $0.50/proxy</span>
+            <span className="text-[10px] text-ink-soft">$0.50/bot + $0.50/proxy</span>
           </div>
         </div>
       </Panel>
 
       {/* Subscribers Table & Quota Controls */}
-      <Panel className="p-6 border-brand-200 bg-brand-50 space-y-4">
+      <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 className="text-base font-bold text-brand-900">Tenant Subscription Roster</h3>
-            <p className="text-xs text-brand-500 mt-0.5">Manage and override plans and bot quotas for any account</p>
+            <h3 className="lp-display text-base font-bold text-ink">Tenant Subscription Roster</h3>
+            <p className="text-xs text-ink-soft mt-0.5 font-mono">Manage and override plans and bot quotas for any account</p>
           </div>
 
           {/* Filters & Search */}
@@ -253,15 +252,15 @@ export default function AdminPlansPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search email or ID..."
-                className="w-48 sm:w-64 rounded-xl border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs text-brand-900 placeholder-brand-400 focus:border-brand-200 focus:outline-none pl-8"
+                className="w-48 sm:w-64 border border-ink bg-white pl-8 pr-3 py-1.5 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
               />
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-brand-500 pointer-events-none" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-soft pointer-events-none" />
             </div>
 
             <select
               value={tierFilter}
               onChange={(e) => setTierFilter(e.target.value)}
-              className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs text-brand-900 focus:outline-none"
+              className="border border-ink bg-white px-3 py-1.5 text-xs font-mono text-ink focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
             >
               <option value="all">All Tiers</option>
               <option value="free">Free Starter</option>
@@ -274,9 +273,9 @@ export default function AdminPlansPage() {
         </div>
 
         {/* Table View */}
-        <div className="overflow-x-auto rounded-xl border border-brand-200">
+        <div className="overflow-x-auto border border-rule">
           <table className="w-full text-left text-xs">
-            <thead className="border-b border-brand-200 bg-brand-50 text-brand-500 uppercase text-[10px] tracking-wider font-semibold">
+            <thead className="border-b border-rule bg-paper-2 text-ink-soft lp-mono text-[10px]">
               <tr>
                 <th className="px-4 py-3">Tenant Account</th>
                 <th className="px-4 py-3">Active Tier</th>
@@ -286,73 +285,73 @@ export default function AdminPlansPage() {
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.06]">
+            <tbody className="divide-y divide-rule font-mono">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-brand-500">
-                    <RefreshCw className="h-5 w-5 anim-spin mx-auto mb-2 text-brand-500" />
+                  <td colSpan={6} className="px-4 py-8 text-center text-ink-soft">
+                    <RefreshCw className="h-5 w-5 anim-spin mx-auto mb-2 text-ember" />
                     Loading subscriber roster...
                   </td>
                 </tr>
               ) : filteredSubscribers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-brand-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-ink-soft">
                     No accounts found matching the criteria.
                   </td>
                 </tr>
               ) : (
                 filteredSubscribers.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-brand-50 transition">
+                  <tr key={sub.id} className="hover:bg-paper-2 transition">
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-brand-900 flex items-center gap-1.5">
+                      <div className="font-bold text-ink flex items-center gap-1.5">
                         {sub.email}
                         {sub.role === 'admin' && (
-                          <span className="rounded bg-brand-50 px-1.5 py-0.2 text-[9px] font-bold uppercase text-brand-500">
+                          <span className="border border-ember bg-ember/10 px-1.5 py-0.2 text-[9px] font-bold uppercase text-ember">
                             Admin
                           </span>
                         )}
                       </div>
-                      <span className="font-mono text-[10px] text-brand-500">#{sub.id.slice(0, 8)}</span>
+                      <span className="font-mono text-[10px] text-ink-faint">#{sub.id.slice(0, 8)}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold border ${
+                      <span className={`inline-flex items-center gap-1 border px-2.5 py-0.5 text-[10px] font-bold ${
                         sub.tier === 'unlimited_15'
-                          ? 'border-purple-500/30 bg-purple-500/10 text-purple-300'
+                          ? 'border-ember bg-ember/10 text-ember'
                           : sub.tier === 'custom'
-                          ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                          ? 'border-jade bg-jade/10 text-jade'
                           : sub.tier !== 'free'
-                          ? 'border-blue-500/30 bg-blue-500/10 text-blue-300'
-                          : 'border-brand-200 bg-brand-50 text-brand-500'
+                          ? 'border-ink bg-paper text-ink'
+                          : 'border-rule bg-paper-2 text-ink-soft'
                       }`}>
                         {sub.tierName}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-brand-900">
-                        <strong>{sub.runningBots}</strong> / {sub.maxBots === 9999 ? '∞' : sub.maxBots} Bots running
+                      <div className="text-ink">
+                        <strong className="text-jade">{sub.runningBots}</strong> / {sub.maxBots === 9999 ? '∞' : sub.maxBots} Bots running
                       </div>
-                      <div className="text-[10px] text-brand-500">
+                      <div className="text-[10px] text-ink-soft">
                         {sub.maxProxies === 9999 ? '∞' : sub.maxProxies} Dedicated Proxies ({sub.ownedProxies} pooled)
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="font-mono font-bold text-brand-900 text-sm">
+                      <span className="font-mono font-bold text-ink text-sm">
                         ${sub.price.toFixed(2)}
                       </span>
-                      <span className="text-[10px] text-brand-500 ml-1">/ mo</span>
+                      <span className="text-[10px] text-ink-soft ml-1">/ mo</span>
                     </td>
                     <td className="px-4 py-3">
                       {sub.lastPayment ? (
                         <div>
-                          <span className="text-emerald-400 font-mono text-[11px] block">
+                          <span className="text-jade font-mono font-bold text-[11px] block">
                             ${sub.lastPayment.amount?.toFixed(2) || '0.00'} Paid
                           </span>
-                          <span className="text-[10px] text-brand-500">
+                          <span className="text-[10px] text-ink-soft">
                             {formatDate(sub.lastPayment.paidAt)}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-brand-500 text-[11px]">Free Provision</span>
+                        <span className="text-ink-faint text-[11px]">Free Provision</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -384,11 +383,11 @@ export default function AdminPlansPage() {
         <div className="space-y-5 py-2">
           {/* Tier Selector */}
           <div>
-            <label className="block text-xs font-semibold text-brand-500 mb-1.5">Select Fleet Subscription Tier</label>
+            <label className="block lp-mono text-[10px] text-ink-soft uppercase mb-1.5">Select Fleet Subscription Tier</label>
             <select
               value={formTier}
               onChange={(e) => setFormTier(e.target.value)}
-              className="w-full rounded-xl border border-brand-200 bg-brand-50 p-2.5 text-xs text-brand-900 focus:border-brand-200 focus:outline-none"
+              className="w-full border border-ink bg-white p-2.5 text-xs font-mono text-ink focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
             >
               {PLAN_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -400,18 +399,18 @@ export default function AdminPlansPage() {
 
           {/* Custom Sliders (if Custom Fleet selected) */}
           {formTier === 'custom' && (
-            <div className="space-y-4 rounded-xl border border-brand-200 bg-brand-50 p-4">
+            <div className="space-y-4 border border-ink/20 bg-paper-2 p-4 shadow-sm">
               {/* Bots Stepper */}
               <div>
-                <div className="flex justify-between items-center text-xs mb-1">
-                  <span className="text-brand-500">Custom Bot Slots ($0.50/bot)</span>
-                  <span className="font-bold text-brand-900">{customBots} Bots (${(customBots * BOT_UNIT_PRICE).toFixed(2)}/mo)</span>
+                <div className="flex justify-between items-center text-xs font-mono mb-1">
+                  <span className="text-ink-soft">Custom Bot Slots ($0.50/bot)</span>
+                  <span className="font-bold text-ink">{customBots} Bots (${(customBots * BOT_UNIT_PRICE).toFixed(2)}/mo)</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setCustomBots(Math.max(1, customBots - 1))}
-                    className="rounded-lg border border-brand-200 p-1.5 text-brand-500 hover:bg-brand-50"
+                    className="border border-ink bg-white p-1.5 text-ink hover:bg-paper shadow-[1px_1px_0_#111111] cursor-pointer"
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </button>
@@ -421,12 +420,12 @@ export default function AdminPlansPage() {
                     max="100"
                     value={customBots}
                     onChange={(e) => setCustomBots(parseInt(e.target.value, 10))}
-                    className="flex-1 accent-white"
+                    className="flex-1 accent-[#ff4400]"
                   />
                   <button
                     type="button"
                     onClick={() => setCustomBots(Math.min(200, customBots + 1))}
-                    className="rounded-lg border border-brand-200 p-1.5 text-brand-500 hover:bg-brand-50"
+                    className="border border-ink bg-white p-1.5 text-ink hover:bg-paper shadow-[1px_1px_0_#111111] cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>
@@ -435,15 +434,15 @@ export default function AdminPlansPage() {
 
               {/* Proxies Stepper */}
               <div>
-                <div className="flex justify-between items-center text-xs mb-1">
-                  <span className="text-brand-500">Dedicated Proxies ($0.50/proxy)</span>
-                  <span className="font-bold text-brand-900">{customProxies} Proxies (${(customProxies * PROXY_UNIT_PRICE).toFixed(2)}/mo)</span>
+                <div className="flex justify-between items-center text-xs font-mono mb-1">
+                  <span className="text-ink-soft">Dedicated Proxies ($0.50/proxy)</span>
+                  <span className="font-bold text-ink">{customProxies} Proxies (${(customProxies * PROXY_UNIT_PRICE).toFixed(2)}/mo)</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setCustomProxies(Math.max(0, customProxies - 1))}
-                    className="rounded-lg border border-brand-200 p-1.5 text-brand-500 hover:bg-brand-50"
+                    className="border border-ink bg-white p-1.5 text-ink hover:bg-paper shadow-[1px_1px_0_#111111] cursor-pointer"
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </button>
@@ -453,12 +452,12 @@ export default function AdminPlansPage() {
                     max="50"
                     value={customProxies}
                     onChange={(e) => setCustomProxies(parseInt(e.target.value, 10))}
-                    className="flex-1 accent-white"
+                    className="flex-1 accent-[#ff4400]"
                   />
                   <button
                     type="button"
                     onClick={() => setCustomProxies(Math.min(100, customProxies + 1))}
-                    className="rounded-lg border border-brand-200 p-1.5 text-brand-500 hover:bg-brand-50"
+                    className="border border-ink bg-white p-1.5 text-ink hover:bg-paper shadow-[1px_1px_0_#111111] cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>
@@ -468,13 +467,13 @@ export default function AdminPlansPage() {
           )}
 
           {/* Computed Rate Box */}
-          <div className="flex items-center justify-between rounded-xl border border-brand-200 bg-white p-3.5">
-            <span className="text-xs text-brand-500">Effective Rate</span>
+          <div className="flex items-center justify-between border border-ink bg-white p-3.5 shadow-[2px_2px_0_#111111]">
+            <span className="lp-mono text-[10px] text-ink-soft uppercase">Effective Rate</span>
             <div className="text-right">
-              <span className="text-xl font-bold text-brand-900 font-mono">
+              <span className="text-xl font-bold text-ink font-mono">
                 ${modalCalculatedPrice.toFixed(2)}
               </span>
-              <span className="text-xs text-brand-500 ml-1">USD / month</span>
+              <span className="text-xs text-ink-soft ml-1 font-mono">USD / month</span>
             </div>
           </div>
 
@@ -485,17 +484,17 @@ export default function AdminPlansPage() {
               id="recordPaymentCheck"
               checked={recordPayment}
               onChange={(e) => setRecordPayment(e.target.checked)}
-              className="rounded accent-white"
+              className="accent-[#ff4400]"
             />
-            <label htmlFor="recordPaymentCheck" className="text-xs text-brand-500 cursor-pointer">
+            <label htmlFor="recordPaymentCheck" className="text-xs text-ink-soft font-mono cursor-pointer">
               Record this override in the payment & renewal audit log
             </label>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-brand-200">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-rule">
             <Button
-              variant="ghost"
+              variant="secondary"
               size="sm"
               onClick={() => setModalOpen(false)}
             >

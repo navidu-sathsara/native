@@ -28,21 +28,21 @@ function renderLine(line) {
     return <span className="text-red-400 font-medium">{line}</span>;
   }
   if (/(warn|warning|stuck|retrying)/.test(lower)) {
-    return <span className="text-amber-300 font-medium">{line}</span>;
+    return <span className="text-amber-400 font-medium">{line}</span>;
   }
   if (/(spawned|connected|success|logged in|joined|ready)/.test(lower)) {
-    return <span className="text-emerald-400 font-semibold">{line}</span>;
+    return <span className="text-jade font-semibold">{line}</span>;
   }
   if (line.startsWith('[panel]') || line.startsWith('[system]')) {
     return <span className="text-cyan-400 font-medium">{line}</span>;
   }
   if (line.startsWith('[script]')) {
-    return <span className="text-purple-300">{line}</span>;
+    return <span className="text-ember font-medium">{line}</span>;
   }
   if (line.startsWith('[chat]') || line.startsWith('<')) {
-    return <span className="text-brand-900 font-mono">{line}</span>;
+    return <span className="text-white font-mono">{line}</span>;
   }
-  return <span className="text-brand-500">{line}</span>;
+  return <span className="text-neutral-400">{line}</span>;
 }
 
 /**
@@ -53,7 +53,6 @@ function BotTerminalTile({
   isSelected,
   onToggleSelect,
   onRefreshList,
-  onFocus
 }) {
   const [logs, setLogs] = useState([]);
   const [command, setCommand] = useState('');
@@ -165,42 +164,42 @@ function BotTerminalTile({
 
   return (
     <div
-      className={`rounded-2xl border transition-all duration-200 flex flex-col bg-[#070707] overflow-hidden shadow-2xl ${
+      className={`border transition-all duration-150 flex flex-col bg-[#111111] overflow-hidden ${
         isSelected
-          ? 'border-brand-200 ring-1 ring-white/30'
-          : 'border-brand-200 hover:border-brand-200'
+          ? 'border-ember shadow-[4px_4px_0_#ff4400]'
+          : 'border-ink shadow-[3px_3px_0_#111111]'
       }`}
     >
       {/* Console Card Header */}
-      <div className="flex h-11 items-center justify-between border-b border-brand-200 bg-brand-50/70 px-3">
+      <div className="flex h-11 items-center justify-between border-b border-white/10 bg-[#1a1a1a] px-3">
         <div className="flex items-center gap-2 min-w-0">
           <button
             type="button"
             onClick={() => onToggleSelect(bot.id)}
-            className="text-brand-500 hover:text-brand-900 transition p-0.5"
+            className="text-neutral-400 hover:text-white transition p-0.5 cursor-pointer"
             title={isSelected ? 'Deselect bot' : 'Select bot'}
           >
             {isSelected ? (
-              <CheckSquare className="h-4 w-4 text-brand-900" />
+              <CheckSquare className="h-4 w-4 text-ember" />
             ) : (
               <Square className="h-4 w-4" />
             )}
           </button>
 
           <span
-            className={`h-2 w-2 shrink-0 rounded-full ${
+            className={`h-2 w-2 shrink-0 ${
               isRunning
-                ? 'bg-emerald-400 shadow-sm animate-pulse'
-                : 'bg-brand-50'
+                ? 'bg-jade shadow-sm animate-pulse'
+                : 'bg-neutral-600'
             }`}
           />
 
-          <span className="truncate font-mono text-xs font-bold text-brand-900">
+          <span className="truncate font-mono text-xs font-bold text-white">
             {botLabel(bot)}
           </span>
 
           {shardCount !== null && (
-            <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.2 rounded hidden sm:inline">
+            <span className="text-[10px] font-mono font-bold text-ember border border-ember/40 bg-ember/10 px-1.5 py-0.2 hidden sm:inline">
               ✦ {shardCount.toLocaleString()}
             </span>
           )}
@@ -211,21 +210,21 @@ function BotTerminalTile({
           <button
             onClick={() => fetchSnapshot()}
             title="Refresh logs"
-            className="p-1 rounded text-brand-500 hover:text-brand-900 hover:bg-brand-50 transition"
+            className="p-1 text-neutral-400 hover:text-white transition cursor-pointer"
           >
             <RefreshCw className="h-3 w-3" />
           </button>
           <button
             onClick={() => setLogs([])}
             title="Clear logs"
-            className="p-1 rounded text-brand-500 hover:text-brand-900 hover:bg-brand-50 transition"
+            className="p-1 text-neutral-400 hover:text-white transition cursor-pointer"
           >
             <Eraser className="h-3 w-3" />
           </button>
           <Link
             href={`/bots?bot=${encodeURIComponent(bot.id)}`}
             title="Open Dedicated Console & Modules"
-            className="p-1 rounded text-brand-500 hover:text-brand-900 hover:bg-brand-50 transition"
+            className="p-1 text-neutral-400 hover:text-white transition"
           >
             <ArrowUpRight className="h-3 w-3" />
           </Link>
@@ -235,7 +234,7 @@ function BotTerminalTile({
               onClick={() => handleLifecycle('stop')}
               disabled={busyAction}
               title="Stop bot"
-              className="ml-1 rounded bg-red-500/20 border border-red-500/40 px-2 py-0.5 text-[10px] font-semibold text-red-300 hover:bg-red-500/30 transition flex items-center gap-1"
+              className="ml-1 border border-ember bg-white px-2 py-0.5 text-[10px] font-mono font-bold uppercase text-ember hover:bg-ember hover:text-white transition flex items-center gap-1 cursor-pointer shadow-sm"
             >
               <CircleStop className="h-3 w-3" />
               Stop
@@ -245,9 +244,9 @@ function BotTerminalTile({
               onClick={() => handleLifecycle('start')}
               disabled={busyAction}
               title="Start bot"
-              className="ml-1 rounded bg-brand-50 border border-brand-200 px-2 py-0.5 text-[10px] font-semibold text-brand-900 hover:bg-brand-50 transition flex items-center gap-1"
+              className="ml-1 border border-white/20 bg-white px-2 py-0.5 text-[10px] font-mono font-bold uppercase text-ink hover:bg-paper-2 transition flex items-center gap-1 cursor-pointer shadow-sm"
             >
-              <Play className="h-3 w-3" />
+              <Play className="h-3 w-3 text-jade" />
               Start
             </button>
           )}
@@ -257,13 +256,13 @@ function BotTerminalTile({
       {/* Terminal Viewport */}
       <div
         ref={scrollRef}
-        className="console-scrollbar h-64 overflow-y-auto p-3 font-mono text-[11px] leading-5 space-y-0.5 bg-[#030303]"
+        className="h-64 overflow-y-auto p-3 font-mono text-[11px] leading-5 space-y-0.5 bg-[#0a0a0a]"
       >
         {isRunning ? (
           logs.length > 0 ? (
             logs.map((row, idx) => (
-              <div key={`${row.t || 'log'}-${idx}`} className="flex items-start gap-2 hover:bg-brand-50 px-1 rounded transition">
-                <span className="w-14 shrink-0 select-none text-[9px] text-brand-500">
+              <div key={`${row.t || 'log'}-${idx}`} className="flex items-start gap-2 hover:bg-white/5 px-1 transition">
+                <span className="w-14 shrink-0 select-none text-[9px] text-neutral-500 font-mono">
                   {row.t ? new Date(row.t).toLocaleTimeString([], { hour12: false }) : ''}
                 </span>
                 <div className="min-w-0 flex-1 break-words">
@@ -272,15 +271,15 @@ function BotTerminalTile({
               </div>
             ))
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-center p-4 text-brand-500 space-y-1">
-              <Cpu className="h-6 w-6 text-brand-500 animate-pulse" />
-              <p className="text-[11px]">Worker active. Waiting for Minecraft output...</p>
+            <div className="h-full flex flex-col items-center justify-center text-center p-4 text-neutral-500 space-y-1">
+              <Cpu className="h-6 w-6 text-neutral-500 animate-pulse" />
+              <p className="text-[11px] font-mono">Worker active. Waiting for Minecraft output...</p>
             </div>
           )
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-center p-4 text-brand-500 space-y-2">
-            <Bot className="h-7 w-7 text-brand-500" />
-            <p className="text-xs font-semibold text-brand-500">Bot is currently stopped</p>
+          <div className="h-full flex flex-col items-center justify-center text-center p-4 text-neutral-500 space-y-2">
+            <Bot className="h-7 w-7 text-neutral-600" />
+            <p className="text-xs font-mono font-bold text-neutral-400">Bot is currently stopped</p>
             <Button
               size="sm"
               variant="secondary"
@@ -288,7 +287,7 @@ function BotTerminalTile({
               onClick={() => handleLifecycle('start')}
               className="text-xs"
             >
-              <Play className="h-3 w-3 mr-1 text-brand-900" />
+              <Play className="h-3 w-3 mr-1 text-jade" />
               Spawn Worker
             </Button>
           </div>
@@ -297,13 +296,13 @@ function BotTerminalTile({
 
       {/* Quick Macro Chips */}
       {isRunning && (
-        <div className="flex items-center gap-1 border-t border-brand-200 bg-white px-2 py-1 overflow-x-auto custom-scroll">
+        <div className="flex items-center gap-1 border-t border-white/10 bg-[#161616] px-2 py-1 overflow-x-auto">
           {['!status', '!ping', '!inv', '!mine', '!sell', '!drop', '!shard'].map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => sendCmd(m)}
-              className="shrink-0 rounded border border-brand-200 bg-brand-50 px-1.5 py-0.5 font-mono text-[9px] text-brand-500 hover:text-brand-900 hover:border-brand-200 transition"
+              className="shrink-0 border border-white/15 bg-white/5 px-1.5 py-0.5 font-mono text-[9px] text-neutral-300 hover:text-white hover:border-white transition cursor-pointer"
             >
               {m}
             </button>
@@ -317,14 +316,14 @@ function BotTerminalTile({
           e.preventDefault();
           sendCmd();
         }}
-        className="flex items-center gap-1.5 border-t border-brand-200 bg-brand-50 p-2"
+        className="flex items-center gap-1.5 border-t border-white/10 bg-[#111111] p-2"
       >
-        <span className="shrink-0 pl-1 font-mono text-xs text-brand-500">&gt;</span>
+        <span className="shrink-0 pl-1 font-mono text-xs text-neutral-400">&gt;</span>
         <input
           value={command}
           onChange={(e) => setCommand(e.target.value)}
           disabled={!isRunning}
-          className="min-w-0 flex-1 bg-transparent px-1.5 py-1 font-mono text-xs text-brand-900 outline-none placeholder:text-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
+          className="min-w-0 flex-1 bg-transparent px-1.5 py-1 font-mono text-xs text-white outline-none placeholder:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-40"
           placeholder={isRunning ? "Send command (e.g. !say Hello, !pos)..." : "Bot offline"}
           autoComplete="off"
           spellCheck={false}
@@ -335,7 +334,7 @@ function BotTerminalTile({
           variant="ghost"
           loading={sending}
           disabled={!command.trim() || !isRunning}
-          className="h-7 px-2.5 text-xs text-brand-500 hover:text-brand-900"
+          className="h-7 px-2.5 text-xs text-neutral-300 hover:text-white"
         >
           <Send className="h-3 w-3" />
         </Button>
@@ -456,15 +455,13 @@ export default function MultiConsoleTilesPage() {
               size="sm"
               variant="success"
               onClick={() => handleBatchLifecycle('start')}
-              className="text-xs font-semibold"
             >
-              <Play className="h-3.5 w-3.5 mr-1 text-brand-900" /> Start Active
+              <Play className="h-3.5 w-3.5 mr-1 text-jade" /> Start Active
             </Button>
             <Button
               size="sm"
               variant="danger"
               onClick={() => handleBatchLifecycle('stop')}
-              className="text-xs font-semibold"
             >
               <CircleStop className="h-3.5 w-3.5 mr-1" /> Stop All
             </Button>
@@ -478,31 +475,31 @@ export default function MultiConsoleTilesPage() {
       />
 
       {/* 🚀 Top Mass Command Broadcaster Deck */}
-      <Panel className="p-5 border-brand-200 bg-brand-50 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-brand-200 pb-3.5">
+      <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-rule pb-3.5">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-brand-200 bg-brand-50 p-2 text-brand-900">
-              <Terminal className="h-4 w-4" />
+            <span className="flex h-10 w-10 items-center justify-center border border-ink bg-paper-2 p-2 text-ink shadow-[1px_1px_0_#111111]">
+              <Terminal className="h-5 w-5 text-ember" />
             </span>
             <div>
-              <h3 className="text-sm font-bold text-brand-900 flex items-center gap-2">
+              <h3 className="lp-display text-base font-bold text-ink flex items-center gap-2">
                 Mass Command Broadcaster
                 {selectedIds.size > 0 && (
-                  <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.2 text-[10px] text-emerald-400 font-mono">
+                  <span className="border border-jade/40 bg-jade/10 px-2 py-0.2 text-[10px] text-jade font-mono font-bold uppercase">
                     {selectedIds.size} Selected Targets
                   </span>
                 )}
               </h3>
-              <p className="text-xs text-brand-500">
+              <p className="text-xs text-ink-soft font-mono">
                 Targeting: {selectedIds.size > 0 ? `${selectedIds.size} selected bot(s)` : `All ${runningCount} currently running bot(s)`}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-mono text-brand-500 bg-white border border-brand-200 px-3 py-1 rounded-xl flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              Fleet Shards: <strong className="text-amber-400 font-bold">✦ {totalShards.toLocaleString()}</strong>
+            <span className="text-[11px] font-mono text-ink bg-paper-2 border border-rule px-3 py-1.5 flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-ember" />
+              Fleet Shards: <strong className="text-ember font-bold">✦ {totalShards.toLocaleString()}</strong>
             </span>
           </div>
         </div>
@@ -516,7 +513,7 @@ export default function MultiConsoleTilesPage() {
               onChange={(e) => setMassCmd(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleBroadcast(); }}
               placeholder="Type mass command (e.g. !say Ready, !mine iron_ore, !sell, !drop, !goto 100 64 200, !stop)..."
-              className="flex-1 rounded-xl border border-brand-200 bg-brand-50/80 px-4 py-2.5 text-xs font-mono text-brand-900 placeholder-brand-400 focus:border-brand-200 focus:outline-none"
+              className="flex-1 border border-ink bg-white px-3.5 py-2.5 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
             />
             <Button
               variant="primary"
@@ -524,7 +521,7 @@ export default function MultiConsoleTilesPage() {
               loading={broadcasting}
               disabled={!massCmd.trim()}
               onClick={() => handleBroadcast()}
-              className="font-semibold px-6"
+              className="px-6"
             >
               <Send className="h-3.5 w-3.5 mr-1" />
               Broadcast to Fleet
@@ -533,7 +530,7 @@ export default function MultiConsoleTilesPage() {
 
           {/* Preset Macro Chips */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-[10px] font-semibold text-brand-500 uppercase mr-1">Quick Fleet Macros:</span>
+            <span className="lp-mono text-[10px] text-ink-faint mr-1">Quick Fleet Macros:</span>
             {[
               { label: '!status', cmd: '!status' },
               { label: '!ping', cmd: '!ping' },
@@ -548,7 +545,7 @@ export default function MultiConsoleTilesPage() {
                 key={m.label}
                 type="button"
                 onClick={() => handleBroadcast(m.cmd)}
-                className="rounded-lg border border-brand-200 bg-brand-50 px-2.5 py-1 font-mono text-[10px] text-brand-500 hover:border-brand-200 hover:text-brand-900 transition"
+                className="border border-ink/20 bg-paper-2 px-2.5 py-1 font-mono text-[10px] text-ink hover:border-ink hover:bg-white transition cursor-pointer shadow-sm"
               >
                 {m.label}
               </button>
@@ -558,30 +555,30 @@ export default function MultiConsoleTilesPage() {
       </Panel>
 
       {/* 🎛️ Layout Switcher & Filtering Toolbar */}
-      <Panel className="p-4 border-brand-200 bg-brand-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <Panel className="p-4 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button
             size="sm"
             variant="ghost"
             onClick={toggleSelectAll}
-            className="text-xs text-brand-500 hover:text-brand-900"
+            className="text-xs"
           >
             {selectedIds.size === filteredBots.length && filteredBots.length > 0 ? (
-              <CheckSquare className="h-4 w-4 mr-1.5 text-brand-900" />
+              <CheckSquare className="h-4 w-4 mr-1.5 text-ember" />
             ) : (
-              <Square className="h-4 w-4 mr-1.5 text-brand-500" />
+              <Square className="h-4 w-4 mr-1.5 text-ink-soft" />
             )}
             {selectedIds.size === filteredBots.length && filteredBots.length > 0
               ? 'Deselect All'
               : `Select All (${filteredBots.length})`}
           </Button>
 
-          <div className="h-4 w-px bg-brand-50" />
+          <div className="h-4 w-px bg-rule" />
 
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs text-brand-900 focus:outline-none"
+            className="border border-ink bg-white px-3 py-1.5 text-xs font-mono text-ink focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
           >
             <option value="all">All Bots ({bots.length})</option>
             <option value="running">Running ({runningCount})</option>
@@ -591,7 +588,7 @@ export default function MultiConsoleTilesPage() {
 
         {/* Column layout switcher & search */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center rounded-xl border border-brand-200 bg-white p-0.5">
+          <div className="flex items-center border border-ink bg-paper-2 p-0.5">
             {[
               { cols: 1, icon: Columns2, label: '1 Col' },
               { cols: 2, icon: Columns2, label: '2 Col' },
@@ -601,10 +598,10 @@ export default function MultiConsoleTilesPage() {
               <button
                 key={c.cols}
                 onClick={() => setGridCols(c.cols)}
-                className={`px-2.5 py-1 text-[10px] font-mono rounded-lg transition ${
+                className={`px-2.5 py-1 text-[10px] font-mono font-bold uppercase transition cursor-pointer ${
                   gridCols === c.cols
-                    ? 'bg-brand-50 text-brand-900 font-bold'
-                    : 'text-brand-500 hover:text-brand-900'
+                    ? 'border border-ink bg-white text-ink shadow-[1px_1px_0_#111111]'
+                    : 'text-ink-soft hover:text-ink'
                 }`}
               >
                 {c.label}
@@ -618,9 +615,9 @@ export default function MultiConsoleTilesPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter terminals..."
-              className="w-full sm:w-56 rounded-xl border border-brand-200 bg-white px-3 py-1.5 text-xs text-brand-900 placeholder-brand-400 focus:border-brand-200 focus:outline-none pl-8"
+              className="w-full sm:w-56 border border-ink bg-white pl-8 pr-3 py-1.5 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
             />
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-brand-500 pointer-events-none" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-soft pointer-events-none" />
           </div>
         </div>
       </Panel>
@@ -649,7 +646,7 @@ export default function MultiConsoleTilesPage() {
           ))}
         </div>
       ) : (
-        <Panel className="p-10">
+        <Panel className="p-10 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <EmptyState
             icon={Terminal}
             title="No bot terminals found"

@@ -192,21 +192,21 @@ export default function NetworkPage() {
 
       {/* Free Tier Info / Upgrade Banner */}
       {isFreeTier && (
-        <Panel className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-amber-500/20 bg-amber-500/[0.03]">
+        <Panel className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-ink bg-white shadow-[3px_3px_0_#111111]">
           <div className="flex items-center gap-3">
-            <span className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-2.5 text-amber-400">
+            <span className="border border-ink bg-paper-2 p-2.5 text-ember shadow-[1px_1px_0_#111111]">
               <Sparkles className="h-5 w-5" />
             </span>
             <div>
-              <h3 className="text-sm font-bold text-brand-900">Free Starter Plan: High-Speed Free Proxy Pool</h3>
-              <p className="text-xs text-brand-500 mt-0.5">
-                Your bots automatically dial verified Admin Free Proxies. Upgrade to custom fleet to bring unlimited private proxies ($0.60/proxy).
+              <h3 className="lp-display text-sm font-bold text-ink">Free Starter Plan: High-Speed Free Proxy Pool</h3>
+              <p className="text-xs text-ink-soft mt-0.5 font-mono">
+                Your bots automatically dial verified Admin Free Proxies. Upgrade to custom fleet to bring unlimited private proxies ($0.50/proxy).
               </p>
             </div>
           </div>
           <Link href="/billing">
-            <Button size="sm" variant="primary" className="shrink-0 font-semibold">
-              <Zap className="h-3.5 w-3.5 mr-1 fill-black" />
+            <Button size="sm" variant="primary" className="shrink-0">
+              <Zap className="h-3.5 w-3.5 mr-1" />
               Upgrade to Custom Pool
             </Button>
           </Link>
@@ -237,31 +237,31 @@ export default function NetworkPage() {
       )}
 
       {/* Filter & Search Bar */}
-      <Panel className="p-4 border-brand-200 bg-brand-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex rounded-xl border border-brand-200 bg-brand-50 p-1">
+      <Panel className="p-4 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex border border-ink bg-paper-2 p-0.5">
           <button
             onClick={() => setTabFilter('all')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              tabFilter === 'all' ? 'bg-brand-50 text-brand-900 font-bold shadow' : 'text-brand-500 hover:text-brand-900'
+            className={`px-3 py-1.5 font-mono text-xs font-bold uppercase transition cursor-pointer ${
+              tabFilter === 'all' ? 'border border-ink bg-white text-ink shadow-[1px_1px_0_#111111]' : 'text-ink-soft hover:text-ink'
             }`}
           >
-            All Endpoints ({proxies.length})
+            All ({proxies.length})
           </button>
           <button
             onClick={() => setTabFilter('free')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              tabFilter === 'free' ? 'bg-brand-50 text-brand-900 font-bold shadow' : 'text-brand-500 hover:text-brand-900'
+            className={`px-3 py-1.5 font-mono text-xs font-bold uppercase transition cursor-pointer ${
+              tabFilter === 'free' ? 'border border-ink bg-white text-ink shadow-[1px_1px_0_#111111]' : 'text-ink-soft hover:text-ink'
             }`}
           >
             Free Tier ({stats.freePoolCount})
           </button>
           <button
             onClick={() => setTabFilter('private')}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              tabFilter === 'private' ? 'bg-brand-50 text-brand-900 font-bold shadow' : 'text-brand-500 hover:text-brand-900'
+            className={`px-3 py-1.5 font-mono text-xs font-bold uppercase transition cursor-pointer ${
+              tabFilter === 'private' ? 'border border-ink bg-white text-ink shadow-[1px_1px_0_#111111]' : 'text-ink-soft hover:text-ink'
             }`}
           >
-            Private / Dedicated ({stats.privatePoolCount})
+            Private ({stats.privatePoolCount})
           </button>
         </div>
 
@@ -271,24 +271,24 @@ export default function NetworkPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search IP, host, note..."
-            className="w-full sm:w-64 rounded-xl border border-brand-200 bg-white px-3 py-1.5 text-xs text-brand-900 placeholder-brand-400 focus:border-brand-200 focus:outline-none pl-8"
+            className="w-full sm:w-64 border border-ink bg-white pl-8 pr-3 py-1.5 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
           />
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-brand-500 pointer-events-none" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-ink-soft pointer-events-none" />
         </div>
       </Panel>
 
       {/* Main Proxies Table */}
       {loading ? (
-        <Panel className="p-6 space-y-4">
+        <Panel className="p-6 space-y-4 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
         </Panel>
       ) : filteredProxies.length ? (
-        <Panel className="overflow-hidden border-brand-200 bg-brand-50">
+        <Panel className="overflow-hidden border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-brand-200 bg-brand-50 text-brand-500 uppercase text-[10px] tracking-wider font-semibold">
+              <thead className="border-b border-rule bg-paper-2 text-ink-soft lp-mono text-[10px]">
                 <tr>
                   <th className="px-4 py-3">Proxy Endpoint</th>
                   <th className="px-4 py-3">Tier Route</th>
@@ -299,27 +299,27 @@ export default function NetworkPage() {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.06]">
+              <tbody className="divide-y divide-rule font-mono">
                 {filteredProxies.map((proxy) => {
                   const used = proxyCapacity - Number(proxy.freeSlots ?? proxyCapacity);
                   return (
-                    <tr key={proxy.id} className="hover:bg-brand-50 transition">
+                    <tr key={proxy.id} className="hover:bg-paper-2 transition">
                       <td className="px-4 py-3">
-                        <div className="font-mono text-xs font-bold text-brand-900 flex items-center gap-1.5">
-                          <Globe className="h-3.5 w-3.5 text-brand-500" />
+                        <div className="font-mono text-xs font-bold text-ink flex items-center gap-1.5">
+                          <Globe className="h-3.5 w-3.5 text-ember" />
                           {proxyLabel(proxy)}
                         </div>
-                        <div className="text-[10px] text-brand-500 mt-0.5">
+                        <div className="text-[10px] text-ink-soft mt-0.5">
                           {proxy.hasAuth ? 'Authenticated SOCKS5' : 'Open SOCKS5'}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         {proxy.isFree ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                            <Sparkles className="h-3 w-3" /> Free Tier Pool
+                          <span className="inline-flex items-center gap-1 border border-jade/40 bg-jade/10 px-2 py-0.5 text-[10px] font-bold text-jade">
+                            <Sparkles className="h-3 w-3" /> Free Pool
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 border border-brand-200 px-2 py-0.5 text-[10px] text-brand-500">
+                          <span className="inline-flex items-center gap-1 border border-rule bg-paper-2 px-2 py-0.5 text-[10px] text-ink-soft">
                             Private SOCKS5
                           </span>
                         )}
@@ -328,17 +328,17 @@ export default function NetworkPage() {
                         <div className="flex items-center gap-2">
                           <StatusBadge status={proxy.lastCheck ? (proxy.alive ? 'online' : 'error') : 'pending'} />
                           {proxy.latency && (
-                            <span className="font-mono text-[10px] text-brand-500">{proxy.latency}ms</span>
+                            <span className="font-mono text-[10px] text-ink-soft">{proxy.latency}ms</span>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-xs font-mono text-brand-900">
+                        <div className="text-xs font-mono font-bold text-ink">
                           {used}/{proxyCapacity}
                         </div>
-                        <div className="mt-1 h-1 w-20 overflow-hidden rounded bg-brand-50">
+                        <div className="mt-1 h-1.5 w-20 overflow-hidden border border-rule bg-paper-2">
                           <div
-                            className="h-full bg-white rounded"
+                            className="h-full bg-ink"
                             style={{ width: `${Math.min(100, (used / proxyCapacity) * 100)}%` }}
                           />
                         </div>
@@ -347,12 +347,12 @@ export default function NetworkPage() {
                         <div className="flex max-w-xs flex-wrap gap-1">
                           {(proxy.assignedTo || []).length ? (
                             proxy.assignedTo.map((item) => (
-                              <span key={item.id || item} className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] text-brand-500">
+                              <span key={item.id || item} className="border border-rule bg-paper-2 px-1.5 py-0.5 text-[10px] text-ink">
                                 {item.username || item.id || item}
                               </span>
                             ))
                           ) : (
-                            <span className="text-[11px] text-brand-500 font-mono">Unassigned</span>
+                            <span className="text-[11px] text-ink-faint font-mono">Unassigned</span>
                           )}
                         </div>
                       </td>
@@ -363,10 +363,10 @@ export default function NetworkPage() {
                             setNote(proxy.note || '');
                             setNoteIsFree(!!proxy.isFree);
                           }}
-                          className="text-left text-xs text-brand-500 hover:text-brand-900"
+                          className="text-left text-xs text-ink-soft hover:text-ink cursor-pointer"
                         >
-                          <span className="block truncate font-medium">{proxy.ownerLabel || 'My Pool'}</span>
-                          <span className="block truncate text-[10px] text-brand-500">{proxy.note || 'Click to add note'}</span>
+                          <span className="block truncate font-bold text-ink">{proxy.ownerLabel || 'My Pool'}</span>
+                          <span className="block truncate text-[10px] text-ink-soft">{proxy.note || 'Click to add note'}</span>
                         </button>
                       </td>
                       <td className="px-4 py-3 text-right">
@@ -377,9 +377,8 @@ export default function NetworkPage() {
                               variant={proxy.isFree ? 'secondary' : 'ghost'}
                               title={proxy.isFree ? 'Remove from Free Tier pool' : 'Mark as Admin Free Proxy'}
                               onClick={() => toggleFreeStatus(proxy)}
-                              className="text-xs"
                             >
-                              <Sparkles className={`h-3 w-3 ${proxy.isFree ? 'text-amber-400' : 'text-brand-500'}`} />
+                              <Sparkles className={`h-3 w-3 ${proxy.isFree ? 'text-ember' : 'text-ink-soft'}`} />
                             </Button>
                           )}
                           <Button size="sm" variant="ghost" onClick={() => checkOne(proxy)}>
@@ -400,7 +399,7 @@ export default function NetworkPage() {
           </div>
         </Panel>
       ) : (
-        <Panel className="p-8">
+        <Panel className="p-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <EmptyState
             icon={Network}
             title="No proxies configured"
@@ -425,7 +424,7 @@ export default function NetworkPage() {
       >
         <div className="space-y-4 py-2">
           <textarea
-            className="w-full min-h-44 rounded-xl border border-brand-200 bg-white p-3 font-mono text-xs text-brand-900 placeholder-brand-400 focus:border-brand-200 focus:outline-none"
+            className="w-full min-h-44 border border-ink bg-white p-3 font-mono text-xs text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
             value={text}
             onChange={(event) => setText(event.target.value)}
             placeholder={'1.2.3.4:1080\n5.6.7.8:1080:username:password\nsocks5://user:pass@1.2.3.4:1080'}
@@ -448,8 +447,8 @@ export default function NetworkPage() {
             )}
           </div>
 
-          <div className="flex justify-end gap-2 border-t border-brand-200 pt-4 mt-4">
-            <Button onClick={() => setAddOpen(false)}>Cancel</Button>
+          <div className="flex justify-end gap-2 border-t border-rule pt-4 mt-4">
+            <Button variant="secondary" onClick={() => setAddOpen(false)}>Cancel</Button>
             <Button variant="primary" onClick={add} loading={submitting} disabled={!text.trim()}>
               Import Endpoints
             </Button>
@@ -466,9 +465,9 @@ export default function NetworkPage() {
       >
         <div className="space-y-4 py-2">
           <div>
-            <label className="block text-xs font-semibold text-brand-500 mb-1.5">Internal Label / Note</label>
+            <label className="block lp-mono text-[10px] text-ink-soft uppercase mb-1.5">Internal Label / Note</label>
             <input
-              className="w-full rounded-xl border border-brand-200 bg-white p-2.5 text-xs text-brand-900 focus:border-brand-200 focus:outline-none"
+              className="w-full border border-ink bg-white p-2.5 text-xs font-mono text-ink focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
               value={note}
               onChange={(event) => setNote(event.target.value)}
               placeholder="Residential · Germany / Proxy Seller A"
@@ -484,8 +483,8 @@ export default function NetworkPage() {
             />
           )}
 
-          <div className="flex justify-end gap-2 border-t border-brand-200 pt-4 mt-4">
-            <Button onClick={() => setNoteProxy(null)}>Cancel</Button>
+          <div className="flex justify-end gap-2 border-t border-rule pt-4 mt-4">
+            <Button variant="secondary" onClick={() => setNoteProxy(null)}>Cancel</Button>
             <Button variant="primary" onClick={saveNote}>
               Save Settings
             </Button>

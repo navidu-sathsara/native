@@ -100,7 +100,6 @@ export default function BillingPage() {
   const [customProxies, setCustomProxies] = useState(2);
 
   // Payment & Subscription State
-
   const [activePlan, setActivePlan] = useState(user?.preferences?.tier || 'free');
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState(null);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
@@ -142,7 +141,6 @@ export default function BillingPage() {
       })
       .finally(() => {
         setLoading(false);
-        // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname);
       });
     }
@@ -151,7 +149,7 @@ export default function BillingPage() {
       toast('Payment was cancelled.', 'info');
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, []);
+  }, [setUser, toast]);
 
   // Calculated Custom Plan Pricing
   const customCalculation = useMemo(() => {
@@ -200,7 +198,7 @@ export default function BillingPage() {
   const downgradeToFree = async () => {
     setLoading(true);
     try {
-      const res = await api('/preferences', {
+      await api('/preferences', {
         method: 'PATCH',
         body: JSON.stringify({ tier: 'free' }),
       });
@@ -254,8 +252,6 @@ export default function BillingPage() {
     setCheckoutModalOpen(true);
   };
 
-
-
   // Determine current active plan description
   const userTier = user?.preferences?.tier || 'free';
   const customLimits = user?.preferences?.customLimits;
@@ -274,13 +270,13 @@ export default function BillingPage() {
         title="Plans & Billing"
         description="Choose a preset package or scale dynamically with $0.50/bot and $0.50/proxy pricing."
         actions={
-          <div className="flex rounded-xl border border-brand-200 bg-brand-100 p-1">
+          <div className="flex border border-ink bg-paper-2 p-0.5">
             <button
               onClick={() => setViewMode('preset')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+              className={`flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold uppercase transition cursor-pointer ${
                 viewMode === 'preset'
-                  ? 'bg-white text-brand-900 shadow-sm'
-                  : 'text-brand-500 hover:text-brand-900'
+                  ? 'border border-ink bg-white text-ink shadow-[1px_1px_0_#111111]'
+                  : 'text-ink-soft hover:text-ink'
               }`}
             >
               <Layers className="h-3.5 w-3.5" />
@@ -288,10 +284,10 @@ export default function BillingPage() {
             </button>
             <button
               onClick={() => setViewMode('custom')}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+              className={`flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold uppercase transition cursor-pointer ${
                 viewMode === 'custom'
-                  ? 'bg-white text-brand-900 shadow-sm'
-                  : 'text-brand-500 hover:text-brand-900'
+                  ? 'border border-ink bg-white text-ink shadow-[1px_1px_0_#111111]'
+                  : 'text-ink-soft hover:text-ink'
               }`}
             >
               <Sliders className="h-3.5 w-3.5" />
@@ -302,29 +298,29 @@ export default function BillingPage() {
       />
 
       {/* Subscription Status Banner */}
-      <Panel className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5 border-brand-200 bg-brand-50">
+      <Panel className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
         <div className="flex items-center gap-4">
-          <span className="rounded-2xl border border-brand-200 bg-brand-50 p-3.5 text-brand-900 shadow-inner">
-            <CreditCard className="h-6 w-6" />
+          <span className="border border-ink bg-paper-2 p-3.5 text-ink shadow-[2px_2px_0_#111111]">
+            <CreditCard className="h-6 w-6 text-ember" />
           </span>
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-lg font-bold text-brand-900 tracking-tight">{currentPlanTitle}</h2>
-              <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-400">
+              <h2 className="lp-display text-lg font-bold text-ink tracking-tight">{currentPlanTitle}</h2>
+              <span className="border border-jade/40 bg-jade/10 px-2.5 py-0.5 text-[10px] font-mono font-bold text-jade">
                 Active Tier
               </span>
             </div>
-            <p className="text-xs text-brand-500 mt-1 flex items-center gap-3">
+            <p className="text-xs text-ink-soft mt-1 flex items-center gap-3 font-mono">
               <span>
-                Bot capacity: <strong className="text-brand-900">{currentBotLimit === 9999 ? 'Unlimited (∞)' : `${currentBotLimit} bot(s)`}</strong>
+                Bot capacity: <strong className="text-ink">{currentBotLimit === 9999 ? 'Unlimited (∞)' : `${currentBotLimit} bot(s)`}</strong>
               </span>
               {customLimits?.maxProxies > 0 && (
                 <span>
-                  • Dedicated proxies: <strong className="text-brand-900">{customLimits.maxProxies}</strong>
+                  • Dedicated proxies: <strong className="text-ink">{customLimits.maxProxies}</strong>
                 </span>
               )}
               {user?.preferences?.lastPayment?.paidAt && (
-                <span className="text-brand-500 hidden sm:inline">
+                <span className="text-ink-soft hidden sm:inline">
                   • Renewed: {new Date(user.preferences.lastPayment.paidAt).toLocaleDateString()}
                 </span>
               )}
@@ -332,17 +328,17 @@ export default function BillingPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="text-right sm:block hidden border-r border-brand-200 pr-4">
-            <span className="block text-[10px] uppercase font-semibold text-brand-500 tracking-wider">Tenant ID</span>
-            <span className="font-mono text-xs text-brand-500">#{user?.id?.slice(0, 8) || 'local'}</span>
+          <div className="text-right sm:block hidden border-r border-rule pr-4">
+            <span className="block lp-mono text-[10px] text-ink-faint">Tenant ID</span>
+            <span className="font-mono text-xs text-ink-soft">#{user?.id?.slice(0, 8) || 'local'}</span>
           </div>
           {userTier !== 'free' && (
             <Button
               variant="ghost"
               size="sm"
               disabled={loading}
-              onClick={() => changeSubscriptionLocal('free', 'downgrade')}
-              className="text-xs text-brand-500 hover:text-red-300"
+              onClick={downgradeToFree}
+              className="text-xs text-ember hover:bg-ember/10"
             >
               Downgrade to Free
             </Button>
@@ -356,50 +352,50 @@ export default function BillingPage() {
       {viewMode === 'custom' && (
         <div className="grid gap-6 lg:grid-cols-12">
           {/* Controls Box (8 cols) */}
-          <Panel className="p-7 lg:col-span-8 space-y-8 border-brand-200 bg-brand-50">
+          <Panel className="p-7 lg:col-span-8 space-y-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
             <div>
               <div className="flex items-center gap-2">
-                <span className="rounded-lg bg-brand-50 p-1.5 text-brand-900">
-                  <Sliders className="h-4 w-4" />
+                <span className="border border-ink bg-paper-2 p-1.5 text-ink shadow-[1px_1px_0_#111111]">
+                  <Sliders className="h-4 w-4 text-ember" />
                 </span>
-                <h3 className="text-base font-bold text-brand-900 tracking-tight">Custom Fleet Configurator</h3>
+                <h3 className="lp-display text-base font-bold text-ink tracking-tight">Custom Fleet Configurator</h3>
               </div>
-              <p className="text-xs text-brand-500 mt-1.5">
+              <p className="text-xs text-ink-soft mt-1.5">
                 Scale your fleet precisely. Pay only for the exact bot slots and dedicated proxies you need.
               </p>
             </div>
 
             {/* Slider 1: Bots Configuration */}
-            <div className="rounded-2xl border border-brand-200 bg-white p-5 space-y-4">
+            <div className="border border-rule bg-paper-2 p-5 space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Bot className="h-4 w-4 text-brand-500" />
+                  <Bot className="h-4 w-4 text-ember" />
                   <div>
-                    <h4 className="text-sm font-semibold text-brand-900">Minecraft Bot Capacity</h4>
-                    <p className="text-[11px] text-brand-500">$0.50 / bot per month</p>
+                    <h4 className="lp-display text-sm font-bold text-ink">Minecraft Bot Capacity</h4>
+                    <p className="text-[11px] text-ink-soft font-mono">$0.50 / bot per month</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center rounded-xl border border-brand-200 bg-brand-50 p-1">
+                  <div className="flex items-center border border-ink bg-white p-1 shadow-[1px_1px_0_#111111]">
                     <button
                       type="button"
                       onClick={() => setCustomBots(Math.max(1, customBots - 1))}
-                      className="rounded-lg p-1.5 text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition"
+                      className="p-1 text-ink-soft hover:text-ink cursor-pointer"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
-                    <span className="min-w-10 text-center font-mono text-sm font-bold text-brand-900">
+                    <span className="min-w-10 text-center font-mono text-sm font-bold text-ink">
                       {customBots}
                     </span>
                     <button
                       type="button"
                       onClick={() => setCustomBots(Math.min(100, customBots + 1))}
-                      className="rounded-lg p-1.5 text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition"
+                      className="p-1 text-ink-soft hover:text-ink cursor-pointer"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <span className="text-xs font-semibold text-brand-500 min-w-16 text-right">
+                  <span className="text-xs font-mono font-bold text-ink min-w-16 text-right">
                     ${(customBots * BOT_UNIT_PRICE).toFixed(2)}/mo
                   </span>
                 </div>
@@ -413,20 +409,20 @@ export default function BillingPage() {
                 step="1"
                 value={customBots}
                 onChange={(e) => setCustomBots(parseInt(e.target.value, 10))}
-                className="w-full h-1.5 bg-brand-50 rounded-lg appearance-none cursor-pointer accent-white"
+                className="w-full h-2 bg-rule appearance-none cursor-pointer accent-[#ff4400]"
               />
 
               {/* Quick bot chips */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-wrap gap-2 pt-1 font-mono">
                 {[1, 3, 5, 10, 20, 30, 50].map((b) => (
                   <button
                     key={b}
                     type="button"
                     onClick={() => setCustomBots(b)}
-                    className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition ${
+                    className={`border px-2.5 py-1 text-[11px] transition cursor-pointer ${
                       customBots === b
-                        ? 'border-brand-200 bg-brand-50 text-brand-900 font-semibold'
-                        : 'border-brand-200 bg-brand-50 text-brand-500 hover:border-brand-200 hover:text-brand-900'
+                        ? 'border-ink bg-white text-ink font-bold shadow-[2px_2px_0_#111111]'
+                        : 'border-rule bg-white/70 text-ink-soft hover:border-ink hover:text-ink'
                     }`}
                   >
                     {b} {b === 1 ? 'Bot' : 'Bots'} (${(b * BOT_UNIT_PRICE).toFixed(2)})
@@ -436,36 +432,36 @@ export default function BillingPage() {
             </div>
 
             {/* Slider 2: Dedicated Premium Proxies Configuration */}
-            <div className="rounded-2xl border border-brand-200 bg-white p-5 space-y-4">
+            <div className="border border-rule bg-paper-2 p-5 space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <Network className="h-4 w-4 text-brand-500" />
+                  <Network className="h-4 w-4 text-jade" />
                   <div>
-                    <h4 className="text-sm font-semibold text-brand-900">Dedicated Premium SOCKS5 Proxies</h4>
-                    <p className="text-[11px] text-brand-500">$0.50 / proxy per month (or bring your own)</p>
+                    <h4 className="lp-display text-sm font-bold text-ink">Dedicated Premium SOCKS5 Proxies</h4>
+                    <p className="text-[11px] text-ink-soft font-mono">$0.50 / proxy per month (or bring your own)</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center rounded-xl border border-brand-200 bg-brand-50 p-1">
+                  <div className="flex items-center border border-ink bg-white p-1 shadow-[1px_1px_0_#111111]">
                     <button
                       type="button"
                       onClick={() => setCustomProxies(Math.max(0, customProxies - 1))}
-                      className="rounded-lg p-1.5 text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition"
+                      className="p-1 text-ink-soft hover:text-ink cursor-pointer"
                     >
                       <Minus className="h-3.5 w-3.5" />
                     </button>
-                    <span className="min-w-10 text-center font-mono text-sm font-bold text-brand-900">
+                    <span className="min-w-10 text-center font-mono text-sm font-bold text-ink">
                       {customProxies}
                     </span>
                     <button
                       type="button"
                       onClick={() => setCustomProxies(Math.min(30, customProxies + 1))}
-                      className="rounded-lg p-1.5 text-brand-500 hover:bg-brand-50 hover:text-brand-900 transition"
+                      className="p-1 text-ink-soft hover:text-ink cursor-pointer"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <span className="text-xs font-semibold text-brand-500 min-w-16 text-right">
+                  <span className="text-xs font-mono font-bold text-ink min-w-16 text-right">
                     ${(customProxies * PROXY_UNIT_PRICE).toFixed(2)}/mo
                   </span>
                 </div>
@@ -479,20 +475,20 @@ export default function BillingPage() {
                 step="1"
                 value={customProxies}
                 onChange={(e) => setCustomProxies(parseInt(e.target.value, 10))}
-                className="w-full h-1.5 bg-brand-50 rounded-lg appearance-none cursor-pointer accent-white"
+                className="w-full h-2 bg-rule appearance-none cursor-pointer accent-[#ff4400]"
               />
 
               {/* Quick proxy chips */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-wrap gap-2 pt-1 font-mono">
                 {[0, 1, 2, 5, 10, 15, 20].map((p) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => setCustomProxies(p)}
-                    className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition ${
+                    className={`border px-2.5 py-1 text-[11px] transition cursor-pointer ${
                       customProxies === p
-                        ? 'border-brand-200 bg-brand-50 text-brand-900 font-semibold'
-                        : 'border-brand-200 bg-brand-50 text-brand-500 hover:border-brand-200 hover:text-brand-900'
+                        ? 'border-ink bg-white text-ink font-bold shadow-[2px_2px_0_#111111]'
+                        : 'border-rule bg-white/70 text-ink-soft hover:border-ink hover:text-ink'
                     }`}
                   >
                     {p === 0 ? '0 (Bring Own)' : `${p} Proxies ($${(p * PROXY_UNIT_PRICE).toFixed(2)})`}
@@ -502,66 +498,66 @@ export default function BillingPage() {
             </div>
 
             {/* Included Platform Perks */}
-            <div className="pt-2 border-t border-brand-200 grid sm:grid-cols-2 gap-3 text-xs text-brand-500">
+            <div className="pt-2 border-t border-rule grid sm:grid-cols-2 gap-3 text-xs text-ink-soft font-mono">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-jade shrink-0" />
                 <span>Private SOCKS5 Proxy Dialing unlocked</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-jade shrink-0" />
                 <span>Live Real-Time SSE Log & Inventory streaming</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-jade shrink-0" />
                 <span>All Mining, PvP & Auto-Farm modules enabled</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-jade shrink-0" />
                 <span>Hot-reloading Visual Scripts & Cron Schedules</span>
               </div>
             </div>
           </Panel>
 
           {/* Right Column: Pricing Summary & Instant Checkout */}
-          <Panel className="p-7 lg:col-span-4 flex flex-col justify-between border-brand-200 bg-brand-50 shadow-sm relative overflow-hidden">
+          <Panel className="p-7 lg:col-span-4 flex flex-col justify-between border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] relative overflow-hidden">
             <div className="space-y-6">
               <div>
-                <span className="inline-block rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-900">
+                <span className="inline-block border border-ink bg-paper-2 px-3 py-1 lp-mono text-[10px] text-ink">
                   Order Summary
                 </span>
-                <h3 className="text-xl font-bold text-brand-900 mt-3">Calculated Price</h3>
-                <p className="text-xs text-brand-500 mt-1">Instant provisioning upon checkout</p>
+                <h3 className="lp-display text-xl font-bold text-ink mt-3">Calculated Price</h3>
+                <p className="text-xs text-ink-soft mt-1 font-mono">Instant provisioning upon checkout</p>
               </div>
 
               {/* Cost breakdown */}
-              <div className="space-y-3 rounded-2xl border border-brand-200 bg-white p-4 text-xs">
-                <div className="flex items-center justify-between text-brand-500">
+              <div className="space-y-3 border border-rule bg-paper-2 p-4 text-xs font-mono">
+                <div className="flex items-center justify-between text-ink-soft">
                   <span>{customCalculation.botsCount} × Bot Slots ($0.50)</span>
-                  <span className="font-mono font-medium text-brand-900">${customCalculation.botsTotal.toFixed(2)}</span>
+                  <span className="font-mono font-bold text-ink">${customCalculation.botsTotal.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center justify-between text-brand-500">
+                <div className="flex items-center justify-between text-ink-soft">
                   <span>{customCalculation.proxiesCount} × Proxies ($0.50)</span>
-                  <span className="font-mono font-medium text-brand-900">${customCalculation.proxiesTotal.toFixed(2)}</span>
+                  <span className="font-mono font-bold text-ink">${customCalculation.proxiesTotal.toFixed(2)}</span>
                 </div>
-                <div className="border-t border-brand-200 pt-3 flex items-baseline justify-between">
-                  <span className="font-semibold text-brand-900">Total Monthly</span>
+                <div className="border-t border-rule pt-3 flex items-baseline justify-between">
+                  <span className="font-bold text-ink">Total Monthly</span>
                   <div className="text-right">
-                    <span className="text-2xl font-extrabold text-brand-900 tracking-tight">
+                    <span className="text-2xl font-bold text-ink tracking-tight font-mono">
                       ${customCalculation.totalPrice.toFixed(2)}
                     </span>
-                    <span className="text-[11px] text-brand-500 ml-1">/ mo</span>
+                    <span className="text-[11px] text-ink-soft ml-1">/ mo</span>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-2 text-[11px] text-brand-500">
+              <div className="space-y-2 text-[11px] text-ink-soft font-mono">
                 <p className="flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-brand-500" />
+                  <ShieldCheck className="h-3.5 w-3.5 text-jade" />
                   <span>Cancel or adjust capacity anytime with zero lock-in</span>
                 </p>
                 <p className="flex items-center gap-1.5">
-                  <Lock className="h-3.5 w-3.5 text-brand-500" />
-                  <span>Real 256-bit encrypted checkout via PayPal & Cards</span>
+                  <Lock className="h-3.5 w-3.5 text-ink-soft" />
+                  <span>Real 256-bit encrypted checkout via Stripe & Cards</span>
                 </p>
               </div>
             </div>
@@ -570,10 +566,10 @@ export default function BillingPage() {
               <Button
                 variant="primary"
                 size="lg"
-                className="w-full font-bold shadow-lg"
+                className="w-full"
                 onClick={initiateCustomPayment}
               >
-                <Zap className="h-4 w-4 mr-1.5 fill-black" />
+                <Zap className="h-4 w-4 mr-1.5" />
                 Deploy Custom Fleet ({customCalculation.formattedPrice})
               </Button>
             </div>
@@ -591,84 +587,76 @@ export default function BillingPage() {
             return (
               <div
                 key={plan.id}
-                className={`relative flex flex-col justify-between rounded-2xl p-8 transition-transform duration-500 hover:-translate-y-1 ${
+                className={`relative flex flex-col justify-between p-7 transition-all duration-150 ${
                   plan.highlight
-                    ? 'bg-white shadow-xl border-2 border-blurple-500 z-10 scale-[1.02]'
-                    : 'bg-white border border-brand-200 shadow-sm hover:shadow-md'
+                    ? 'border-2 border-ember bg-white shadow-[4px_4px_0_#ff4400] z-10'
+                    : 'border border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] hover:border-ink'
                 }`}
               >
                 {/* Active Plan or Badge */}
                 <div className="mb-6 flex justify-between items-start">
                   <span
-                    className={`inline-flex px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase ${
+                    className={`inline-flex px-2.5 py-1 border text-[10px] lp-mono font-bold ${
                       isCurrent
-                        ? 'bg-emerald-100 text-emerald-700'
+                        ? 'border-jade bg-jade/10 text-jade'
                         : plan.highlight
-                        ? 'bg-blurple-500 text-white'
-                        : 'bg-brand-100 text-brand-700'
+                        ? 'border-ember bg-ember text-white shadow-[1px_1px_0_#111111]'
+                        : 'border-rule bg-paper-2 text-ink-soft'
                     }`}
                   >
                     {isCurrent ? 'Current Plan' : plan.badge}
                   </span>
                   {plan.highlight && !isCurrent && (
-                    <Sparkles className="h-5 w-5 text-blurple-500" />
+                    <Sparkles className="h-5 w-5 text-ember" />
                   )}
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-brand-900">{plan.name}</h3>
+                  <h3 className="lp-display text-xl font-bold text-ink">{plan.name}</h3>
                   
                   <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-5xl font-extrabold tracking-tight text-brand-900">{plan.price}</span>
-                    {plan.period && <span className="text-sm font-medium text-brand-500">{plan.period}</span>}
+                    <span className="lp-display text-4xl font-bold tracking-tight text-ink">{plan.price}</span>
+                    {plan.period && <span className="text-xs font-mono text-ink-soft">{plan.period}</span>}
                   </div>
                   
-                  <p className="mt-4 text-sm text-brand-600 leading-relaxed min-h-[40px]">
+                  <p className="mt-3 text-xs text-ink-soft leading-relaxed min-h-[36px]">
                     {plan.description}
                   </p>
 
-                  <ul className="mt-8 space-y-4">
+                  <ul className="mt-6 space-y-3 font-mono text-xs">
                     {plan.features.map((feat, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <Check className={`h-5 w-5 shrink-0 ${plan.highlight ? 'text-blurple-500' : 'text-brand-400'}`} />
-                        <span className="text-sm font-medium text-brand-700 leading-snug">{feat}</span>
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.highlight ? 'text-ember' : 'text-jade'}`} />
+                        <span className="text-ink-soft leading-snug">{feat}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="mt-10">
+                <div className="mt-8">
                   {plan.id === 'free' ? (
-                    <button
-                      className={`w-full h-12 rounded-xl text-sm font-bold transition-all ${
-                        isCurrent 
-                          ? 'bg-brand-50 text-brand-500 cursor-not-allowed'
-                          : 'bg-white border border-brand-200 text-brand-900 hover:bg-brand-50 shadow-sm'
-                      }`}
+                    <Button
+                      variant={isCurrent ? 'ghost' : 'secondary'}
+                      className="w-full"
                       disabled={isCurrent || loading}
-                      onClick={() => changeSubscriptionLocal('free', 'free_downgrade')}
+                      onClick={downgradeToFree}
                     >
                       {isCurrent ? 'Active Plan' : 'Downgrade to Free'}
-                    </button>
+                    </Button>
                   ) : (
-                    <button
-                      className={`w-full h-12 rounded-xl text-sm font-bold flex items-center justify-center transition-all ${
-                        isCurrent
-                          ? 'bg-brand-50 text-brand-500 cursor-not-allowed border border-brand-200'
-                          : plan.highlight
-                          ? 'bg-blurple-500 text-white hover:bg-blurple-600 shadow-md hover:shadow-lg'
-                          : 'bg-white border border-brand-200 text-brand-900 hover:bg-brand-50 shadow-sm'
-                      }`}
+                    <Button
+                      variant={plan.highlight ? 'primary' : 'secondary'}
+                      className="w-full"
                       disabled={isCurrent || loading}
                       onClick={() => initiatePresetPayment(plan)}
                     >
                       {loading && selectedPlanForPayment?.id === plan.id ? (
                         <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
-                        !isCurrent && <Zap className="h-4 w-4 mr-2 fill-current" />
+                        !isCurrent && <Zap className="h-4 w-4 mr-2" />
                       )}
                       {isCurrent ? 'Subscribed' : `Upgrade (${plan.price})`}
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -690,60 +678,61 @@ export default function BillingPage() {
         <div className="space-y-5 py-2">
           
           {/* Itemized Order Summary Box */}
-          <div className="rounded-2xl border border-brand-200 bg-brand-50 p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-brand-200">
+          <div className="border border-rule bg-paper-2 p-5 space-y-4 shadow-sm font-mono">
+            <div className="flex items-center justify-between pb-3 border-b border-rule">
               <div>
-                <h4 className="text-sm font-bold text-brand-900">{selectedPlanForPayment?.name}</h4>
-                <p className="text-xs text-brand-500 mt-0.5">
+                <h4 className="text-sm font-bold text-ink">{selectedPlanForPayment?.name}</h4>
+                <p className="text-xs text-ink-soft mt-0.5">
                   {selectedPlanForPayment?.isCustom
                     ? `${selectedPlanForPayment.limit} Bots + ${selectedPlanForPayment.proxiesLimit} Dedicated Proxies`
                     : `Capacity: ${selectedPlanForPayment?.limit === 9999 ? 'Unlimited' : selectedPlanForPayment?.limit} Bots`}
                 </p>
               </div>
-              <span className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] px-2.5 py-1 font-semibold">
+              <span className="border border-jade/40 bg-jade/10 text-jade text-[10px] px-2.5 py-1 font-bold">
                 Instant Access
               </span>
             </div>
 
             {/* Price Line */}
             <div className="flex items-baseline justify-between pt-1">
-              <span className="text-xs text-brand-500">Total Amount Due</span>
+              <span className="text-xs text-ink-soft">Total Amount Due</span>
               <div className="text-right">
-                <span className="text-2xl font-black text-brand-900 font-mono">
+                <span className="text-2xl font-bold text-ink font-mono">
                   {selectedPlanForPayment?.price}
                 </span>
-                <span className="text-xs text-brand-500 ml-1">USD / month</span>
+                <span className="text-xs text-ink-soft ml-1">USD / month</span>
               </div>
             </div>
           </div>
 
           {/* Stripe Checkout Action */}
           <div className="pt-2">
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={proceedToCheckout}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-blurple-500 hover:bg-blurple-600 text-white font-semibold py-3.5 transition disabled:opacity-50 shadow-sm"
+              className="w-full py-3 text-sm font-mono font-bold uppercase tracking-wider shadow-[3px_3px_0_#111111]"
             >
               {loading ? (
-                <RefreshCw className="h-4 w-4 anim-spin" />
+                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
               ) : (
-                <CreditCard className="h-4 w-4" />
+                <CreditCard className="h-4 w-4 mr-2" />
               )}
               {loading ? 'Connecting to Stripe...' : 'Proceed to Secure Checkout'}
-            </button>
+            </Button>
           </div>
 
           {/* Security & Buyer Protection Footer */}
-          <div className="pt-2 border-t border-brand-200 flex items-center justify-between text-[11px] text-brand-500">
+          <div className="pt-2 border-t border-rule flex items-center justify-between text-[11px] font-mono text-ink-soft">
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+              <ShieldCheck className="h-3.5 w-3.5 text-jade shrink-0" />
               <span>256-Bit SSL Encrypted & Secured by Stripe</span>
             </div>
             <button
               type="button"
               onClick={() => setCheckoutModalOpen(false)}
-              className="text-brand-500 hover:text-brand-900 transition"
+              className="text-ink-soft hover:text-ink cursor-pointer"
             >
               Cancel
             </button>
@@ -753,13 +742,13 @@ export default function BillingPage() {
       </Modal>
 
       {/* Multi-Tenant Security & Infrastructure */}
-      <Panel className="flex items-start gap-4 p-5 border border-brand-200 bg-brand-50">
-        <span className="rounded-xl border border-brand-200 bg-brand-50 p-3 text-brand-900">
-          <ShieldCheck className="h-5 w-5" />
+      <Panel className="flex items-start gap-4 p-5 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+        <span className="border border-ink bg-paper-2 p-3 text-ink shadow-[1px_1px_0_#111111]">
+          <ShieldCheck className="h-5 w-5 text-ember" />
         </span>
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-brand-900">Multi-Tenant Isolation & Proxy Infrastructure</h3>
-          <p className="text-xs leading-relaxed text-brand-500">
+          <h3 className="lp-display text-sm font-bold text-ink">Multi-Tenant Isolation & Proxy Infrastructure</h3>
+          <p className="text-xs leading-relaxed text-ink-soft font-mono">
             Every custom bot slot runs in an isolated worker sandbox with its own memory allocations and pathfinder instances.
             Paid and Custom tier accounts dial private SOCKS5 proxies per-bot with automatic fallback and anti-freeze detection.
           </p>

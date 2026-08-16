@@ -29,11 +29,21 @@ export default function SchedulesPage() {
 
   const load = useCallback(async (quiet = false) => {
     if (!quiet) setLoading(true);
-    try { const result = await api('/schedules'); setSchedules(result.schedules || []); }
-    catch (error) { if (!quiet) toast(error.message, 'error'); } finally { if (!quiet) setLoading(false); }
+    try {
+      const result = await api('/schedules');
+      setSchedules(result.schedules || []);
+    } catch (error) {
+      if (!quiet) toast(error.message, 'error');
+    } finally {
+      if (!quiet) setLoading(false);
+    }
   }, [toast]);
 
-  useEffect(() => { load(); const timer = window.setInterval(() => load(true), 4000); return () => window.clearInterval(timer); }, [load]);
+  useEffect(() => {
+    load();
+    const timer = window.setInterval(() => load(true), 4000);
+    return () => window.clearInterval(timer);
+  }, [load]);
 
   const counts = useMemo(() => ({
     pending: schedules.filter((item) => ['pending', 'running'].includes(item.status)).length,
@@ -42,7 +52,11 @@ export default function SchedulesPage() {
   }), [schedules]);
 
   const open = () => {
-    setAction('start'); setRunAt(defaultDateValue()); setTimeZone('local'); setBotIds(bots.map((bot) => bot.id)); setModalOpen(true);
+    setAction('start');
+    setRunAt(defaultDateValue());
+    setTimeZone('local');
+    setBotIds(bots.map((bot) => bot.id));
+    setModalOpen(true);
   };
   const toggleBot = (id, checked) => setBotIds((current) => checked ? [...new Set([...current, id])] : current.filter((item) => item !== id));
 
@@ -56,14 +70,23 @@ export default function SchedulesPage() {
       toast(`${action === 'start' ? 'Start' : 'Stop'} action scheduled`, 'success');
       setModalOpen(false);
       await load();
-    } catch (error) { toast(error.message, 'error'); } finally { setSaving(false); }
+    } catch (error) {
+      toast(error.message, 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (schedule) => {
     const verb = schedule.status === 'pending' ? 'cancel' : 'remove';
     if (!window.confirm(`${verb === 'cancel' ? 'Cancel' : 'Remove'} this schedule?`)) return;
-    try { await api(`/schedules/${encodeURIComponent(schedule.id)}`, { method: 'DELETE' }); toast(`Schedule ${verb}led`, 'success'); await load(); }
-    catch (error) { toast(error.message, 'error'); }
+    try {
+      await api(`/schedules/${encodeURIComponent(schedule.id)}`, { method: 'DELETE' });
+      toast(`Schedule ${verb}led`, 'success');
+      await load();
+    } catch (error) {
+      toast(error.message, 'error');
+    }
   };
 
   const sorted = [...schedules].sort((a, b) => {
@@ -74,8 +97,22 @@ export default function SchedulesPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <PageHeader eyebrow="Automation" title="Schedules" description="Start or stop selected bots at an exact local or UTC time, even while the panel is closed." actions={<><Button size="sm" onClick={() => load()} loading={loading}><RefreshCw className="h-3.5 w-3.5" />Refresh</Button><Button size="sm" variant="primary" onClick={open}><Plus className="h-3.5 w-3.5" />New schedule</Button></>} />
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      <PageHeader
+        eyebrow="Automation"
+        title="Schedules"
+        description="Start or stop selected bots at an exact local or UTC time, even while the panel is closed."
+        actions={
+          <>
+            <Button size="sm" variant="secondary" onClick={() => load()} loading={loading}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1" />Refresh
+            </Button>
+            <Button size="sm" variant="primary" onClick={open}>
+              <Plus className="h-3.5 w-3.5 mr-1" />New schedule
+            </Button>
+          </>
+        }
+      />
       {loading ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
@@ -105,33 +142,33 @@ export default function SchedulesPage() {
       ) : sorted.length ? (
         <div className="space-y-3">
           {sorted.map((schedule) => (
-            <Panel key={schedule.id} className="p-4 sm:p-5">
+            <Panel key={schedule.id} className="p-4 sm:p-5 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <span className={`rounded-lg border p-2.5 ${schedule.action === 'start' ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400' : 'border-red-500/25 bg-red-500/10 text-red-400'}`}>
+                <span className={`border p-2.5 shadow-[1px_1px_0_#111111] ${schedule.action === 'start' ? 'border-jade bg-jade/10 text-jade' : 'border-ember bg-ember/10 text-ember'}`}>
                   {schedule.action === 'start' ? <Play className="h-4 w-4" /> : <CircleStop className="h-4 w-4" />}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold text-brand-900">{schedule.action === 'start' ? 'Start bots' : 'Stop bots'}</h2>
+                    <h2 className="lp-display font-bold text-base text-ink">{schedule.action === 'start' ? 'Start bots' : 'Stop bots'}</h2>
                     <StatusBadge status={schedule.status} />
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-brand-500">
+                  <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs font-mono text-ink-soft">
                     <span>{formatDate(schedule.runAt)}</span>
                     <span>{relativeTime(schedule.runAt)}</span>
                     <span>{schedule.timeZone === 'UTC' ? 'UTC input' : 'Local input'}</span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-1.5">
+                  <div className="mt-3 flex flex-wrap gap-1.5 font-mono">
                     {(schedule.botIds || []).slice(0, 10).map((id) => {
                       const bot = bots.find((item) => item.id === id);
-                      return <span key={id} className="rounded-md border border-brand-200 bg-brand-50 px-2 py-1 text-[10px] text-brand-600">{bot ? botLabel(bot) : id}</span>;
+                      return <span key={id} className="border border-rule bg-paper-2 px-2 py-1 text-[10px] text-ink">{bot ? botLabel(bot) : id}</span>;
                     })}
-                    {(schedule.botIds || []).length > 10 && <span className="rounded-md bg-brand-100 px-2 py-1 text-[10px] text-brand-500">+{schedule.botIds.length - 10} more</span>}
+                    {(schedule.botIds || []).length > 10 && <span className="border border-rule bg-paper px-2 py-1 text-[10px] text-ink-soft">+{schedule.botIds.length - 10} more</span>}
                   </div>
-                  {!['pending', 'running'].includes(schedule.status) && <p className="mt-3 text-xs text-brand-500">{schedule.ok || 0} completed · {schedule.skipped || 0} skipped · {schedule.failed || 0} failed</p>}
+                  {!['pending', 'running'].includes(schedule.status) && <p className="mt-3 text-xs font-mono text-ink-soft">{schedule.ok || 0} completed · {schedule.skipped || 0} skipped · {schedule.failed || 0} failed</p>}
                 </div>
                 {schedule.status !== 'running' && (
                   <Button size="sm" variant={schedule.status === 'pending' ? 'danger' : 'ghost'} onClick={() => remove(schedule)}>
-                    <Trash2 className="h-3.5 w-3.5" />{schedule.status === 'pending' ? 'Cancel' : 'Remove'}
+                    <Trash2 className="h-3.5 w-3.5 mr-1" />{schedule.status === 'pending' ? 'Cancel' : 'Remove'}
                   </Button>
                 )}
               </div>
@@ -139,15 +176,15 @@ export default function SchedulesPage() {
           ))}
         </div>
       ) : !loading && (
-        <Panel>
-          <EmptyState icon={CalendarClock} title="No schedules yet" description="Create a lifecycle schedule that runs independently of your browser session." action={<Button variant="primary" onClick={open}><Plus className="h-4 w-4" />New schedule</Button>} />
+        <Panel className="p-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+          <EmptyState icon={CalendarClock} title="No schedules yet" description="Create a lifecycle schedule that runs independently of your browser session." action={<Button variant="primary" onClick={open}><Plus className="h-4 w-4 mr-1" />New schedule</Button>} />
         </Panel>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Schedule bot action" description="This action runs on the server even if you sign out." wide footer={<><Button onClick={() => setModalOpen(false)}>Cancel</Button><Button variant="primary" onClick={create} loading={saving} disabled={!botIds.length || !runAt}>Create schedule</Button></>}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label>
-            <span className="field-label">Action</span>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Schedule bot action" description="This action runs on the server even if you sign out." wide footer={<><Button variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button><Button variant="primary" onClick={create} loading={saving} disabled={!botIds.length || !runAt}>Create schedule</Button></>}>
+        <div className="grid gap-4 sm:grid-cols-2 py-2">
+          <label className="block">
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Action</span>
             <Select
               value={action}
               onChange={setAction}
@@ -157,8 +194,8 @@ export default function SchedulesPage() {
               ]}
             />
           </label>
-          <label>
-            <span className="field-label">Time zone</span>
+          <label className="block">
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Time zone</span>
             <Select
               value={timeZone}
               onChange={setTimeZone}
@@ -168,23 +205,42 @@ export default function SchedulesPage() {
               ]}
             />
           </label>
-          <label className="sm:col-span-2">
-            <span className="field-label">Date and time</span>
-            <input type="datetime-local" className="field-control" value={runAt} onChange={(event) => setRunAt(event.target.value)} />
+          <label className="sm:col-span-2 block">
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Date and time</span>
+            <input
+              type="datetime-local"
+              className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
+              value={runAt}
+              onChange={(event) => setRunAt(event.target.value)}
+            />
           </label>
           <div className="sm:col-span-2">
             <div className="mb-2 flex items-center justify-between">
-              <span className="field-label mb-0">Target bots</span>
-              <button onClick={() => setBotIds(botIds.length === bots.length ? [] : bots.map((bot) => bot.id))} className="text-xs font-semibold text-brand-600">
+              <span className="lp-mono text-[10px] text-ink-soft uppercase mb-0">Target bots</span>
+              <button
+                type="button"
+                onClick={() => setBotIds(botIds.length === bots.length ? [] : bots.map((bot) => bot.id))}
+                className="text-xs font-mono font-bold text-ember hover:underline cursor-pointer"
+              >
                 {botIds.length === bots.length ? 'Clear all' : 'Select all'}
               </button>
             </div>
             {bots.length ? (
-              <div className="grid max-h-72 gap-2 overflow-y-auto sm:grid-cols-2">
-                {bots.map((bot) => <Checkbox key={bot.id} checked={botIds.includes(bot.id)} onChange={(checked) => toggleBot(bot.id, checked)} label={botLabel(bot)} description={`${bot.id} · ${bot.status || 'stopped'}`} />)}
+              <div className="grid max-h-72 gap-2 overflow-y-auto sm:grid-cols-2 pr-1">
+                {bots.map((bot) => (
+                  <Checkbox
+                    key={bot.id}
+                    checked={botIds.includes(bot.id)}
+                    onChange={(checked) => toggleBot(bot.id, checked)}
+                    label={botLabel(bot)}
+                    description={`${bot.id} · ${bot.status || 'stopped'}`}
+                  />
+                ))}
               </div>
             ) : (
-              <p className="rounded-lg border border-brand-200 bg-brand-50 p-3 text-sm text-brand-500">No bots are available to schedule.</p>
+              <p className="border border-rule bg-paper-2 p-3 text-xs text-ink-soft font-mono">
+                No bots are available to schedule.
+              </p>
             )}
           </div>
         </div>

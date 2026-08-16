@@ -369,11 +369,6 @@ export default function BotsPage() {
       return <EmptyState icon={WandSparkles} title="Inventory empty or offline" description="Start the bot and connect it to a server to load its live inventory details." />;
     }
 
-    // Slots index:
-    // Armor: 5,6,7,8 (head, chest, legs, feet)
-    // Main inventory: 9-35 (3 rows of 9)
-    // Hotbar: 36-44 (1 row of 9)
-    // Offhand: 45
     const slots = {};
     inv.items.forEach((it) => {
       slots[it.slot] = it;
@@ -388,12 +383,12 @@ export default function BotsPage() {
       const it = slots[index];
       if (!it) return null;
       return (
-        <div className="group relative flex h-full w-full items-center justify-center bg-brand-50 transition hover:bg-brand-50" title={`${it.displayName} (Count: ${it.count})`}>
-          <Package className="h-5 w-5 text-brand-500" />
-          <span className="tnum absolute bottom-1 right-1 text-[10px] font-bold text-brand-900">{it.count > 1 ? it.count : ''}</span>
-          <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 scale-90 rounded-lg bg-brand-50 px-2.5 py-1.5 text-[11px] text-brand-900 opacity-0 shadow-xl transition-all group-hover:scale-100 group-hover:opacity-100">
-            <p className="font-semibold">{it.displayName || it.name}</p>
-            <p className="mt-0.5 text-[9px] text-brand-500">Slot {index} · {it.name}</p>
+        <div className="group relative flex h-full w-full items-center justify-center bg-paper-2 transition hover:bg-white" title={`${it.displayName} (Count: ${it.count})`}>
+          <Package className="h-5 w-5 text-ink-soft" />
+          <span className="font-mono absolute bottom-1 right-1 text-[10px] font-bold text-ink">{it.count > 1 ? it.count : ''}</span>
+          <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 scale-90 border border-ink bg-white px-2.5 py-1.5 text-[11px] text-ink opacity-0 shadow-[4px_4px_0_#111111] transition-all group-hover:scale-100 group-hover:opacity-100">
+            <p className="font-bold">{it.displayName || it.name}</p>
+            <p className="mt-0.5 text-[9px] text-ink-soft font-mono">Slot {index} · {it.name}</p>
           </div>
         </div>
       );
@@ -405,16 +400,16 @@ export default function BotsPage() {
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex gap-2">
             {[5, 6, 7, 8].map((s) => (
-              <div key={s} className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-brand-200 bg-brand-50">
-                <span className="absolute left-1 top-0.5 text-[8px] text-brand-500">{['H', 'C', 'L', 'F'][s - 5]}</span>
+              <div key={s} className="relative flex h-12 w-12 items-center justify-center border border-ink/20 bg-paper-2 shadow-sm">
+                <span className="absolute left-1 top-0.5 text-[8px] font-mono text-ink-faint">{['H', 'C', 'L', 'F'][s - 5]}</span>
                 {getSlotContent(s)}
               </div>
             ))}
           </div>
-          <div className="h-8 w-px bg-brand-50" />
+          <div className="h-8 w-px bg-rule" />
           <div className="flex items-center gap-2">
-            <span className="text-xs text-brand-500">Offhand:</span>
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-xl border border-brand-200 bg-brand-50">
+            <span className="text-xs font-mono text-ink-soft">Offhand:</span>
+            <div className="relative flex h-12 w-12 items-center justify-center border border-ink/20 bg-paper-2 shadow-sm">
               {getSlotContent(45)}
             </div>
           </div>
@@ -422,11 +417,11 @@ export default function BotsPage() {
 
         {/* Main Grid */}
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">Main Inventory</p>
-          <div className="grid grid-cols-9 gap-1.5 rounded-2xl border border-brand-200 bg-brand-50 p-2">
+          <p className="lp-mono text-[10px] text-ink-faint">Main Inventory</p>
+          <div className="grid grid-cols-9 gap-1.5 border border-ink/20 bg-paper-2 p-2 shadow-sm">
             {Array.from({ length: 27 }, (_, i) => i + 9).map((s) => (
-              <div key={s} className="relative aspect-square rounded-lg border border-brand-200 bg-white overflow-hidden">
-                <span className="absolute left-1 top-0.5 text-[7px] text-brand-500 select-none">{s}</span>
+              <div key={s} className="relative aspect-square border border-rule bg-white overflow-hidden">
+                <span className="absolute left-1 top-0.5 text-[7px] font-mono text-ink-faint select-none">{s}</span>
                 {getSlotContent(s)}
               </div>
             ))}
@@ -435,11 +430,11 @@ export default function BotsPage() {
 
         {/* Hotbar */}
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">Hotbar</p>
-          <div className="grid grid-cols-9 gap-1.5 rounded-2xl border border-brand-200 bg-brand-50 p-2">
+          <p className="lp-mono text-[10px] text-ink-faint">Hotbar</p>
+          <div className="grid grid-cols-9 gap-1.5 border border-ink/20 bg-paper-2 p-2 shadow-sm">
             {Array.from({ length: 9 }, (_, i) => i + 36).map((s) => (
-              <div key={s} className="relative aspect-square rounded-lg border border-brand-200 bg-white overflow-hidden">
-                <span className="absolute left-1 top-0.5 text-[7px] text-brand-500 select-none">{s}</span>
+              <div key={s} className="relative aspect-square border border-rule bg-white overflow-hidden">
+                <span className="absolute left-1 top-0.5 text-[7px] font-mono text-ink-faint select-none">{s}</span>
                 {getSlotContent(s)}
               </div>
             ))}
@@ -467,7 +462,7 @@ export default function BotsPage() {
         {/* LEFT COLUMN: Bot Roster */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-brand-500">Roster ({bots.length})</span>
+            <span className="lp-mono text-[10px] text-ink-faint">Roster ({bots.length})</span>
             <Button size="sm" variant="secondary" onClick={() => setAddOpen(true)} className="text-xs">
               <Plus className="h-3 w-3 mr-1" /> Add Bot
             </Button>
@@ -476,7 +471,7 @@ export default function BotsPage() {
           {/* Search and status filter */}
           <div className="space-y-2">
             <input
-              className="field-control text-xs"
+              className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -498,7 +493,7 @@ export default function BotsPage() {
           {loading ? (
             <div className="space-y-2">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="panel-surface p-4 flex items-center justify-between">
+                <div key={i} className="border border-rule bg-white p-4 flex items-center justify-between shadow-sm">
                   <div className="flex items-center gap-3">
                     <Skeleton className="h-9 w-9 shrink-0" />
                     <div className="space-y-1">
@@ -506,34 +501,34 @@ export default function BotsPage() {
                       <Skeleton className="h-3 w-20" />
                     </div>
                   </div>
-                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-5 w-14" />
                 </div>
               ))}
             </div>
           ) : filteredBots.length > 0 ? (
-            <div className="space-y-1.5 max-h-[72vh] overflow-y-auto console-scrollbar pr-1">
+            <div className="space-y-1.5 max-h-[72vh] overflow-y-auto pr-1">
               {filteredBots.map((b) => {
                 const active = b.id === selectedBotId;
                 return (
                   <button
                     key={b.id}
                     onClick={() => selectBot(b.id)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all duration-300 flex items-center justify-between ${
+                    className={`w-full text-left p-3.5 border transition-all duration-150 flex items-center justify-between cursor-pointer ${
                       active
-                        ? 'border-brand-200 bg-brand-50 text-brand-900'
-                        : 'border-brand-200 bg-brand-50 text-brand-500 hover:bg-brand-50 hover:border-brand-200 hover:text-brand-900'
+                        ? 'border-ink bg-white text-ink shadow-[3px_3px_0_#111111] font-bold'
+                        : 'border-ink/20 bg-paper-2 text-ink-soft hover:bg-white hover:border-ink hover:text-ink shadow-sm'
                     }`}
                   >
                     <div className="min-w-0 flex-1 flex items-center gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-brand-200 bg-brand-50 text-xs font-black uppercase text-brand-500">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-ink bg-paper font-mono text-xs font-bold uppercase text-ink shadow-[1px_1px_0_#111111]">
                         {botLabel(b).slice(0, 2)}
                       </span>
                       <div className="min-w-0">
-                        <strong className="block truncate text-xs font-semibold">{botLabel(b)}</strong>
+                        <strong className="block truncate text-xs font-mono font-bold text-ink">{botLabel(b)}</strong>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="truncate text-[10px] text-brand-500">{b.config?.host || 'No server'}</span>
+                          <span className="truncate text-[10px] font-mono text-ink-soft">{b.config?.host || 'No server'}</span>
                           {typeof b.shards === 'number' && (
-                            <span className="text-[9px] font-mono text-amber-400 font-bold">✦ {b.shards.toLocaleString()}</span>
+                            <span className="text-[9px] font-mono text-ember font-bold">✦ {b.shards.toLocaleString()}</span>
                           )}
                         </div>
                       </div>
@@ -562,44 +557,44 @@ export default function BotsPage() {
         {selectedBot ? (
           <div className="space-y-6">
             {/* Header detail */}
-            <Panel className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <Panel className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
               <div className="flex items-center gap-4">
-                <span className="flex h-14 w-12 shrink-0 items-center justify-center rounded-2xl border border-brand-200 bg-brand-50 text-lg font-black uppercase">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center border border-ink bg-paper-2 font-mono text-lg font-bold uppercase text-ink shadow-[2px_2px_0_#111111]">
                   {botLabel(selectedBot).slice(0, 2)}
                 </span>
                 <div>
-                  <h2 className="text-[20px] font-semibold text-brand-900 flex items-center gap-2">
+                  <h2 className="lp-display text-2xl font-bold text-ink flex items-center gap-2">
                     {botLabel(selectedBot)}
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-50 border border-brand-200 text-brand-500">{selectedBot.id}</span>
-                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center gap-1">
+                    <span className="text-[10px] font-mono px-2 py-0.5 bg-paper-2 border border-rule text-ink-soft">{selectedBot.id}</span>
+                    <span className="text-xs font-mono font-bold px-2.5 py-0.5 border border-ember/30 bg-ember/10 text-ember flex items-center gap-1">
                       ✦ {typeof selectedBot.shards === 'number' ? selectedBot.shards.toLocaleString() : '--'} Shards
                     </span>
                   </h2>
-                  <p className="mt-1 text-xs text-brand-500">
-                    Category: <span className="text-brand-500">{categoryOf(selectedBot)}</span> · Server: <span className="text-brand-500">{selectedBot.config?.host}:{selectedBot.config?.port}</span>
+                  <p className="mt-1 text-xs text-ink-soft font-mono">
+                    Category: <span className="text-ink font-semibold">{categoryOf(selectedBot)}</span> · Server: <span className="text-ink font-semibold">{selectedBot.config?.host}:{selectedBot.config?.port}</span>
                   </p>
                 </div>
               </div>
 
               {/* Bot Controller Button Bar */}
               <div className="flex items-center gap-2">
-                <Button size="sm" onClick={openEditModal}>
-                  <Settings className="h-3.5 w-3.5" />Config
+                <Button size="sm" variant="secondary" onClick={openEditModal}>
+                  <Settings className="h-3.5 w-3.5 mr-1" />Config
                 </Button>
                 {selectedBot.status === 'running' ? (
                   <Button size="sm" variant="danger" onClick={() => handleLifecycle('stop')} loading={actionBusy}>
-                    <CircleStop className="h-3.5 w-3.5" />Stop Bot
+                    <CircleStop className="h-3.5 w-3.5 mr-1" />Stop Bot
                   </Button>
                 ) : (
                   <Button size="sm" variant="success" onClick={() => handleLifecycle('start')} loading={actionBusy}>
-                    <Play className="h-3.5 w-3.5 text-brand-900" />Start Bot
+                    <Play className="h-3.5 w-3.5 mr-1 text-jade" />Start Bot
                   </Button>
                 )}
               </div>
             </Panel>
 
             {/* TAB STRIP */}
-            <div className="flex max-w-full gap-1 overflow-x-auto rounded-2xl border border-brand-200 bg-brand-50 p-1 backdrop-blur-xl">
+            <div className="flex max-w-full gap-1 overflow-x-auto border border-ink bg-paper-2 p-1">
               {[
                 { value: 'console', label: 'Console', icon: Cpu },
                 { value: 'inventory', label: 'Inventory', icon: WandSparkles },
@@ -612,11 +607,11 @@ export default function BotsPage() {
                   <button
                     key={tab.value}
                     onClick={() => setActiveTab(tab.value)}
-                    className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-medium transition-all duration-300 ${
-                      active ? 'bg-brand-50 text-brand-900 font-semibold' : 'text-brand-500 hover:bg-brand-50 hover:text-brand-900'
+                    className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+                      active ? 'border border-ink bg-white text-ink shadow-[2px_2px_0_#111111]' : 'text-ink-soft hover:text-ink hover:bg-white/60'
                     }`}
                   >
-                    <Icon className="h-3.5 w-3.5" />
+                    <Icon className={`h-3.5 w-3.5 ${active ? 'text-ember' : 'text-ink-soft'}`} />
                     {tab.label}
                   </button>
                 );
@@ -632,7 +627,7 @@ export default function BotsPage() {
 
               {/* Inventory Tab */}
               {activeTab === 'inventory' && (
-                <Panel className="p-6">
+                <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
                   {renderInventoryGrid()}
                 </Panel>
               )}
@@ -652,27 +647,25 @@ export default function BotsPage() {
                   ) : modules.length > 0 ? (
                     <div className="grid gap-4 md:grid-cols-2">
                       {modules.map((m) => (
-                        <Panel key={m.key} className="p-5 flex flex-col justify-between h-full gap-4">
+                        <Panel key={m.key} className="p-5 flex flex-col justify-between h-full gap-4 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
                           <div>
                             <div className="flex items-center justify-between">
-                              <h3 className="font-semibold text-sm text-brand-900 flex items-center gap-2">
+                              <h3 className="lp-display font-bold text-sm text-ink flex items-center gap-2">
                                 {m.label}
-                                {m.running && <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />}
+                                {m.running && <span className="h-2 w-2 bg-jade animate-pulse" />}
                               </h3>
-                              <span className="text-[9px] uppercase tracking-wider text-brand-500 px-1.5 py-0.5 rounded bg-brand-50 border border-brand-200">{m.group}</span>
+                              <span className="lp-mono text-[9px] text-ink-soft px-1.5 py-0.5 bg-paper-2 border border-rule">{m.group}</span>
                             </div>
-                            <p className="mt-2 text-xs leading-relaxed text-brand-500">{m.describe}</p>
-                            {m.detail && <p className="mt-2 font-mono text-[10px] text-brand-500 bg-white px-2 py-1.5 rounded-lg border border-brand-200">{m.detail}</p>}
+                            <p className="mt-2 text-xs leading-relaxed text-ink-soft">{m.describe}</p>
+                            {m.detail && <p className="mt-2 font-mono text-[10px] text-ink bg-paper-2 px-2 py-1.5 border border-rule">{m.detail}</p>}
                           </div>
 
-                          <div className="flex items-center justify-between border-t border-brand-200 pt-3.5">
-                            {/* If editable fields, render edit modal or inline action */}
+                          <div className="flex items-center justify-between border-t border-rule pt-3.5">
                             {m.editable ? (
                               <Button
                                 size="sm"
                                 variant="secondary"
                                 onClick={() => openModuleConfig(m)}
-                                className="text-xs"
                               >
                                 <Settings className="h-3 w-3 mr-1" />
                                 Configure
@@ -687,7 +680,7 @@ export default function BotsPage() {
                       ))}
                     </div>
                   ) : (
-                    <Panel className="p-6">
+                    <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
                       <EmptyState icon={Cpu} title="No modules found" description="No available modules reported for this bot process." />
                     </Panel>
                   )}
@@ -696,14 +689,14 @@ export default function BotsPage() {
 
               {/* Scripts Tab */}
               {activeTab === 'scripts' && (
-                <Panel className="p-6 space-y-6">
-                  <div className="flex justify-between items-center">
+                <Panel className="p-6 space-y-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+                  <div className="flex justify-between items-center pb-4 border-b border-rule">
                     <div>
-                      <h3 className="font-semibold text-sm text-brand-900">Bot Scripts</h3>
-                      <p className="text-xs text-brand-500 mt-1">Upload/hot-reload local automation behavior scripts without restarting.</p>
+                      <h3 className="lp-display font-bold text-base text-ink">Bot Scripts</h3>
+                      <p className="text-xs text-ink-soft mt-1">Upload/hot-reload local automation behavior scripts without restarting.</p>
                     </div>
-                    <Button size="sm" onClick={openNewScriptModal}>
-                      <Plus className="h-3.5 w-3.5" />New Script
+                    <Button size="sm" variant="primary" onClick={openNewScriptModal}>
+                      <Plus className="h-3.5 w-3.5 mr-1" />New Script
                     </Button>
                   </div>
 
@@ -713,18 +706,18 @@ export default function BotsPage() {
                       <Skeleton className="h-12 w-full" />
                     </div>
                   ) : scripts.length > 0 ? (
-                    <div className="divide-y divide-white/[0.05] border border-brand-200 bg-brand-50/20 rounded-2xl overflow-hidden">
+                    <div className="border border-ink/20 divide-y divide-rule bg-white shadow-sm">
                       {scripts.map((sc) => (
                         <div key={sc.id} className="p-4 flex items-center justify-between gap-4">
                           <div className="min-w-0">
-                            <span className="font-mono text-xs text-brand-900 font-medium flex items-center gap-2">
+                            <span className="font-mono text-xs text-ink font-bold flex items-center gap-2">
                               📄 {sc.id}.js
-                              {sc.enabled && <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />}
+                              {sc.enabled && <span className="h-2 w-2 bg-jade animate-pulse" />}
                             </span>
-                            <span className="block text-[10px] text-brand-500 mt-1">Local behavior extension</span>
+                            <span className="block lp-mono text-[10px] text-ink-faint mt-1">Local behavior extension</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <Button size="sm" variant="ghost" onClick={() => openEditScriptModal(sc)}>
+                          <div className="flex items-center gap-2">
+                            <Button size="sm" variant="secondary" onClick={() => openEditScriptModal(sc)}>
                               Edit
                             </Button>
                             <Button size="sm" variant="success" onClick={() => handleRunScript(sc.id)}>
@@ -738,14 +731,14 @@ export default function BotsPage() {
                       ))}
                     </div>
                   ) : (
-                    <EmptyState icon={Braces} title="No scripts uploaded" description="Create behavior scripts in javascript to extend Nora's capability dynamically." action={<Button size="sm" onClick={openNewScriptModal}>Create First Script</Button>} />
+                    <EmptyState icon={Braces} title="No scripts uploaded" description="Create behavior scripts in javascript to extend Nora's capability dynamically." action={<Button size="sm" variant="primary" onClick={openNewScriptModal}>Create First Script</Button>} />
                   )}
                 </Panel>
               )}
             </div>
           </div>
         ) : (
-          <Panel className="p-8">
+          <Panel className="p-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
             <EmptyState
               icon={Bot}
               title="No bot selected"
@@ -767,19 +760,19 @@ export default function BotsPage() {
           
           {/* Section: Identity */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-brand-200 pb-2">
-              <User className="h-4 w-4 text-brand-500" />
-              <h3 className="text-sm font-medium text-brand-500">Identity</h3>
+            <div className="flex items-center gap-2 border-b border-rule pb-2">
+              <User className="h-4 w-4 text-ember" />
+              <h3 className="lp-mono text-xs font-bold text-ink uppercase">Identity</h3>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="field-label">Bot ID (Unique)</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Bot ID (Unique)</span>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Hash className="h-4 w-4 text-brand-500" />
+                    <Hash className="h-4 w-4 text-ink-faint" />
                   </div>
                   <input
-                    className="field-control pl-9"
+                    className="w-full border border-ink bg-white pl-9 pr-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     value={formId}
                     onChange={(e) => setFormId(e.target.value)}
                     placeholder="bot-1"
@@ -787,9 +780,9 @@ export default function BotsPage() {
                 </div>
               </label>
               <label className="block">
-                <span className="field-label">Minecraft Username</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Minecraft Username</span>
                 <input
-                  className="field-control"
+                  className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                   value={formUsername}
                   onChange={(e) => setFormUsername(e.target.value)}
                   placeholder="NoraWorker"
@@ -798,9 +791,9 @@ export default function BotsPage() {
               </label>
             </div>
             <label className="block">
-              <span className="field-label">Category</span>
+              <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Category</span>
               <input
-                className="field-control"
+                className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                 value={formCategory}
                 onChange={(e) => setFormCategory(e.target.value)}
                 placeholder="Farming"
@@ -810,19 +803,19 @@ export default function BotsPage() {
 
           {/* Section: Connection */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-brand-200 pb-2">
-              <Server className="h-4 w-4 text-brand-500" />
-              <h3 className="text-sm font-medium text-brand-500">Connection</h3>
+            <div className="flex items-center gap-2 border-b border-rule pb-2">
+              <Server className="h-4 w-4 text-ember" />
+              <h3 className="lp-mono text-xs font-bold text-ink uppercase">Connection</h3>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="field-label">Server Host / IP</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Server Host / IP</span>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Globe className="h-4 w-4 text-brand-500" />
+                    <Globe className="h-4 w-4 text-ink-faint" />
                   </div>
                   <input
-                    className="field-control pl-9"
+                    className="w-full border border-ink bg-white pl-9 pr-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     value={formHost}
                     onChange={(e) => setFormHost(e.target.value)}
                     placeholder="play.bananasmp.net"
@@ -831,9 +824,9 @@ export default function BotsPage() {
                 </div>
               </label>
               <label className="block">
-                <span className="field-label">Server Port</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Server Port</span>
                 <input
-                  className="field-control"
+                  className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                   value={formPort}
                   onChange={(e) => setFormPort(e.target.value)}
                   placeholder="25565"
@@ -853,10 +846,10 @@ export default function BotsPage() {
           </div>
 
           {/* Section: Advanced (Handshake) */}
-          <div className="space-y-4 bg-brand-50 border border-brand-200 p-4 rounded-xl">
+          <div className="space-y-4 bg-paper-2 border border-rule p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Shield className="h-4 w-4 text-brand-500" />
-              <p className="text-sm font-medium text-brand-500">Cracked Authentication Handshakes</p>
+              <Shield className="h-4 w-4 text-ember" />
+              <p className="lp-mono text-xs font-bold text-ink uppercase">Cracked Authentication Handshakes</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <Checkbox checked={formAutoRegister} onChange={setFormAutoRegister} label="Auto-Register" description="Register on cracked spawns." />
@@ -864,13 +857,13 @@ export default function BotsPage() {
             </div>
             {(formAutoRegister || formAutoLogin) && (
               <label className="block mt-2">
-                <span className="field-label">Handshake Password</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Handshake Password</span>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Lock className="h-4 w-4 text-brand-500" />
+                    <Lock className="h-4 w-4 text-ink-faint" />
                   </div>
                   <input
-                    className="field-control pl-9"
+                    className="w-full border border-ink bg-white pl-9 pr-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     type="password"
                     value={formPassword}
                     onChange={(e) => setFormPassword(e.target.value)}
@@ -882,8 +875,8 @@ export default function BotsPage() {
             )}
           </div>
 
-          <div className="flex justify-end gap-3 border-t border-brand-200 pt-5 mt-6">
-            <Button type="button" onClick={() => setAddOpen(false)}>Cancel</Button>
+          <div className="flex justify-end gap-3 border-t border-rule pt-5 mt-6">
+            <Button type="button" variant="secondary" onClick={() => setAddOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary" loading={submitting} className="px-6 py-2">
               <Play className="h-4 w-4 mr-2" />
               Deploy Bot
@@ -898,14 +891,14 @@ export default function BotsPage() {
           
           {/* Section: Identity */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-brand-200 pb-2">
-              <User className="h-4 w-4 text-brand-500" />
-              <h3 className="text-sm font-medium text-brand-500">Identity</h3>
+            <div className="flex items-center gap-2 border-b border-rule pb-2">
+              <User className="h-4 w-4 text-ember" />
+              <h3 className="lp-mono text-xs font-bold text-ink uppercase">Identity</h3>
             </div>
             <label className="block">
-              <span className="field-label">Category</span>
+              <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Category</span>
               <input
-                className="field-control"
+                className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                 value={editCategory}
                 onChange={(e) => setEditCategory(e.target.value)}
                 placeholder="Farming"
@@ -915,19 +908,19 @@ export default function BotsPage() {
 
           {/* Section: Connection */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-brand-200 pb-2">
-              <Server className="h-4 w-4 text-brand-500" />
-              <h3 className="text-sm font-medium text-brand-500">Connection</h3>
+            <div className="flex items-center gap-2 border-b border-rule pb-2">
+              <Server className="h-4 w-4 text-ember" />
+              <h3 className="lp-mono text-xs font-bold text-ink uppercase">Connection</h3>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="field-label">Server Host / IP</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Server Host / IP</span>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Globe className="h-4 w-4 text-brand-500" />
+                    <Globe className="h-4 w-4 text-ink-faint" />
                   </div>
                   <input
-                    className="field-control pl-9"
+                    className="w-full border border-ink bg-white pl-9 pr-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     value={editHost}
                     onChange={(e) => setEditHost(e.target.value)}
                     placeholder="play.bananasmp.net"
@@ -936,9 +929,9 @@ export default function BotsPage() {
                 </div>
               </label>
               <label className="block">
-                <span className="field-label">Server Port</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Server Port</span>
                 <input
-                  className="field-control"
+                  className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                   value={editPort}
                   onChange={(e) => setEditPort(e.target.value)}
                   placeholder="25565"
@@ -958,10 +951,10 @@ export default function BotsPage() {
           </div>
 
           {/* Section: Advanced (Handshake) */}
-          <div className="space-y-4 bg-brand-50 border border-brand-200 p-4 rounded-xl">
+          <div className="space-y-4 bg-paper-2 border border-rule p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <Shield className="h-4 w-4 text-brand-500" />
-              <h3 className="text-sm font-medium text-brand-500">Handshake Config</h3>
+              <Shield className="h-4 w-4 text-ember" />
+              <h3 className="lp-mono text-xs font-bold text-ink uppercase">Handshake Config</h3>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <Checkbox checked={editAutoRegister} onChange={setEditAutoRegister} label="Auto-Register" />
@@ -969,13 +962,13 @@ export default function BotsPage() {
             </div>
             {(editAutoRegister || editAutoLogin) && (
               <label className="block mt-2">
-                <span className="field-label">Handshake Password</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Handshake Password</span>
                 <div className="relative">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Lock className="h-4 w-4 text-brand-500" />
+                    <Lock className="h-4 w-4 text-ink-faint" />
                   </div>
                   <input
-                    className="field-control pl-9"
+                    className="w-full border border-ink bg-white pl-9 pr-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     type="password"
                     value={editPassword}
                     onChange={(e) => setEditPassword(e.target.value)}
@@ -987,13 +980,13 @@ export default function BotsPage() {
             )}
           </div>
 
-          <div className="flex items-center justify-between border-t border-brand-200 pt-5 mt-6">
+          <div className="flex items-center justify-between border-t border-rule pt-5 mt-6">
             <Button type="button" variant="danger" onClick={handleDeleteBot} className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4" />
+              <AlertTriangle className="h-4 w-4 mr-1" />
               Wipe Bot
             </Button>
             <div className="flex gap-3">
-              <Button type="button" onClick={() => setEditOpen(false)}>Cancel</Button>
+              <Button type="button" variant="secondary" onClick={() => setEditOpen(false)}>Cancel</Button>
               <Button type="submit" variant="primary" loading={submitting}>Save Config</Button>
             </div>
           </div>
@@ -1004,9 +997,9 @@ export default function BotsPage() {
       <Modal open={scriptOpen} onClose={() => setScriptOpen(false)} title={editingScriptId ? 'Edit Script' : 'Create Custom Script'} description="Inject Javascript behaviors straight into the bot's runtime.">
         <div className="space-y-4">
           <label className="block">
-            <span className="field-label">Script Title / Name</span>
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Script Title / Name</span>
             <input
-              className="field-control font-mono text-xs"
+              className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
               value={scriptTitle}
               onChange={(e) => setScriptTitle(e.target.value)}
               placeholder="mine-obsidian"
@@ -1016,17 +1009,17 @@ export default function BotsPage() {
           </label>
 
           <label className="block">
-            <span className="field-label">Script Javascript Code</span>
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Script Javascript Code</span>
             <textarea
-              className="field-control min-h-80 resize-y font-mono text-xs"
+              className="w-full border border-ink bg-white p-3 min-h-80 resize-y font-mono text-xs text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
               value={scriptCode}
               onChange={(e) => setScriptCode(e.target.value)}
               required
             />
           </label>
 
-          <div className="flex justify-end gap-2 border-t border-brand-200 pt-4 mt-6">
-            <Button type="button" onClick={() => setScriptOpen(false)}>Cancel</Button>
+          <div className="flex justify-end gap-2 border-t border-rule pt-4 mt-6">
+            <Button type="button" variant="secondary" onClick={() => setScriptOpen(false)}>Cancel</Button>
             <Button type="button" variant="primary" onClick={handleSaveScript}>Save & Inject</Button>
           </div>
         </div>
@@ -1048,7 +1041,7 @@ export default function BotsPage() {
 
               if (isBool) {
                 return (
-                  <div key={field.name} className="p-3 rounded-xl border border-brand-200 bg-brand-50">
+                  <div key={field.name} className="p-3 border border-rule bg-paper-2">
                     <Checkbox
                       checked={!!val}
                       onChange={(checked) => setModuleFormOpts((prev) => ({ ...prev, [field.name]: checked }))}
@@ -1061,13 +1054,13 @@ export default function BotsPage() {
 
               return (
                 <label key={field.name} className="block">
-                  <span className="field-label flex items-center justify-between">
+                  <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1 flex items-center justify-between">
                     <span>{field.label || field.name}</span>
-                    {field.unit && <span className="text-[10px] text-brand-500">({field.unit})</span>}
+                    {field.unit && <span className="text-[10px] font-mono text-ink-faint">({field.unit})</span>}
                   </span>
                   <input
                     type={isNum ? 'number' : 'text'}
-                    className="field-control font-mono text-xs"
+                    className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     value={val}
                     onChange={(e) => {
                       const nextVal = isNum ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value;
@@ -1077,19 +1070,19 @@ export default function BotsPage() {
                     required={field.required}
                   />
                   {field.description && (
-                    <p className="mt-1 text-[11px] text-brand-500">{field.description}</p>
+                    <p className="mt-1 text-[11px] text-ink-soft">{field.description}</p>
                   )}
                 </label>
               );
             })
           ) : (
-            <div className="p-4 rounded-xl border border-brand-200 bg-brand-50 text-xs text-brand-500">
+            <div className="p-4 border border-rule bg-paper-2 text-xs text-ink-soft font-mono">
               This module does not require custom parameters. You can enable or disable it directly.
             </div>
           )}
 
-          <div className="flex justify-end gap-2 border-t border-brand-200 pt-4 mt-6">
-            <Button type="button" onClick={() => setModuleModalOpen(false)}>
+          <div className="flex justify-end gap-2 border-t border-rule pt-4 mt-6">
+            <Button type="button" variant="secondary" onClick={() => setModuleModalOpen(false)}>
               Cancel
             </Button>
             <Button type="submit" variant="primary" loading={savingModule}>
@@ -1106,32 +1099,32 @@ function ProxyPicker({ value, onChange, proxies = [], isFreeTier }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs">
-        <span className="field-label mb-0">Proxy Route Selection</span>
-        <span className="text-[10px] text-brand-500">{proxies.length} endpoints available</span>
+        <span className="lp-mono text-[10px] text-ink-soft uppercase mb-0">Proxy Route Selection</span>
+        <span className="text-[10px] font-mono text-ink-faint">{proxies.length} endpoints available</span>
       </div>
-      <div className="grid gap-2 max-h-48 overflow-y-auto custom-scroll pr-1">
+      <div className="grid gap-2 max-h-48 overflow-y-auto pr-1">
         {/* Direct Option */}
         <button
           type="button"
           onClick={() => onChange('')}
-          className={`flex items-center justify-between rounded-xl border p-2.5 text-left transition ${
+          className={`flex items-center justify-between border p-2.5 text-left transition cursor-pointer ${
             !value
-              ? 'border-brand-200 bg-brand-50 text-brand-900'
-              : 'border-brand-200 bg-white text-brand-500 hover:border-brand-200'
+              ? 'border-ink bg-white text-ink shadow-[2px_2px_0_#111111] font-bold'
+              : 'border-ink/20 bg-paper-2 text-ink-soft hover:bg-white hover:border-ink'
           }`}
         >
           <div className="flex items-center gap-2.5">
-            <span className="h-2 w-2 rounded-full bg-brand-50" />
+            <span className="h-2 w-2 bg-ink-faint" />
             <div>
-              <span className="text-xs font-semibold block text-brand-900">
+              <span className="text-xs font-mono font-bold block text-ink">
                 {isFreeTier ? 'Admin Free Proxy (Auto-assigned)' : 'Direct Connection (No Proxy)'}
               </span>
-              <span className="text-[10px] text-brand-500">
+              <span className="text-[10px] font-mono text-ink-soft">
                 {isFreeTier ? 'Routed through verified public system pool' : 'Direct connection without SOCKS5 tunneling'}
               </span>
             </div>
           </div>
-          {!value && <Check className="h-3.5 w-3.5 text-brand-900 shrink-0" />}
+          {!value && <Check className="h-3.5 w-3.5 text-ink shrink-0" />}
         </button>
 
         {/* Proxies List */}
@@ -1143,35 +1136,35 @@ function ProxyPicker({ value, onChange, proxies = [], isFreeTier }) {
               key={p.id}
               type="button"
               onClick={() => onChange(p.id)}
-              className={`flex items-center justify-between rounded-xl border p-2.5 text-left transition ${
+              className={`flex items-center justify-between border p-2.5 text-left transition cursor-pointer ${
                 isSelected
-                  ? 'border-brand-200 bg-brand-50 text-brand-900'
-                  : 'border-brand-200 bg-white text-brand-500 hover:border-brand-200'
+                  ? 'border-ink bg-white text-ink shadow-[2px_2px_0_#111111] font-bold'
+                  : 'border-ink/20 bg-paper-2 text-ink-soft hover:bg-white hover:border-ink'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className={`h-2 w-2 rounded-full shrink-0 ${isOnline ? 'bg-emerald-400' : 'bg-brand-50'}`} />
+                <span className={`h-2 w-2 shrink-0 ${isOnline ? 'bg-jade animate-pulse' : 'bg-ink-faint'}`} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-mono text-xs font-bold text-brand-900 truncate">{p.label || `${p.host}:${p.port}`}</span>
+                    <span className="font-mono text-xs font-bold text-ink truncate">{p.label || `${p.host}:${p.port}`}</span>
                     {p.isFree && (
-                      <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.2 text-[9px] font-semibold text-emerald-400">
+                      <span className="border border-jade/40 bg-jade/10 px-1.5 py-0.2 text-[9px] font-mono font-bold text-jade">
                         Free Tier
                       </span>
                     )}
                   </div>
-                  <span className="text-[10px] text-brand-500 block truncate">
+                  <span className="text-[10px] font-mono text-ink-soft block truncate">
                     {p.latency ? `${p.latency}ms latency` : 'SOCKS5'} · {p.freeSlots ?? 10} slots free
                   </span>
                 </div>
               </div>
-              {isSelected && <Check className="h-3.5 w-3.5 text-brand-900 shrink-0" />}
+              {isSelected && <Check className="h-3.5 w-3.5 text-ink shrink-0" />}
             </button>
           );
         })}
       </div>
       {isFreeTier && (
-        <p className="text-[10px] text-amber-300/80">
+        <p className="text-[10px] font-mono text-amber-700">
           💡 Free Plan bots are connected through high-speed Admin Free Proxies automatically.
         </p>
       )}

@@ -101,9 +101,9 @@ export default function UsersPage() {
 
   if (me.role !== 'admin') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-7xl mx-auto pb-12">
         <PageHeader eyebrow="Administration" title="Users" description="Account administration is restricted to panel administrators." />
-        <Panel>
+        <Panel className="p-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <EmptyState icon={Shield} title="Administrator access required" description="Your account can manage its own resources, aliases, scripts, schedules, and preferences." />
         </Panel>
       </div>
@@ -111,111 +111,118 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       <PageHeader
         eyebrow="Administration"
         title="Users & Subscriptions"
         description="Manage tenant accounts, view running bot counts, and override subscription plans."
         actions={
           <Button size="sm" variant="primary" onClick={() => open()}>
-            <Plus className="h-3.5 w-3.5" /> New user
+            <Plus className="h-3.5 w-3.5 mr-1" /> New user
           </Button>
         }
       />
 
       {loading ? (
-        <Panel className="p-6 space-y-4">
+        <Panel className="p-6 space-y-4 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
           <Skeleton className="h-12 w-full" />
         </Panel>
       ) : users.length ? (
-        <div className="table-shell">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Account</th>
-                <th>Role</th>
-                <th>Subscription Plan</th>
-                <th>Bots (Running / Total)</th>
-                <th>Created</th>
-                <th>Last Login</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((account) => {
-                const tier = account.tier || 'free';
-                return (
-                  <tr key={account.id}>
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand-200 bg-brand-50 text-xs font-bold uppercase text-brand-900">
-                          {account.email.slice(0, 2)}
-                        </span>
-                        <div>
-                          <strong className="block text-sm text-brand-900">{account.email}</strong>
-                          <span className="font-mono text-[10px] text-brand-600">{account.id.slice(0, 8)}</span>
+        <Panel className="overflow-hidden border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-rule bg-paper-2 text-ink-soft lp-mono text-[10px]">
+                <tr>
+                  <th className="px-4 py-3">Account</th>
+                  <th className="px-4 py-3">Role</th>
+                  <th className="px-4 py-3">Subscription Plan</th>
+                  <th className="px-4 py-3">Bots (Running / Total)</th>
+                  <th className="px-4 py-3">Created</th>
+                  <th className="px-4 py-3">Last Login</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-rule font-mono">
+                {users.map((account) => {
+                  const tier = account.tier || 'free';
+                  return (
+                    <tr key={account.id} className="hover:bg-paper-2 transition">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-9 w-9 items-center justify-center border border-ink bg-paper-2 text-xs font-bold uppercase text-ink shadow-[1px_1px_0_#111111]">
+                            {account.email.slice(0, 2)}
+                          </span>
+                          <div>
+                            <strong className="block text-xs font-bold text-ink">{account.email}</strong>
+                            <span className="font-mono text-[10px] text-ink-faint">{account.id.slice(0, 8)}</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <StatusBadge status={account.role === 'admin' ? 'running_job' : 'stopped'} />
-                      <span className="ml-2 text-xs capitalize text-brand-600">{account.role}</span>
-                    </td>
-                    <td>
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                          tier === 'unlimited_15'
-                            ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400'
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <StatusBadge status={account.role === 'admin' ? 'running_job' : 'stopped'} />
+                          <span className="text-xs capitalize font-bold text-ink">{account.role}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center gap-1 border px-2.5 py-0.5 text-[10px] font-bold ${
+                            tier === 'unlimited_15'
+                              ? 'border-ember/40 bg-ember/10 text-ember'
+                              : tier === 'silver_5'
+                              ? 'border-ink bg-paper text-ink'
+                              : tier === 'bronze_3'
+                              ? 'border-amber-500/40 bg-amber-500/10 text-amber-700'
+                              : 'border-rule bg-paper-2 text-ink-soft'
+                          }`}
+                        >
+                          <Zap className="h-3 w-3" />
+                          {tier === 'unlimited_15'
+                            ? 'Unlimited ($12)'
                             : tier === 'silver_5'
-                            ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400'
+                            ? 'Silver ($5)'
                             : tier === 'bronze_3'
-                            ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
-                            : 'bg-brand-50 border border-brand-200 text-brand-500'
-                        }`}
-                      >
-                        <Zap className="h-3 w-3" />
-                        {tier === 'unlimited_15'
-                          ? 'Unlimited ($15)'
-                          : tier === 'silver_5'
-                          ? 'Silver ($5)'
-                          : tier === 'bronze_3'
-                          ? 'Bronze ($3)'
-                          : 'Free Starter ($0)'}
-                      </span>
-                    </td>
-                    <td className="text-xs text-brand-900">
-                      <span className="font-medium text-emerald-400">{account.runningBots || 0}</span> running / {account.totalBots || 0} total
-                    </td>
-                    <td className="text-xs text-brand-500">{formatDate(account.createdAt, { dateOnly: true })}</td>
-                    <td className="text-xs text-brand-500">{formatDate(account.lastLoginAt)}</td>
-                    <td>
-                      <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" onClick={() => open(account)}>
-                          <UserCog className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button size="sm" variant="danger" disabled={account.id === me.id} onClick={() => remove(account)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                            ? 'Bronze ($2)'
+                            : tier === 'custom'
+                            ? 'Custom Fleet'
+                            : 'Free Starter ($0)'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-ink font-mono">
+                        <span className="font-bold text-jade">{account.runningBots || 0}</span> running / {account.totalBots || 0} total
+                      </td>
+                      <td className="px-4 py-3 text-xs text-ink-soft">{formatDate(account.createdAt, { dateOnly: true })}</td>
+                      <td className="px-4 py-3 text-xs text-ink-soft">{formatDate(account.lastLoginAt)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-1.5">
+                          <Button size="sm" variant="ghost" onClick={() => open(account)}>
+                            <UserCog className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button size="sm" variant="danger" disabled={account.id === me.id} onClick={() => remove(account)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
       ) : (
         !loading && (
-          <Panel>
+          <Panel className="p-8 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
             <EmptyState
               icon={Users}
               title="No users found"
               description="Create the first tenant account for this service."
               action={
                 <Button variant="primary" onClick={() => open()}>
+                  <Plus className="h-4 w-4 mr-1" />
                   Create user
                 </Button>
               }
@@ -231,41 +238,46 @@ export default function UsersPage() {
         description="Configure tenant permissions and assign subscription plan tier."
         footer={
           <>
-            <Button onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button variant="primary" onClick={save} loading={saving} disabled={!form.email.trim() || (!editing && form.password.length < 6)}>
               {editing ? 'Save changes' : 'Create user'}
             </Button>
           </>
         }
       >
-        <div className="space-y-4">
-          <label>
-            <span className="field-label">Username or email</span>
-            <input className="field-control" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="tenant@example.com" />
+        <div className="space-y-4 py-2">
+          <label className="block">
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Username or email</span>
+            <input
+              className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
+              value={form.email}
+              onChange={(event) => setForm({ ...form, email: event.target.value })}
+              placeholder="tenant@example.com"
+            />
           </label>
-          <label>
-            <span className="field-label">{editing ? 'New password' : 'Password'}</span>
+          <label className="block">
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">{editing ? 'New password' : 'Password'}</span>
             <span className="relative block">
-              <KeyRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-600" />
+              <KeyRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
               <input
                 type="password"
-                className="field-control pl-10"
+                className="w-full border border-ink bg-white pl-10 pr-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                 value={form.password}
                 onChange={(event) => setForm({ ...form, password: event.target.value })}
                 placeholder={editing ? 'Leave blank to keep current' : 'At least 6 characters'}
               />
             </span>
           </label>
-          <label>
-            <span className="field-label">Subscription Plan Tier</span>
+          <label className="block">
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Subscription Plan Tier</span>
             <Select
               value={form.tier}
               onChange={(value) => setForm({ ...form, tier: value })}
               options={PLAN_OPTIONS}
             />
           </label>
-          <label>
-            <span className="field-label">Role</span>
+          <label className="block">
+            <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Role</span>
             <Select
               value={form.role}
               onChange={(value) => setForm({ ...form, role: value })}

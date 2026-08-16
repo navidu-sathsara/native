@@ -82,7 +82,7 @@ export default function SettingsPage() {
   const currentTier = user?.preferences?.tier || 'free';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       <PageHeader
         eyebrow="Account Settings"
         title="Settings & Preferences"
@@ -90,21 +90,21 @@ export default function SettingsPage() {
       />
 
       {/* Account & Active Subscription Summary */}
-      <Panel className="p-6 relative overflow-hidden">
+      <Panel className="p-6 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-brand-200 bg-brand-50 text-brand-900">
-              <UserRound className="h-6 w-6" />
+            <span className="flex h-12 w-12 items-center justify-center border border-ink bg-paper-2 text-ink shadow-[2px_2px_0_#111111]">
+              <UserRound className="h-6 w-6 text-ember" />
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <strong className="text-base font-semibold text-brand-900">{user?.email}</strong>
-                <span className="rounded-full bg-brand-50 border border-brand-200 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-900">
+                <strong className="lp-display text-base font-bold text-ink">{user?.email}</strong>
+                <span className="border border-ink bg-paper-2 px-2.5 py-0.5 lp-mono text-[9px] font-bold uppercase text-ink">
                   {user?.role}
                 </span>
               </div>
-              <p className="text-xs text-brand-500 mt-1 flex items-center gap-2">
-                <span>Tenant ID: <code className="font-mono text-brand-500">{user?.id?.slice(0, 12)}</code></span>
+              <p className="text-xs text-ink-soft mt-1 flex items-center gap-2 font-mono">
+                <span>Tenant ID: <code className="text-ink font-bold">{user?.id?.slice(0, 12)}</code></span>
                 <span>·</span>
                 <span>Member since {formatDate(user?.createdAt, { dateOnly: true })}</span>
               </p>
@@ -112,16 +112,18 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="rounded-xl border border-brand-200 bg-brand-50 px-4 py-2.5 text-right">
-              <span className="block text-[10px] uppercase font-semibold tracking-wider text-brand-500">Subscription Tier</span>
-              <span className="font-semibold text-xs text-brand-900 capitalize flex items-center gap-1 justify-end mt-0.5">
-                <Zap className="h-3 w-3" />
+            <div className="border border-rule bg-paper-2 px-4 py-2.5 text-right font-mono">
+              <span className="block lp-mono text-[10px] text-ink-faint">Subscription Tier</span>
+              <span className="font-bold text-xs text-ink capitalize flex items-center gap-1 justify-end mt-0.5">
+                <Zap className="h-3 w-3 text-ember" />
                 {currentTier === 'unlimited_15'
-                  ? 'Unlimited ($15)'
+                  ? 'Unlimited ($12)'
                   : currentTier === 'silver_5'
                   ? 'Silver Pro ($5)'
                   : currentTier === 'bronze_3'
-                  ? 'Bronze Pro ($3)'
+                  ? 'Bronze Pro ($2)'
+                  : currentTier === 'custom'
+                  ? 'Custom Fleet'
                   : 'Free Starter ($0)'}
               </span>
             </div>
@@ -131,23 +133,23 @@ export default function SettingsPage() {
 
       <div className="grid gap-6 xl:grid-cols-2">
         {/* Account Profile & Security Panel */}
-        <Panel className="p-5 sm:p-6 flex flex-col justify-between">
+        <Panel className="p-5 sm:p-6 flex flex-col justify-between border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <div>
-            <div className="flex items-center gap-3 border-b border-brand-200 pb-4">
-              <span className="rounded-xl border border-brand-200 bg-brand-50 p-2 text-brand-900">
-                <KeyRound className="h-4 w-4" />
+            <div className="flex items-center gap-3 border-b border-rule pb-4">
+              <span className="border border-ink bg-paper-2 p-2 text-ink shadow-[1px_1px_0_#111111]">
+                <KeyRound className="h-4 w-4 text-ember" />
               </span>
               <div>
-                <h2 className="font-semibold text-brand-900 text-base">Account Security</h2>
-                <p className="text-xs text-brand-500">Update username, email, or change your workspace password</p>
+                <h2 className="lp-display font-bold text-ink text-base">Account Security</h2>
+                <p className="text-xs text-ink-soft font-mono">Update username, email, or change your workspace password</p>
               </div>
             </div>
 
             <form onSubmit={saveAccount} id="account-form" className="mt-5 space-y-4">
               <label className="block">
-                <span className="field-label">Username or Email</span>
+                <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Username or Email</span>
                 <input
-                  className="field-control"
+                  className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                   value={account.email}
                   onChange={(event) => setAccount({ ...account, email: event.target.value })}
                   required
@@ -156,11 +158,11 @@ export default function SettingsPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="field-label">New Password</span>
+                  <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">New Password</span>
                   <input
                     type="password"
                     autoComplete="new-password"
-                    className="field-control"
+                    className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     value={account.password}
                     onChange={(event) => setAccount({ ...account, password: event.target.value })}
                     placeholder="Leave blank to keep current"
@@ -168,11 +170,11 @@ export default function SettingsPage() {
                 </label>
 
                 <label className="block">
-                  <span className="field-label">Confirm Password</span>
+                  <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Confirm Password</span>
                   <input
                     type="password"
                     autoComplete="new-password"
-                    className="field-control"
+                    className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     value={account.confirm}
                     onChange={(event) => setAccount({ ...account, confirm: event.target.value })}
                     placeholder="Confirm new password"
@@ -182,10 +184,10 @@ export default function SettingsPage() {
             </form>
           </div>
 
-          <div className="flex items-center justify-between gap-3 pt-6 border-t border-brand-200 mt-6">
-            <span className="text-xs text-brand-500 flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-brand-500" />
-              <span>Password encrypted via SHA-256 / scrypt</span>
+          <div className="flex items-center justify-between gap-3 pt-6 border-t border-rule mt-6">
+            <span className="text-xs text-ink-soft font-mono flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-jade" />
+              <span>Password encrypted via bcrypt / scrypt</span>
             </span>
             <Button type="submit" form="account-form" variant="primary" loading={savingAccount}>
               <Save className="h-4 w-4 mr-1" /> Save Account
@@ -194,22 +196,22 @@ export default function SettingsPage() {
         </Panel>
 
         {/* Interface Preferences Panel */}
-        <Panel className="p-5 sm:p-6 flex flex-col justify-between">
+        <Panel className="p-5 sm:p-6 flex flex-col justify-between border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
           <div>
-            <div className="flex items-center gap-3 border-b border-brand-200 pb-4">
-              <span className="rounded-xl border border-brand-200 bg-brand-50 p-2 text-brand-900">
-                <Sliders className="h-4 w-4" />
+            <div className="flex items-center gap-3 border-b border-rule pb-4">
+              <span className="border border-ink bg-paper-2 p-2 text-ink shadow-[1px_1px_0_#111111]">
+                <Sliders className="h-4 w-4 text-ember" />
               </span>
               <div>
-                <h2 className="font-semibold text-brand-900 text-base">Interface Preferences</h2>
-                <p className="text-xs text-brand-500">Customize dashboard layout, density, and behavior</p>
+                <h2 className="lp-display font-bold text-ink text-base">Interface Preferences</h2>
+                <p className="text-xs text-ink-soft font-mono">Customize dashboard layout, density, and behavior</p>
               </div>
             </div>
 
             <form onSubmit={savePreferences} id="pref-form" className="mt-5 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="block">
-                  <span className="field-label">Layout Density</span>
+                  <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Layout Density</span>
                   <Select
                     value={preferences.density || 'comfortable'}
                     onChange={(value) => changePreference('density', value)}
@@ -221,7 +223,7 @@ export default function SettingsPage() {
                 </label>
 
                 <label className="block">
-                  <span className="field-label">Default Start Page</span>
+                  <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Default Start Page</span>
                   <Select
                     value={preferences.startPage || 'overview'}
                     onChange={(value) => changePreference('startPage', value)}
@@ -237,7 +239,7 @@ export default function SettingsPage() {
                 </label>
 
                 <label className="block">
-                  <span className="field-label">Sidebar Behavior</span>
+                  <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Sidebar Behavior</span>
                   <Select
                     value={preferences.sidebar || 'expanded'}
                     onChange={(value) => changePreference('sidebar', value)}
@@ -249,9 +251,9 @@ export default function SettingsPage() {
                 </label>
 
                 <label className="block">
-                  <span className="field-label">Timezone Display</span>
+                  <span className="block lp-mono text-[10px] text-ink-soft uppercase mb-1">Timezone Display</span>
                   <input
-                    className="field-control"
+                    className="w-full border border-ink bg-white px-3 py-2 text-xs font-mono text-ink placeholder-ink-faint focus:border-ember focus:outline-none shadow-[2px_2px_0_#111111]"
                     value={preferences.timezone || 'local'}
                     onChange={(event) => changePreference('timezone', event.target.value)}
                     placeholder="local, Asia/Colombo, UTC, America/New_York"
@@ -276,7 +278,7 @@ export default function SettingsPage() {
             </form>
           </div>
 
-          <div className="flex items-center justify-between gap-3 pt-6 border-t border-brand-200 mt-6">
+          <div className="flex items-center justify-between gap-3 pt-6 border-t border-rule mt-6">
             <Button type="button" variant="ghost" onClick={clearLocalCache} className="text-xs">
               <RefreshCw className="h-3.5 w-3.5 mr-1" /> Clear Cache & Reload
             </Button>
@@ -288,13 +290,13 @@ export default function SettingsPage() {
       </div>
 
       {/* Isolation Info */}
-      <Panel className="flex items-start gap-4 p-5">
-        <span className="rounded-xl border border-brand-200 bg-brand-50 p-3 text-brand-900">
-          <ShieldCheck className="h-6 w-6" />
+      <Panel className="flex items-start gap-4 p-5 border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+        <span className="border border-ink bg-paper-2 p-3 text-ink shadow-[1px_1px_0_#111111]">
+          <ShieldCheck className="h-6 w-6 text-ember" />
         </span>
         <div>
-          <h2 className="text-sm font-semibold text-brand-900">Multi-Tenant Isolation & Sandbox Integrity</h2>
-          <p className="mt-1 text-xs leading-relaxed text-brand-500">
+          <h2 className="lp-display text-sm font-bold text-ink">Multi-Tenant Isolation & Sandbox Integrity</h2>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft font-mono">
             Your bots, proxies, command aliases, custom behavior scripts, cron schedules, preferences, and payment receipts are completely isolated in your private workspace directory.
           </p>
         </div>

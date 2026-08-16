@@ -37,8 +37,17 @@ export default function ActivityPage() {
   }), [jobs]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader eyebrow="Automation" title="Activity" description="Persistent history for mass commands and background broadcast jobs." actions={<Button size="sm" onClick={() => load()} loading={loading}><RefreshCw className="h-3.5 w-3.5" />Refresh</Button>} />
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      <PageHeader
+        eyebrow="Automation"
+        title="Activity"
+        description="Persistent history for mass commands and background broadcast jobs."
+        actions={
+          <Button size="sm" variant="secondary" onClick={() => load()} loading={loading}>
+            <RefreshCw className="h-3.5 w-3.5 mr-1" />Refresh
+          </Button>
+        }
+      />
       {loading ? (
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
@@ -60,28 +69,50 @@ export default function ActivityPage() {
         </div>
       )}
 
-      <Panel className="overflow-hidden">
-        <div className="border-b border-brand-200 px-5 py-4"><h2 className="font-semibold text-brand-900">Broadcast jobs</h2><p className="mt-0.5 text-xs text-brand-500">Jobs continue even after you close the browser.</p></div>
+      <Panel className="overflow-hidden border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)]">
+        <div className="border-b border-rule bg-paper-2 px-5 py-4">
+          <h2 className="lp-display font-bold text-base text-ink">Broadcast jobs</h2>
+          <p className="mt-0.5 text-xs text-ink-soft font-mono">Jobs continue even after you close the browser.</p>
+        </div>
         {loading ? (
           <div className="p-5 space-y-4">
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
           </div>
-        ) : !jobs.length ? <EmptyState icon={Send} title="No activity yet" description="Broadcast a command from Overview or Bots and its execution will appear here." /> : (
-          <div className="divide-y divide-slate-800/70">
+        ) : !jobs.length ? (
+          <div className="p-6">
+            <EmptyState icon={Send} title="No activity yet" description="Broadcast a command from Overview or Bots and its execution will appear here." />
+          </div>
+        ) : (
+          <div className="divide-y divide-rule">
             {jobs.map((job) => {
               const total = Number(job.total || 0);
               const done = Number(job.done || 0);
               const progress = total ? Math.min(100, Math.round((done / total) * 100)) : 0;
               return (
-                <article key={job.id} className="p-5">
+                <article key={job.id} className="p-5 hover:bg-paper-2 transition">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0"><div className="flex items-center gap-2"><Send className="h-4 w-4 shrink-0 text-brand-600" /><code className="truncate text-sm font-semibold text-brand-900">{job.cmd}</code></div><p className="mt-2 text-xs text-brand-500">Created {formatDate(job.createdAt)} by {job.ownerLabel || 'workspace user'}</p></div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Send className="h-4 w-4 shrink-0 text-ember" />
+                        <code className="truncate text-sm font-bold font-mono text-ink bg-paper-2 border border-rule px-2 py-0.5">{job.cmd}</code>
+                      </div>
+                      <p className="mt-2 text-xs text-ink-soft font-mono">Created {formatDate(job.createdAt)} by {job.ownerLabel || 'workspace user'}</p>
+                    </div>
                     <StatusBadge status={job.status === 'running' ? 'running_job' : job.status} />
                   </div>
-                  <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-brand-100"><div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${progress}%` }} /></div>
-                  <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-brand-500"><span>{done}/{total} processed</span><span className="text-emerald-500">{job.ok || 0} successful</span><span>{job.skipped || 0} skipped</span><span>{job.staggerMs ? `${job.staggerMs}ms stagger` : 'No stagger'}</span></div>
+                  
+                  <div className="mt-4 h-2 overflow-hidden border border-rule bg-paper-2">
+                    <div className="h-full bg-ink transition-all" style={{ width: `${progress}%` }} />
+                  </div>
+                  
+                  <div className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-[11px] font-mono text-ink-soft">
+                    <span>{done}/{total} processed</span>
+                    <span className="text-jade font-bold">{job.ok || 0} successful</span>
+                    <span>{job.skipped || 0} skipped</span>
+                    <span>{job.staggerMs ? `${job.staggerMs}ms stagger` : 'No stagger'}</span>
+                  </div>
                 </article>
               );
             })}

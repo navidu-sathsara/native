@@ -5,26 +5,32 @@ import { LoaderCircle, X, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/api';
 
 /* ------------------------------------------------------------------
-   Native SaaS UI Primitives - Stripe Inspired Light Theme
+   Native SaaS UI Primitives - Editorial Developer Theme
+   High-contrast, tactile, robust typography & solid borders
    ------------------------------------------------------------------ */
 
 export function Button({ children, variant = 'secondary', size = 'md', className, loading, disabled, ...props }) {
   const variants = {
-    primary: 'bg-blurple-500 text-white font-semibold hover:bg-blurple-600 active:scale-[.97] shadow-sm',
-    secondary: 'border border-brand-200 bg-white text-brand-700 hover:bg-brand-50 active:scale-[.97] shadow-sm',
-    ghost: 'border-transparent bg-transparent text-brand-600 hover:bg-brand-50 hover:text-brand-900 active:scale-[.97]',
-    danger: 'border border-red-200 bg-white text-red-600 hover:bg-red-50 active:scale-[.97] shadow-sm',
-    success: 'border border-green-200 bg-white text-green-700 hover:bg-green-50 active:scale-[.97] shadow-sm',
+    primary:
+      'border border-ink bg-ember text-white font-mono font-bold uppercase tracking-wider shadow-[2px_2px_0_#111111] hover:bg-ember-dark hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111111] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111111]',
+    secondary:
+      'border border-ink bg-white text-ink font-mono font-bold uppercase tracking-wider shadow-[2px_2px_0_#111111] hover:bg-paper-2 hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#111111] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111111]',
+    ghost:
+      'border border-transparent bg-transparent text-ink-soft hover:border-ink/20 hover:bg-ink/5 hover:text-ink font-mono font-bold uppercase tracking-wider active:translate-y-px',
+    danger:
+      'border border-ember bg-white text-ember font-mono font-bold uppercase tracking-wider shadow-[2px_2px_0_#ff4400] hover:bg-ember hover:text-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#ff4400]',
+    success:
+      'border border-jade bg-white text-jade font-mono font-bold uppercase tracking-wider shadow-[2px_2px_0_#059669] hover:bg-jade hover:text-white active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#059669]',
   };
   const sizes = {
-    sm: 'h-8 gap-1.5 rounded-lg px-3 text-xs',
-    md: 'h-10 gap-2 rounded-xl px-4 text-[13px]',
-    lg: 'h-12 gap-2 rounded-xl px-6 text-sm font-semibold',
+    sm: 'h-8 gap-1.5 px-3 text-[11px]',
+    md: 'h-10 gap-2 px-4 text-xs',
+    lg: 'h-12 gap-2 px-6 text-sm',
   };
   return (
     <button
       className={cn(
-        'inline-flex shrink-0 items-center justify-center font-medium tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blurple-500 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100',
+        'inline-flex shrink-0 items-center justify-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:shadow-none cursor-pointer',
         variants[variant],
         sizes[size],
         className
@@ -32,7 +38,7 @@ export function Button({ children, variant = 'secondary', size = 'md', className
       disabled={disabled || loading}
       {...props}
     >
-      {loading && <LoaderCircle className="h-4 w-4 animate-spin text-current" />}
+      {loading && <LoaderCircle className="h-4 w-4 animate-spin text-current shrink-0" />}
       {children}
     </button>
   );
@@ -44,7 +50,7 @@ export function IconButton({ label, children, className, ...props }) {
       aria-label={label}
       title={label}
       className={cn(
-        'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-brand-200 bg-white text-brand-500 transition-all duration-200 hover:bg-brand-50 hover:text-brand-900 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blurple-500 shadow-sm',
+        'inline-flex h-9 w-9 items-center justify-center border border-ink bg-white text-ink shadow-[2px_2px_0_#111111] hover:bg-paper-2 hover:shadow-[3px_3px_0_#111111] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0_#111111] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer',
         className
       )}
       {...props}
@@ -56,17 +62,17 @@ export function IconButton({ label, children, className, ...props }) {
 
 export function PageHeader({ eyebrow, title, description, actions }) {
   return (
-    <header className="anim-rise flex flex-col gap-4 border-b border-brand-100 pb-6 mb-8 sm:flex-row sm:items-end sm:justify-between">
+    <header className="flex flex-col gap-4 border-b border-rule pb-6 mb-8 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {eyebrow && (
-          <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-500">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-400" />
+          <p className="mb-2.5 flex items-center gap-2.5 lp-mono text-ink-soft text-[11px]">
+            <span className="h-1.5 w-1.5 bg-ember shrink-0" />
             {eyebrow}
           </p>
         )}
-        <h1 className="text-3xl font-bold tracking-tight text-brand-900 sm:text-4xl">{title}</h1>
+        <h1 className="lp-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">{title}</h1>
         {description && (
-          <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-brand-600">{description}</p>
+          <p className="mt-2.5 max-w-2xl text-[15px] leading-relaxed text-ink-soft">{description}</p>
         )}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-3">{actions}</div>}
@@ -76,7 +82,13 @@ export function PageHeader({ eyebrow, title, description, actions }) {
 
 export function Panel({ children, className, highlight = false }) {
   return (
-    <section className={cn('rounded-xl border border-brand-200 bg-white shadow-sm overflow-hidden', highlight && 'ring-1 ring-blurple-500 border-blurple-500', className)}>
+    <section
+      className={cn(
+        'border border-ink/20 bg-white shadow-[3px_3px_0_rgba(17,17,17,0.06)] overflow-hidden',
+        highlight && 'border-ember ring-1 ring-ember shadow-[4px_4px_0_#ff4400]',
+        className
+      )}
+    >
       {children}
     </section>
   );
@@ -84,25 +96,25 @@ export function Panel({ children, className, highlight = false }) {
 
 export function StatCard({ label, value, hint, icon: Icon, tone = 'default', highlight = false }) {
   const dots = {
-    default: 'bg-brand-300',
-    blue: 'bg-blurple-500',
-    green: 'bg-green-500',
-    red: 'bg-red-500 animate-pulse',
+    default: 'bg-ink-soft',
+    blue: 'bg-ember',
+    green: 'bg-jade',
+    red: 'bg-ember animate-pulse',
     amber: 'bg-amber-500',
   };
   return (
-    <Panel highlight={highlight} className="group relative flex min-h-32 items-start justify-between p-5 transition-shadow hover:shadow-md">
+    <Panel highlight={highlight} className="group relative flex min-h-32 items-start justify-between p-6 transition-all hover:border-ink">
       <div className="min-w-0">
-        <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-500">
-          <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', dots[tone] || dots.default)} />
+        <p className="flex items-center gap-2 lp-mono text-ink-faint text-[10px]">
+          <span className={cn('h-1.5 w-1.5 shrink-0', dots[tone] || dots.default)} />
           <span className="truncate">{label}</span>
         </p>
-        <p className="tnum mt-3 text-3xl font-bold tracking-tight text-brand-900">{value}</p>
-        {hint && <p className="mt-2 truncate text-xs text-brand-500">{hint}</p>}
+        <p className="lp-display mt-3 text-3xl sm:text-4xl font-bold text-ink tracking-tight">{value}</p>
+        {hint && <p className="mt-2 truncate text-xs text-ink-soft font-mono">{hint}</p>}
       </div>
       {Icon && (
-        <span className="shrink-0 rounded-lg border border-brand-100 bg-brand-50 p-2 text-brand-500 transition-colors group-hover:bg-brand-100 group-hover:text-brand-900">
-          <Icon className="h-5 w-5" />
+        <span className="shrink-0 border border-ink/20 bg-paper-2 p-2.5 text-ink transition-colors group-hover:border-ink group-hover:bg-ink group-hover:text-paper">
+          <Icon className="h-5 w-5" strokeWidth={1.5} />
         </span>
       )}
     </Panel>
@@ -112,22 +124,22 @@ export function StatCard({ label, value, hint, icon: Icon, tone = 'default', hig
 export function StatusBadge({ status }) {
   const normalized = String(status || 'stopped').toLowerCase();
   const tones = {
-    running: { wrap: 'border-green-200 bg-green-50 text-green-700', dot: 'bg-green-500' },
-    online: { wrap: 'border-green-200 bg-green-50 text-green-700', dot: 'bg-green-500' },
-    done: { wrap: 'border-green-200 bg-green-50 text-green-700', dot: 'bg-green-500' },
-    stopped: { wrap: 'border-brand-200 bg-brand-50 text-brand-600', dot: 'bg-brand-400' },
-    offline: { wrap: 'border-brand-200 bg-brand-50 text-brand-600', dot: 'bg-brand-400' },
-    cancelled: { wrap: 'border-brand-200 bg-brand-50 text-brand-600', dot: 'bg-brand-400' },
-    pending: { wrap: 'border-amber-200 bg-amber-50 text-amber-700', dot: 'bg-amber-500 animate-pulse' },
-    partial: { wrap: 'border-amber-200 bg-amber-50 text-amber-700', dot: 'bg-amber-500' },
-    running_job: { wrap: 'border-blurple-200 bg-blurple-50 text-blurple-700', dot: 'bg-blurple-500 animate-pulse' },
-    error: { wrap: 'border-red-200 bg-red-50 text-red-700', dot: 'bg-red-500' },
-    failed: { wrap: 'border-red-200 bg-red-50 text-red-700', dot: 'bg-red-500' },
+    running: { wrap: 'border-jade/40 bg-jade/10 text-jade', dot: 'bg-jade animate-pulse' },
+    online: { wrap: 'border-jade/40 bg-jade/10 text-jade', dot: 'bg-jade animate-pulse' },
+    done: { wrap: 'border-jade/40 bg-jade/10 text-jade', dot: 'bg-jade' },
+    stopped: { wrap: 'border-ink/20 bg-paper-2 text-ink-soft', dot: 'bg-ink-faint' },
+    offline: { wrap: 'border-ink/20 bg-paper-2 text-ink-soft', dot: 'bg-ink-faint' },
+    cancelled: { wrap: 'border-ink/20 bg-paper-2 text-ink-soft', dot: 'bg-ink-faint' },
+    pending: { wrap: 'border-amber-500/40 bg-amber-500/10 text-amber-700', dot: 'bg-amber-500 animate-pulse' },
+    partial: { wrap: 'border-amber-500/40 bg-amber-500/10 text-amber-700', dot: 'bg-amber-500' },
+    running_job: { wrap: 'border-ember/40 bg-ember/10 text-ember', dot: 'bg-ember animate-pulse' },
+    error: { wrap: 'border-ember/40 bg-ember/10 text-ember', dot: 'bg-ember' },
+    failed: { wrap: 'border-ember/40 bg-ember/10 text-ember', dot: 'bg-ember' },
   };
   const tone = tones[normalized] || tones.stopped;
   return (
-    <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest', tone.wrap)}>
-      <span className={cn('h-1.5 w-1.5 shrink-0 rounded-full', tone.dot)} />
+    <span className={cn('inline-flex items-center gap-1.5 border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider', tone.wrap)}>
+      <span className={cn('h-1.5 w-1.5 shrink-0', tone.dot)} />
       {normalized.replace('_', ' ')}
     </span>
   );
@@ -135,14 +147,14 @@ export function StatusBadge({ status }) {
 
 export function EmptyState({ icon: Icon, title, description, action }) {
   return (
-    <div className="anim-fade flex min-h-64 flex-col items-center justify-center px-6 py-16 text-center bg-white rounded-xl border border-brand-200 border-dashed">
+    <div className="flex min-h-64 flex-col items-center justify-center p-8 text-center bg-white border border-dashed border-ink/30 shadow-sm">
       {Icon && (
-        <div className="mb-4 rounded-full bg-brand-50 p-4 text-brand-400">
-          <Icon className="h-8 w-8" />
+        <div className="mb-4 border border-ink/20 bg-paper-2 p-4 text-ink-soft">
+          <Icon className="h-8 w-8" strokeWidth={1.5} />
         </div>
       )}
-      <h3 className="text-lg font-bold tracking-tight text-brand-900">{title}</h3>
-      {description && <p className="mt-2 max-w-md text-sm text-brand-600">{description}</p>}
+      <h3 className="lp-display text-xl font-bold text-ink">{title}</h3>
+      {description && <p className="mt-2 max-w-md text-sm text-ink-soft leading-relaxed">{description}</p>}
       {action && <div className="mt-6">{action}</div>}
     </div>
   );
@@ -167,7 +179,7 @@ export function Modal({ open, onClose, title, description, children, footer, wid
 
   return (
     <div
-      className="anim-fade fixed inset-0 z-[70] flex items-end justify-center bg-brand-900/20 p-0 backdrop-blur-sm sm:items-center sm:p-5"
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-ink/60 p-0 backdrop-blur-sm sm:items-center sm:p-5"
       onMouseDown={(event) => event.target === event.currentTarget && onClose?.()}
     >
       <div
@@ -175,22 +187,22 @@ export function Modal({ open, onClose, title, description, children, footer, wid
         aria-modal="true"
         aria-labelledby="modal-title"
         className={cn(
-          'anim-scale max-h-[calc(100vh-2rem)] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl border border-brand-200',
+          'max-h-[calc(100vh-2rem)] w-full overflow-y-auto border border-ink bg-white shadow-[10px_10px_0_#111111]',
           wide ? 'max-w-3xl' : 'max-w-lg'
         )}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-brand-100 bg-white px-6 py-5">
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-ink bg-paper-2 px-6 py-4">
           <div className="min-w-0">
-            <h2 id="modal-title" className="text-lg font-bold tracking-tight text-brand-900">{title}</h2>
-            {description && <p className="mt-1 text-sm text-brand-600">{description}</p>}
+            <h2 id="modal-title" className="lp-display text-xl font-bold text-ink">{title}</h2>
+            {description && <p className="mt-0.5 text-xs text-ink-soft font-mono">{description}</p>}
           </div>
-          <IconButton label="Close" className="h-8 w-8 shrink-0 bg-brand-50 border-brand-100" onClick={onClose}>
-            <X className="h-4 w-4" />
+          <IconButton label="Close" className="h-8 w-8 shrink-0 bg-white" onClick={onClose}>
+            <X className="h-4 w-4" strokeWidth={1.5} />
           </IconButton>
         </div>
         <div className="p-6">{children}</div>
         {footer && (
-          <div className="flex flex-wrap justify-end gap-3 border-t border-brand-100 bg-brand-50 px-6 py-4">{footer}</div>
+          <div className="flex flex-wrap justify-end gap-3 border-t border-rule bg-paper-2 px-6 py-4">{footer}</div>
         )}
       </div>
     </div>
@@ -213,13 +225,13 @@ export function Select({ value, onChange, options, className, placeholder = 'Sel
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-10 w-full items-center justify-between rounded-lg border border-brand-200 bg-white px-3.5 py-2 text-left text-sm text-brand-900 shadow-sm transition-all duration-200 hover:bg-brand-50 focus:border-blurple-500 focus:outline-none focus:ring-1 focus:ring-blurple-500"
+        className="flex h-11 w-full items-center justify-between border border-ink bg-white px-3.5 py-2 text-left font-mono text-xs text-ink shadow-[2px_2px_0_#111111] transition-all hover:bg-paper-2 focus:border-ember focus:outline-none focus:ring-1 focus:ring-ember cursor-pointer"
       >
         <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
-        <ChevronDown className={cn('h-4 w-4 shrink-0 text-brand-400 transition-transform duration-200', open && 'rotate-180')} />
+        <ChevronDown className={cn('h-4 w-4 shrink-0 text-ink-soft transition-transform duration-150', open && 'rotate-180')} />
       </button>
       {open && (
-        <div className="anim-scale absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-lg border border-brand-200 bg-white p-1 shadow-lg">
+        <div className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto border border-ink bg-white p-1 shadow-[4px_4px_0_#111111]">
           {options.map((opt) => {
             const active = opt.value === value;
             return (
@@ -231,10 +243,10 @@ export function Select({ value, onChange, options, className, placeholder = 'Sel
                   setOpen(false);
                 }}
                 className={cn(
-                  'flex w-full items-center rounded-md px-3 py-2 text-left text-sm transition-colors duration-150',
+                  'flex w-full items-center px-3 py-2 text-left font-mono text-xs transition-colors cursor-pointer',
                   active
-                    ? 'bg-brand-50 text-blurple-600 font-medium'
-                    : 'text-brand-700 hover:bg-brand-50 hover:text-brand-900'
+                    ? 'bg-ember text-white font-bold'
+                    : 'text-ink hover:bg-paper-2'
                 )}
               >
                 {opt.label}
@@ -247,18 +259,18 @@ export function Select({ value, onChange, options, className, placeholder = 'Sel
   );
 }
 
-export function Spinner({ label = 'Loading' }) {
+export function Spinner({ label = 'Loading telemetry' }) {
   return (
-    <div className="flex min-h-56 flex-col items-center justify-center gap-4">
-      <LoaderCircle className="h-8 w-8 animate-spin text-blurple-500" />
-      <span className="text-[10px] font-bold uppercase tracking-widest text-brand-500">{label}</span>
+    <div className="flex min-h-56 flex-col items-center justify-center gap-3">
+      <LoaderCircle className="h-8 w-8 animate-spin text-ember" />
+      <span className="lp-mono text-[11px] text-ink-soft">{label}</span>
     </div>
   );
 }
 
 export function Tabs({ items, value, onChange }) {
   return (
-    <div className="flex max-w-full gap-1 overflow-x-auto rounded-xl border border-brand-200 bg-brand-50 p-1">
+    <div className="flex max-w-full gap-1 overflow-x-auto border border-ink bg-paper-2 p-1">
       {items.map((item) => {
         const active = value === item.value;
         return (
@@ -266,8 +278,10 @@ export function Tabs({ items, value, onChange }) {
             key={item.value}
             onClick={() => onChange(item.value)}
             className={cn(
-              'relative whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-              active ? 'bg-white text-brand-900 shadow-sm border border-brand-100' : 'text-brand-600 hover:bg-white/50 hover:text-brand-900'
+              'relative whitespace-nowrap px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer',
+              active
+                ? 'border border-ink bg-white text-ink shadow-[2px_2px_0_#111111]'
+                : 'text-ink-soft hover:text-ink hover:bg-white/50'
             )}
           >
             {item.label}
@@ -282,18 +296,18 @@ export function Checkbox({ checked, onChange, label, description, disabled }) {
   return (
     <label
       className={cn(
-        'flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-all duration-200',
-        checked ? 'border-blurple-200 bg-blurple-50' : 'border-brand-200 bg-white hover:bg-brand-50 hover:border-brand-300',
+        'flex cursor-pointer items-start gap-3 border p-4 transition-all duration-150',
+        checked ? 'border-ink bg-white shadow-[2px_2px_0_#111111]' : 'border-ink/20 bg-paper hover:bg-white hover:border-ink',
         disabled && 'cursor-not-allowed opacity-50'
       )}
     >
       <span
         className={cn(
-          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition-all duration-200 shadow-sm',
-          checked ? 'border-blurple-500 bg-blurple-500 text-white' : 'border-brand-300 bg-white'
+          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border transition-all duration-150',
+          checked ? 'border-ink bg-ember text-white' : 'border-ink bg-white'
         )}
       >
-        <svg viewBox="0 0 12 12" className={cn('h-3 w-3 transition-transform duration-200', checked ? 'scale-100' : 'scale-0')} fill="none">
+        <svg viewBox="0 0 12 12" className={cn('h-3 w-3 transition-transform duration-150', checked ? 'scale-100' : 'scale-0')} fill="none">
           <path d="M1.5 6.2 4.4 9l6-6.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
@@ -305,8 +319,8 @@ export function Checkbox({ checked, onChange, label, description, disabled }) {
         className="sr-only"
       />
       <span className="min-w-0">
-        <span className="block text-sm font-semibold text-brand-900">{label}</span>
-        {description && <span className="mt-1 block text-xs text-brand-600">{description}</span>}
+        <span className="block text-sm font-bold text-ink">{label}</span>
+        {description && <span className="mt-1 block text-xs text-ink-soft leading-relaxed">{description}</span>}
       </span>
     </label>
   );
@@ -314,6 +328,6 @@ export function Checkbox({ checked, onChange, label, description, disabled }) {
 
 export function Skeleton({ className }) {
   return (
-    <div className={cn('animate-pulse rounded-xl bg-brand-100', className)} />
+    <div className={cn('animate-pulse bg-rule', className)} />
   );
 }
